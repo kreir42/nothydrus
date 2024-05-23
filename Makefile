@@ -1,7 +1,7 @@
 NAME := nothydrus
 CC := gcc
 LIB :=
-CFLAGS :=
+CFLAGS := -Wall -Wextra
 SOURCES := $(shell find src/ -type f -name *.c)
 HEADERS := $(shell find include/ -type f -name *.h)
 OBJECTS := $(patsubst src/%.c, build/%.o, $(SOURCES))
