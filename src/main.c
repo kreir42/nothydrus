@@ -18,6 +18,16 @@ int main(int argc, char** argv){
 			}
 			init();
 			break;
+		}else if(!strcmp(argv[i], "add")){
+			i++;
+			int_least8_t add_flags = 0;
+			if(!isatty(fileno(stdin))) add_flags |= ADD_STDIN;
+			if(i==argc){
+				add_files(NULL, 0, add_flags);
+			}else{
+				add_files(&argv[i], argc-i, add_flags);
+			}
+			break;
 		}else{
 			fprintf(stderr, "Error: unrecognized argument %s\n", argv[i]);
 			return -1;

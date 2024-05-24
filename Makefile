@@ -1,6 +1,6 @@
 NAME := nothydrus
 CC := gcc
-LIB :=
+LIB := $(shell pkg-config --libs sqlite3)
 CFLAGS := -Wall -Wextra
 SOURCES := $(shell find src/ -type f -name *.c)
 HEADERS := $(shell find include/ -type f -name *.h)
