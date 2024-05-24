@@ -5,13 +5,11 @@ void init(){
 		perror("Error when trying to create init directory");
 		return;
 	}
-	chdir(INIT_DIRECTORY);
+	start_program(START_PROGRAM_INIT);
 
-	sqlite3* main_db;
-	if(sqlite3_open(MAIN_DATABASE_NAME, &main_db)){
-		fprintf(stderr, "Error creating main database: %s\n", sqlite3_errmsg(main_db));
-		return;
-	}
+	chdir(INIT_DIRECTORY);
+	//TBD: configs, other files, etc
+	chdir("..");
 
 	char* sqlite3_error_message;
 	if(sqlite3_exec(main_db,"CREATE TABLE files("
@@ -38,6 +36,5 @@ void init(){
 	}
 
 	sqlite3_free(sqlite3_error_message);
-	sqlite3_close(main_db);
-	chdir("..");
+	end_program();
 }
