@@ -10,7 +10,8 @@ void add_files(char** paths, unsigned int paths_n, int_least8_t add_flags){
 		char* line = malloc(linesize*sizeof(char));
 		unsigned int counter = 0;
 		while(getline(&line, &linesize, stdin)!=-1){
-			printf("%s", line);
+			line[strlen(line)-1] = '\0';	//remove newline
+			puts(line);
 			counter++;
 		}
 		printf("Added %d paths from stdin\n", counter);
