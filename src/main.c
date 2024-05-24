@@ -27,7 +27,7 @@ int main(int argc, char** argv){
 			if(!isatty(fileno(stdin))) add_flags |= ADD_FILES_STDIN;
 			if(i==argc){
 				if(!add_flags&ADD_FILES_STDIN){
-					fprintf(stderr, "Error: add requires one or more paths, passed as arguments or piped through stdin\n");
+					fprintf(stderr, "Error: add requires one or more paths, passed as arguments and/or piped through stdin\n");
 					end_program();
 					return -1;
 				}

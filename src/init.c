@@ -13,11 +13,10 @@ void init(){
 
 	char* sqlite3_error_message;
 	if(sqlite3_exec(main_db,"CREATE TABLE files("
-				"id INT PRIMARY KEY NOT NULL, "
+				"id BLOB PRIMARY KEY NOT NULL, "
 				"size INT, "
 				"flags INT NOT NULL DEFAULT 0, "	//bitfield
-				"dir TEXT, "
-				"filename TEXT);"
+				"filepath TEXT);"
 
 				"CREATE TABLE tags("
 				"id INT PRIMARY KEY NOT NULL, "
