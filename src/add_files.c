@@ -3,14 +3,27 @@
 #include "nothydrus.h"
 
 static short add_file(char* filepath, int_least8_t flags){
-	puts(filepath);	//TBD debug, remove
+	printf("Adding file: %s\n", filepath);
+	//TBD check existence, permissions
+	//hash
 	unsigned char hash[16];
 	xxhash_file(&hash, filepath);
-	for(unsigned short i=0; i<16; i++){
-		printf("%u ", hash[i]);
-	}
-	printf("\n");	//TBD debug, remove
+	sqlite3_bind_blob(add_file_statement, 1, hash, 16, SQLITE_STATIC);
+	//filesize
+	struct stat st;
+	stat(filepath, &st);
+	sqlite3_bind_int64(add_file_statement, 2, st.st_size);
+	//flags
+	sqlite3_bind_int(add_file_statement, 3, flags);
+	//filepath
+	sqlite3_bind_text(add_file_statement, 4, filepath, -1, SQLITE_STATIC);
 
+	if(sqlite3_step(add_file_statement) != SQLITE_DONE){
+		fprintf(stderr, "sqlite3_step(add_file_statement) returned an error: %s\n", sqlite3_errmsg(main_db));
+		sqlite3_clear_bindings(add_file_statement);
+		sqlite3_reset(add_file_statement);
+		return -1;
+	}
 	sqlite3_clear_bindings(add_file_statement);
 	if(sqlite3_reset(add_file_statement)!=SQLITE_OK){
 		fprintf(stderr, "sqlite3_reset(add_file_statement) returned an error: %s\n", sqlite3_errmsg(main_db));
@@ -20,8 +33,10 @@ static short add_file(char* filepath, int_least8_t flags){
 }
 
 void add_files(char** paths, unsigned int paths_n, int_least8_t flags){
+	unsigned int added=0, failed=0;
 	for(unsigned int i=0; i<paths_n; i++){
-		add_file(paths[i], flags);
+		if(add_file(paths[i], flags)) failed++;
+		else added++;
 	}
 	if(flags & ADD_FILES_STDIN){
 		puts("Adding paths from stdin:");
@@ -30,10 +45,12 @@ void add_files(char** paths, unsigned int paths_n, int_least8_t flags){
 		unsigned int counter = 0;
 		while(getline(&line, &linesize, stdin)!=-1){
 			line[strlen(line)-1] = '\0';	//remove newline
-			add_file(line, flags);
+			if(add_file(line, flags)) failed++;
+			else added++;
 			counter++;
 		}
 		printf("Added %d paths from stdin\n", counter);
 		free(line);
 	}
+	printf("Call to add_files finished: %u succeeded, %u failed\n", added, failed);
 }

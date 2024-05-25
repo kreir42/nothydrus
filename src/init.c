@@ -13,24 +13,24 @@ void init(){
 
 	char* sqlite3_error_message;
 	if(sqlite3_exec(main_db,"CREATE TABLE files("
-				"id INT PRIMARY KEY NOT NULL, "
+				"id INTEGER PRIMARY KEY NOT NULL, "
 				"hash BLOB, "
-				"size INT, "
-				"flags INT NOT NULL DEFAULT 0, "	//bitfield
+				"size INTEGER, "
+				"flags INTEGER NOT NULL DEFAULT 0, "	//bitfield
 				"filepath TEXT);"
 
 				"CREATE UNIQUE INDEX files_hashsize_index ON files(hash, size);"
 
 				"CREATE TABLE tags("
-				"id INT PRIMARY KEY NOT NULL, "
+				"id INTEGER PRIMARY KEY NOT NULL, "
 				"name TEXT NOT NULL UNIQUE, "
-				"number INT NOT NULL DEFAULT 0);"
+				"number INTEGER NOT NULL DEFAULT 0);"
 
 				"CREATE UNIQUE INDEX tagsname_index ON tags(name);"
 
 				"CREATE TABLE itemstags("
-				"item INT NOT NULL, "
-				"tag INT NOT NULL, "
+				"item INTEGER NOT NULL, "
+				"tag INTEGER NOT NULL, "
 				"PRIMARY KEY(item, tag));"
 
 				,NULL, NULL, &sqlite3_error_message)){
