@@ -4,8 +4,12 @@
 
 static short add_file(char* filepath, int_least8_t flags){
 	puts(filepath);	//TBD debug, remove
-	uint64_t hash = xxhash_file(filepath);
-	printf("%ld\n", hash);	//TBD debug, remove
+	unsigned char hash[16];
+	xxhash_file(&hash, filepath);
+	for(unsigned short i=0; i<16; i++){
+		printf("%u ", hash[i]);
+	}
+	printf("\n");	//TBD debug, remove
 
 	sqlite3_clear_bindings(add_file_statement);
 	if(sqlite3_reset(add_file_statement)!=SQLITE_OK){

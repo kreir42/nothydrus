@@ -3,6 +3,6 @@
 
 #include "nothydrus.h"
 
-uint64_t xxhash_file(char* filepath);
+void xxhash_file(void* hash_ptr, char* filepath);
 
 #endif
