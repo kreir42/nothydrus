@@ -5,7 +5,7 @@ sqlite3_stmt* add_file_statement;
 static void prepare_add_file(){
 	if(sqlite3_prepare_v3(main_db,
 				"INSERT INTO files("
-				"id, size, flags, filepath) "
+				"hash, size, flags, filepath) "
 				"VALUES(?, ?, ?, ?);"
 				, -1, SQLITE_PREPARE_PERSISTENT, &add_file_statement, NULL) != SQLITE_OK){
 		fprintf(stderr, "Error preparing add_file_statement: %s\n", sqlite3_errmsg(main_db));
