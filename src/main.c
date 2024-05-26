@@ -1,4 +1,5 @@
 #include "nothydrus.h"
+#include "tui.h"
 
 sqlite3* main_db;
 
@@ -41,6 +42,11 @@ int main(int argc, char** argv){
 			fprintf(stderr, "Error: unrecognized argument %s\n", argv[i]);
 			return -1;
 		}
+	}
+	if(argc==1){	//TBD change to allow config using parameters
+		start_program(START_PROGRAM_TUI);
+		start_tui(0);
+		end_program();
 	}
 	return 0;
 }

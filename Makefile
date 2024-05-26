@@ -1,7 +1,7 @@
 NAME := nothydrus
 CC := gcc
-LIB := $(shell pkg-config --libs sqlite3) $(shell pkg-config --libs libxxhash)
-CFLAGS := -Wall -Wextra
+LIB := $(shell pkg-config --libs sqlite3) $(shell pkg-config --libs libxxhash) $(shell pkg-config --libs notcurses)
+CFLAGS := -Wall -Wextra $(shell pkg-config --cflags notcurses)
 SOURCES := $(shell find src/ -type f -name *.c)
 HEADERS := $(shell find include/ -type f -name *.h)
 OBJECTS := $(patsubst src/%.c, build/%.o, $(SOURCES))

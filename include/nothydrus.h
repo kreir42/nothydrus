@@ -17,6 +17,7 @@
 void start_program(int_least8_t flags);
 #define START_PROGRAM_INIT	(1<<0)
 #define START_PROGRAM_ADD_FILES	(1<<1)
+#define START_PROGRAM_TUI	(1<<2)
 
 void end_program();
 
