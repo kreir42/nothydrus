@@ -2,21 +2,66 @@
 
 #include "nothydrus.h"
 
+static struct {
+	char* extension;
+	short filetype;
+} extensions_table[] = {
+	"png", FILETYPE_IMAGE,
+	"jpg", FILETYPE_IMAGE,
+	"jpeg", FILETYPE_IMAGE,
+	"webp", FILETYPE_IMAGE,
+	"mkv", FILETYPE_VIDEO,
+	"mp4", FILETYPE_VIDEO,
+	"avi", FILETYPE_VIDEO,
+	"webm", FILETYPE_VIDEO,
+	"mpg", FILETYPE_VIDEO,
+	"mpeg", FILETYPE_VIDEO,
+	"wmv", FILETYPE_VIDEO,
+	"mov", FILETYPE_VIDEO,
+	NULL, FILETYPE_NONE
+};
+
+static short get_filetype(char* filepath){
+	char* extension = strrchr(filepath, '.');
+	if(extension==NULL){
+		return FILETYPE_NONE;
+	}else extension++;
+	unsigned short i=0;
+	while(extensions_table[i].extension!=NULL){
+		if(!strcasecmp(extension, extensions_table[i].extension)) return extensions_table[i].filetype;
+		else i++;
+	}
+	return FILETYPE_OTHER;
+}
+
 static short add_file(char* filepath, int_least8_t flags){
 	printf("Adding file: %s\n", filepath);
-	//TBD check existence, permissions
+	struct stat st;
+	if(stat(filepath, &st)){
+		perror("Error in stat:");
+		return -1;
+	}
+	if(!S_ISREG(st.st_mode)){
+		fprintf(stderr, "Error: is not a regular file\n");
+		return -1;
+	}
 	//hash
 	unsigned char hash[16];
 	xxhash_file(&hash, filepath);
 	sqlite3_bind_blob(add_file_statement, 1, hash, 16, SQLITE_STATIC);
 	//filesize
-	struct stat st;
-	stat(filepath, &st);
 	sqlite3_bind_int64(add_file_statement, 2, st.st_size);
+	//filetype
+	short filetype = get_filetype(filepath);
+	if(filetype == FILETYPE_NONE || filetype == FILETYPE_OTHER){
+		fprintf(stderr, "Error: has unrecognized or no extension\n");
+		return -1;
+	}
+	sqlite3_bind_int64(add_file_statement, 3, filetype);
 	//flags
-	sqlite3_bind_int(add_file_statement, 3, flags);
+	sqlite3_bind_int(add_file_statement, 4, flags);
 	//filepath
-	sqlite3_bind_text(add_file_statement, 4, filepath, -1, SQLITE_STATIC);
+	sqlite3_bind_text(add_file_statement, 5, filepath, -1, SQLITE_STATIC);
 
 	if(sqlite3_step(add_file_statement) != SQLITE_DONE){
 		fprintf(stderr, "sqlite3_step(add_file_statement) returned an error: %s\n", sqlite3_errmsg(main_db));

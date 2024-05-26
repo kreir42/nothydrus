@@ -7,4 +7,10 @@
 
 #define DEFAULT_DIRECTORY_MODE S_IRWXU|S_IRWXG|S_IROTH|S_IXOTH
 
+//filetypes
+#define FILETYPE_NONE 0
+#define FILETYPE_OTHER 1
+#define FILETYPE_IMAGE 2
+#define FILETYPE_VIDEO 3
+
 #endif

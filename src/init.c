@@ -16,6 +16,7 @@ void init(){
 				"id INTEGER PRIMARY KEY NOT NULL, "
 				"hash BLOB, "
 				"size INTEGER, "
+				"filetype INTEGER NOT NULL, "
 				"flags INTEGER NOT NULL DEFAULT 0, "	//bitfield
 				"filepath TEXT);"
 
