@@ -1,2 +1,2 @@
 rm -rd .nothydrus
-make && ./nothydrus init && ./nothydrus $@ && tree -a .nothydrus && du -sh .nothydrus
+make && ./nothydrus init && ./nothydrus add test_files/* && ./nothydrus $@ && tree -a .nothydrus && du -sh .nothydrus

@@ -1,6 +1,7 @@
 #include "nothydrus.h"
 
 sqlite3_stmt* add_file_statement;
+sqlite3_stmt* filepath_from_id_statement;
 
 static void prepare_add_file(){
 	if(sqlite3_prepare_v3(main_db,
@@ -9,6 +10,15 @@ static void prepare_add_file(){
 				"VALUES(?, ?, ?, ?, ?);"
 				, -1, SQLITE_PREPARE_PERSISTENT, &add_file_statement, NULL) != SQLITE_OK){
 		fprintf(stderr, "Error preparing add_file_statement: %s\n", sqlite3_errmsg(main_db));
+	}
+}
+
+static void prepare_filepath_from_id(){
+	if(sqlite3_prepare_v3(main_db,
+				"SELECT filepath FROM files "
+				"WHERE id = ?;"
+				, -1, SQLITE_PREPARE_PERSISTENT, &filepath_from_id_statement, NULL) != SQLITE_OK){
+		fprintf(stderr, "Error preparing filepath_from_id_statement: %s\n", sqlite3_errmsg(main_db));
 	}
 }
 
@@ -26,6 +36,7 @@ void start_program(int_least8_t flags){
 		return;
 	}
 	prepare_add_file();
+	prepare_filepath_from_id();
 }
 
 void end_program(){

@@ -22,12 +22,14 @@ void start_program(int_least8_t flags);
 void end_program();
 
 
-
 //user functions
 
 void init();
 
 void add_files(char** paths, unsigned int paths_n, int_least8_t flags);
 #define ADD_FILES_STDIN	(1<<0)
+
+//util functions
+char* filepath_from_id(sqlite3_int64 id);	//must free() afterwards
 
 #endif

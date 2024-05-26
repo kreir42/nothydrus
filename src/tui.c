@@ -9,6 +9,8 @@ void start_tui(int_least8_t flags){
 	};
 	nc = notcurses_init(&opts, NULL);
 
+	display_file(1, 0);
+
 	uint32_t c;
 	while((c=notcurses_get(nc, NULL, NULL))!='q'){
 		switch(c){
