@@ -9,23 +9,19 @@ void start_tui(int_least8_t flags){
 	};
 	nc = notcurses_init(&opts, NULL);
 
-	struct ncplane_options plane_options = {
-		.y = NCALIGN_CENTER, .x = NCALIGN_CENTER,
-		.rows = 20, .cols = 48,
-		.flags = NCPLANE_OPTION_HORALIGNED | NCPLANE_OPTION_VERALIGNED,
-	};
-	struct ncplane* plane = ncplane_create(notcurses_stdplane(nc), &plane_options);
-	display_file(1, DISPLAY_FILE_PIXEL, plane);
+	struct ncplane* new_search_plane = search_plane(NULL);
 
-	ncpile_render(notcurses_stdplane(nc));
-	ncpile_rasterize(notcurses_stdplane(nc));
-
+	ncpile_render(new_search_plane);
+	ncpile_rasterize(new_search_plane);
 	uint32_t c;
 	while((c=notcurses_get(nc, NULL, NULL))!='q'){
 		switch(c){
 		}
+		ncpile_render(new_search_plane);
+		ncpile_rasterize(new_search_plane);
 	}
 
+	free_search_plane(new_search_plane);
 	notcurses_drop_planes(nc);
 	notcurses_stop(nc);
 }

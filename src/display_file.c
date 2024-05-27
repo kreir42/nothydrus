@@ -17,11 +17,11 @@ struct ncplane* display_file_from_filepath(char* filepath, int_least8_t flags, s
 		.flags = NCVISUAL_OPTION_HORALIGNED|NCVISUAL_OPTION_VERALIGNED,
 		.pxoffy = 0, .pxoffx = 0
 	};
-	if(flags & DISPLAY_FILE_PIXEL){
+	if(flags & DISPLAY_FILE_FAST){
+		ncvisual_options.blitter = NCBLIT_DEFAULT;
+	}else{
 		ncvisual_options.blitter = NCBLIT_PIXEL;
 		ncvisual_options.flags |= NCVISUAL_OPTION_CHILDPLANE;
-	}else{
-		ncvisual_options.blitter = NCBLIT_DEFAULT;
 	}
 	return ncvisual_blit(nc, visual, &ncvisual_options);
 }

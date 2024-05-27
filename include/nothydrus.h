@@ -12,7 +12,14 @@
 #include "constants.h"
 #include "global_variables.h"
 
-
+struct search{
+	char sql[SEARCH_MAX_SQL_LEN];
+	unsigned int input_ids_n;
+	sqlite3_int64* input_ids;	//NULL for all
+	unsigned int output_ids_n;
+	sqlite3_int64* output_ids;	//NULL for none
+};
+short run_search(struct search* search);
 
 void start_program(int_least8_t flags);
 #define START_PROGRAM_INIT	(1<<0)

@@ -41,6 +41,7 @@ void start_program(int_least8_t flags){
 
 void end_program(){
 	sqlite3_finalize(add_file_statement);
+	sqlite3_finalize(filepath_from_id_statement);
 
 	sqlite3_close(main_db);
 
