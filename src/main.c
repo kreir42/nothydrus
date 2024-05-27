@@ -38,6 +38,21 @@ int main(int argc, char** argv){
 			}
 			end_program();
 			break;
+		}else if(!strcmp(argv[i], "sql-search")){
+			struct search search;
+			search.input_ids = NULL;
+			search.output_ids = new_id_dynarr(MIN_ID_DYNARR_SIZE);
+			//TBD! error checking
+			i++;
+			strcpy(search.sql, argv[i]);
+			puts(search.sql);
+			start_program(0);	//TBD! flag for search
+			run_search(&search);
+			for(unsigned long i=0; i<search.output_ids.used; i++){
+				printf("%lld\n", search.output_ids.data[i]);
+			}
+			end_program();
+			break;
 		}else{
 			fprintf(stderr, "Error: unrecognized argument %s\n", argv[i]);
 			return -1;
