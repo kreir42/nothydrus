@@ -28,9 +28,11 @@ struct ncplane* search_plane(struct search* search_to_copy){
 	};
 	struct ncplane* plane = ncpile_create(nc, &plane_options);
 
-	strcpy(search->sql, "SELECT id FROM files;");
+	strcpy(search->sql, "SELECT id FROM files ORDER BY RANDOM();");
 	run_search(search);
 	//TBD display
+	ncplane_printf(plane, "Results: %ld", search->output_ids.used);
+	display_file(search->output_ids.data[0], 0, plane);
 
 	return plane;
 }
