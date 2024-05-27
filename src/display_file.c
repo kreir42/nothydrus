@@ -1,23 +1,27 @@
 #include "nothydrus.h"
 #include "tui.h"
 
-void display_file(sqlite3_int64 id, int_least8_t flags){
+struct ncplane* display_file(sqlite3_int64 id, int_least8_t flags, struct ncplane* plane){
 	char* filepath = filepath_from_id(id);
 	if(filepath!=NULL){
-		display_file_from_filepath(filepath, 0);
-	}
+		return display_file_from_filepath(filepath, flags, plane);
+	} else return NULL;
 }
 
-void display_file_from_filepath(char* filepath, int_least8_t flags){
+struct ncplane* display_file_from_filepath(char* filepath, int_least8_t flags, struct ncplane* plane){
 	struct ncvisual* visual = ncvisual_from_file(filepath);
 	struct ncvisual_options ncvisual_options = {
-		.n = notcurses_stdplane(nc),
-		.scaling = NCSCALE_SCALE,
+		.n = plane,
+		.scaling = NCSCALE_SCALE_HIRES,
 		.y = NCALIGN_CENTER, .x = NCALIGN_CENTER,
-		.blitter = NCBLIT_DEFAULT,
-		.flags = NCVISUAL_OPTION_HORALIGNED|NCVISUAL_OPTION_VERALIGNED | NCVISUAL_OPTION_CHILDPLANE,
+		.flags = NCVISUAL_OPTION_HORALIGNED|NCVISUAL_OPTION_VERALIGNED,
+		.pxoffy = 0, .pxoffx = 0
 	};
-	struct ncplane* plane = ncvisual_blit(nc, visual, &ncvisual_options);
-	ncpile_render(notcurses_stdplane(nc));
-	ncpile_rasterize(notcurses_stdplane(nc));
+	if(flags & DISPLAY_FILE_PIXEL){
+		ncvisual_options.blitter = NCBLIT_PIXEL;
+		ncvisual_options.flags |= NCVISUAL_OPTION_CHILDPLANE;
+	}else{
+		ncvisual_options.blitter = NCBLIT_DEFAULT;
+	}
+	return ncvisual_blit(nc, visual, &ncvisual_options);
 }
