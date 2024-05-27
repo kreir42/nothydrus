@@ -12,12 +12,20 @@
 #include "constants.h"
 #include "global_variables.h"
 
+
+struct id_dynarr{
+	unsigned long used;
+	unsigned long size;
+	sqlite3_int64* data;
+};
+struct id_dynarr new_id_dynarr(unsigned long initial_size);
+void append_id_dynarr(struct id_dynarr* dynarr, sqlite3_int64 id);
+void crop_id_dynarr(struct id_dynarr* dynarr);
 struct search{
 	char sql[SEARCH_MAX_SQL_LEN];
 	unsigned int input_ids_n;
 	sqlite3_int64* input_ids;	//NULL for all
-	unsigned int output_ids_n;
-	sqlite3_int64* output_ids;	//NULL for none
+	struct id_dynarr output_ids;
 };
 short run_search(struct search* search);
 
