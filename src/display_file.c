@@ -12,14 +12,15 @@ struct ncplane* display_file_from_filepath(char* filepath, int_least8_t flags, s
 	struct ncvisual* visual = ncvisual_from_file(filepath);
 	struct ncvisual_options ncvisual_options = {
 		.n = plane,
-		.scaling = NCSCALE_SCALE_HIRES,
 		.y = NCALIGN_CENTER, .x = NCALIGN_CENTER,
 		.flags = NCVISUAL_OPTION_HORALIGNED|NCVISUAL_OPTION_VERALIGNED|NCVISUAL_OPTION_CHILDPLANE,
 		.pxoffy = 0, .pxoffx = 0
 	};
 	if(flags & DISPLAY_FILE_FAST){
+		ncvisual_options.scaling = NCSCALE_SCALE;
 		ncvisual_options.blitter = NCBLIT_DEFAULT;
 	}else{
+		ncvisual_options.scaling = NCSCALE_SCALE_HIRES;
 		ncvisual_options.blitter = NCBLIT_PIXEL;
 	}
 	struct ncplane* resultplane = ncvisual_blit(nc, visual, &ncvisual_options);
