@@ -36,9 +36,16 @@ struct ncplane* new_search_plane(struct search* search_to_copy){
 
 void search_plane(struct ncplane* plane){
 	struct search* search = ncplane_userptr(plane);
+	unsigned int screen_rows, screen_cols;
+	notcurses_stddim_yx(nc, &screen_rows, &screen_cols);	//TBD use search_plane instead of stdplane
+	struct ncplane_options plane_options = {
+		.y = 1, .x = 0,
+		.rows = screen_rows-1, .cols = screen_cols,
+	};
+	struct ncplane* display_plane = ncplane_create(plane, &plane_options);
 	unsigned long i = 0;
 	ncplane_printf(plane, "Results: 1/%ld", search->output_ids.used);
-	display_file(search->output_ids.data[0], 0, plane);
+	display_file(search->output_ids.data[0], 0, display_plane);
 	ncpile_render(plane);
 	ncpile_rasterize(plane);
 	uint32_t c;
@@ -53,12 +60,13 @@ void search_plane(struct ncplane* plane){
 				else i--;
 				break;
 		}
-		reset_display_plane(plane);
+		reset_display_plane(display_plane);
 		ncplane_printf_yx(plane, 0, 0, "Results: %ld/%ld", i+1, search->output_ids.used);
-		display_file(search->output_ids.data[i], 0, plane);
+		display_file(search->output_ids.data[i], 0, display_plane);
 		ncpile_render(plane);
 		ncpile_rasterize(plane);
 	}
+	reset_display_plane(display_plane);
 }
 
 void free_search_plane(struct ncplane* plane){
