@@ -44,12 +44,15 @@ int main(int argc, char** argv){
 			search.output_ids = new_id_dynarr(MIN_ID_DYNARR_SIZE);
 			//TBD! error checking
 			i++;
+			if(i!=argc-1){
+				fprintf(stderr, "Error: sql-search command requires one argument\n");
+				return -1;
+			}
 			strcpy(search.sql, argv[i]);
-			puts(search.sql);
-			start_program(0);	//TBD! flag for search
+			start_program(START_PROGRAM_SQL_SEARCH);
 			run_search(&search);
 			for(unsigned long i=0; i<search.output_ids.used; i++){
-				printf("%lld\n", search.output_ids.data[i]);
+				printf("%s\n", filepath_from_id(search.output_ids.data[i]));
 			}
 			end_program();
 			break;

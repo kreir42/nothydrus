@@ -35,6 +35,10 @@ void start_program(int_least8_t flags){
 		prepare_add_file();
 		return;
 	}
+	if(flags & START_PROGRAM_SQL_SEARCH){
+		prepare_filepath_from_id();
+		return;
+	}
 	prepare_add_file();
 	prepare_filepath_from_id();
 }
