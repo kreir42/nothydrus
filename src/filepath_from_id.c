@@ -14,6 +14,5 @@ char* filepath_from_id(sqlite3_int64 id){
 		sqlite3_reset(filepath_from_id_statement);
 		return NULL;
 	}
-	char* result = sqlite3_column_text(filepath_from_id_statement, 0);
-	return result;
+	return sqlite3_column_text(filepath_from_id_statement, 0);
 }
