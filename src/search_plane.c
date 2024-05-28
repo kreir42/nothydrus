@@ -46,7 +46,7 @@ void search_plane(struct ncplane* plane){
 		switch(c){
 			case NCKEY_RIGHT:
 				i++;
-				if(i>=search->output_ids.used-1) i=0;
+				if(i>=search->output_ids.used) i=0;
 				break;
 			case NCKEY_LEFT:
 				if(i==0) i = search->output_ids.used-1;

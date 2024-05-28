@@ -14,24 +14,25 @@ struct ncplane* display_file_from_filepath(char* filepath, int_least8_t flags, s
 		.n = plane,
 		.scaling = NCSCALE_SCALE_HIRES,
 		.y = NCALIGN_CENTER, .x = NCALIGN_CENTER,
-		.flags = NCVISUAL_OPTION_HORALIGNED|NCVISUAL_OPTION_VERALIGNED,
+		.flags = NCVISUAL_OPTION_HORALIGNED|NCVISUAL_OPTION_VERALIGNED|NCVISUAL_OPTION_CHILDPLANE,
 		.pxoffy = 0, .pxoffx = 0
 	};
 	if(flags & DISPLAY_FILE_FAST){
 		ncvisual_options.blitter = NCBLIT_DEFAULT;
 	}else{
 		ncvisual_options.blitter = NCBLIT_PIXEL;
-		ncvisual_options.flags |= NCVISUAL_OPTION_CHILDPLANE;
 	}
 	struct ncplane* resultplane = ncvisual_blit(nc, visual, &ncvisual_options);
-	if(ncvisual_options.flags & NCVISUAL_OPTION_CHILDPLANE) ncplane_set_userptr(plane, resultplane);
+	ncplane_set_userptr(plane, resultplane);
+	ncplane_set_userptr(resultplane, visual);
 	return resultplane;
 }
 
 void reset_display_plane(struct ncplane* plane){
-	ncplane_erase(plane);
-	void* userptr = ncplane_userptr(plane);
-	if(userptr!=NULL){
-		ncplane_destroy((struct ncplane*)userptr);
+	struct ncplane* child_plane = ncplane_userptr(plane);
+	if(child_plane!=NULL){
+		ncvisual_destroy(ncplane_userptr(child_plane));
+		ncplane_destroy(child_plane);
 	}
+	ncplane_erase(plane);
 }
