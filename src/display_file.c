@@ -9,6 +9,9 @@ struct ncplane* display_file(sqlite3_int64 id, int_least8_t flags, struct ncplan
 }
 
 struct ncplane* display_file_from_filepath(char* filepath, int_least8_t flags, struct ncplane* plane){
+	if(flags & (DISPLAY_FILE_MPV | DISPLAY_FILE_EXTERNAL)){
+		return NULL;
+	}
 	struct ncvisual* visual = ncvisual_from_file(filepath);
 	struct ncvisual_options ncvisual_options = {
 		.n = plane,
@@ -34,6 +37,7 @@ void reset_display_plane(struct ncplane* plane){
 	if(child_plane!=NULL){
 		ncvisual_destroy(ncplane_userptr(child_plane));
 		ncplane_destroy(child_plane);
+		ncplane_set_userptr(plane, NULL);
 	}
 	ncplane_erase(plane);
 }
