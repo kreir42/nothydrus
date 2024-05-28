@@ -10,6 +10,7 @@ struct ncplane* display_file(sqlite3_int64 id, int_least8_t flags, struct ncplan
 
 struct ncplane* display_file_from_filepath(char* filepath, int_least8_t flags, struct ncplane* plane){
 	if(flags & (DISPLAY_FILE_MPV | DISPLAY_FILE_EXTERNAL)){
+		if(execl("/bin/mpv", "mpv", filepath, (char*)NULL)) perror("Error in DISPLAY_FILE_MPV execl: ");
 		return NULL;
 	}
 	struct ncvisual* visual = ncvisual_from_file(filepath);
