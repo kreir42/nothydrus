@@ -1,7 +1,7 @@
 #include "nothydrus.h"
 #include "tui.h"
 
-struct ncplane* search_plane(struct search* search_to_copy){
+struct ncplane* new_search_plane(struct search* search_to_copy){
 	struct search* search = malloc(sizeof(struct search));
 	if(search_to_copy==NULL){
 		search->sql[0] = '\0';
@@ -30,11 +30,35 @@ struct ncplane* search_plane(struct search* search_to_copy){
 
 	strcpy(search->sql, "SELECT id FROM files ORDER BY RANDOM();");
 	run_search(search);
-	//TBD display
-	ncplane_printf(plane, "Results: %ld", search->output_ids.used);
-	display_file(search->output_ids.data[0], 0, plane);
 
 	return plane;
+}
+
+void search_plane(struct ncplane* plane){
+	struct search* search = ncplane_userptr(plane);
+	unsigned long i = 0;
+	ncplane_printf(plane, "Results: 1/%ld", search->output_ids.used);
+	display_file(search->output_ids.data[0], 0, plane);
+	ncpile_render(plane);
+	ncpile_rasterize(plane);
+	uint32_t c;
+	while((c=notcurses_get(nc, NULL, NULL))!='q'){
+		switch(c){
+			case NCKEY_RIGHT:
+				i++;
+				if(i>=search->output_ids.used-1) i=0;
+				break;
+			case NCKEY_LEFT:
+				if(i==0) i = search->output_ids.used-1;
+				else i--;
+				break;
+		}
+		reset_display_plane(plane);
+		ncplane_printf_yx(plane, 0, 0, "Results: %ld/%ld", i+1, search->output_ids.used);
+		display_file(search->output_ids.data[i], 0, plane);
+		ncpile_render(plane);
+		ncpile_rasterize(plane);
+	}
 }
 
 void free_search_plane(struct ncplane* plane){

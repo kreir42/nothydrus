@@ -42,7 +42,6 @@ int main(int argc, char** argv){
 			struct search search;
 			search.input_ids = NULL;
 			search.output_ids = new_id_dynarr(MIN_ID_DYNARR_SIZE);
-			//TBD! error checking
 			i++;
 			if(i!=argc-1){
 				fprintf(stderr, "Error: sql-search command requires one argument\n");

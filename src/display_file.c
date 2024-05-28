@@ -23,5 +23,15 @@ struct ncplane* display_file_from_filepath(char* filepath, int_least8_t flags, s
 		ncvisual_options.blitter = NCBLIT_PIXEL;
 		ncvisual_options.flags |= NCVISUAL_OPTION_CHILDPLANE;
 	}
-	return ncvisual_blit(nc, visual, &ncvisual_options);
+	struct ncplane* resultplane = ncvisual_blit(nc, visual, &ncvisual_options);
+	if(ncvisual_options.flags & NCVISUAL_OPTION_CHILDPLANE) ncplane_set_userptr(plane, resultplane);
+	return resultplane;
+}
+
+void reset_display_plane(struct ncplane* plane){
+	ncplane_erase(plane);
+	void* userptr = ncplane_userptr(plane);
+	if(userptr!=NULL){
+		ncplane_destroy((struct ncplane*)userptr);
+	}
 }
