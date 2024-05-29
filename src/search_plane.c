@@ -59,10 +59,13 @@ void search_plane(struct ncplane* plane){
 				if(i==0) i = search->output_ids.used-1;
 				else i--;
 				break;
+			case 'M':
+				display_file(search->output_ids.data[i], DISPLAY_FILE_MPV, display_plane);
+				break;
 		}
 		reset_display_plane(display_plane);
 		ncplane_printf_yx(plane, 0, 0, "Results: %ld/%ld", i+1, search->output_ids.used);
-		display_file(search->output_ids.data[i], DISPLAY_FILE_MPV, display_plane);
+		display_file(search->output_ids.data[i], 0, display_plane);
 		ncpile_render(plane);
 		ncpile_rasterize(plane);
 	}
