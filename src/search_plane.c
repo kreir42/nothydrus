@@ -75,8 +75,7 @@ void search_plane(struct ncplane* plane){
 
 void free_search_plane(struct ncplane* plane){
 	struct search* search = ncplane_userptr(plane);
-	if(search->input_ids!=NULL) free(search->input_ids);
-	if(search->output_ids.size>0) free(search->output_ids.data);
+	free_search(search);
 	free(search);
 	ncplane_destroy(plane);
 }

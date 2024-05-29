@@ -10,7 +10,11 @@ void start_tui(int_least8_t flags){
 	nc = notcurses_init(&opts, NULL);
 
 	struct ncplane* plane = new_search_plane(NULL);
-	search_plane(plane);
+	if(flags & START_TUI_DISPLAY){
+		//TBD
+	}else{
+		search_plane(plane);
+	}
 
 	free_search_plane(plane);
 	notcurses_drop_planes(nc);

@@ -6,6 +6,7 @@
 extern struct notcurses* nc;
 
 void start_tui(int_least8_t flags);
+#define START_TUI_DISPLAY	(1<<0)
 
 struct ncplane* new_search_plane(struct search* search_to_copy);
 void search_plane(struct ncplane* plane);

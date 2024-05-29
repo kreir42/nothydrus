@@ -43,6 +43,11 @@ int main(int argc, char** argv){
 			search.input_ids = NULL;
 			search.output_ids = new_id_dynarr(MIN_ID_DYNARR_SIZE);
 			i++;
+			short output_id = 0;
+			if(!strcmp(argv[i], "--id")){
+				output_id = 1;
+				i++;
+			}else if(!strcmp(argv[i], "--filepath")) i++;
 			if(i!=argc-1){
 				fprintf(stderr, "Error: sql-search command requires one argument\n");
 				return -1;
@@ -50,11 +55,34 @@ int main(int argc, char** argv){
 			strcpy(search.sql, argv[i]);
 			start_program(START_PROGRAM_SQL_SEARCH);
 			run_search(&search);
-			for(unsigned long i=0; i<search.output_ids.used; i++){
-				printf("%s\n", filepath_from_id(search.output_ids.data[i]));
+			if(output_id){
+				for(unsigned long i=0; i<search.output_ids.used; i++){
+					printf("%lld\n", search.output_ids.data[i]);
+				}
+			}else{
+				for(unsigned long i=0; i<search.output_ids.used; i++){
+					printf("%s\n", filepath_from_id(search.output_ids.data[i]));
+				}
 			}
+			free_search(&search);
 			end_program();
 			break;
+		}else if(!strcmp(argv[i], "display")){
+			i++;
+			struct search search;
+			search.input_ids = NULL;
+			search.output_ids = new_id_dynarr(argc-i);
+			for(unsigned short j=i; j<argc-1; j++){
+				append_id_dynarr(&search.output_ids, strtoll(argv[j], NULL, 10));
+			}
+			if(search.output_ids.used==0){
+				fprintf(stderr, "Error: display command requires at least one argument\n");
+				return -1;
+			}
+			start_program(START_PROGRAM_DISPLAY);
+			start_tui(START_TUI_DISPLAY);
+			free_search(&search);
+			end_program();
 		}else{
 			fprintf(stderr, "Error: unrecognized argument %s\n", argv[i]);
 			return -1;

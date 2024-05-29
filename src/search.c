@@ -23,3 +23,8 @@ short run_search(struct search* search){
 	sqlite3_finalize(search_statement);
 	return 0;
 }
+
+void free_search(struct search* search){
+	if(search->input_ids!=NULL) free(search->input_ids);
+	if(search->output_ids.size>0) free(search->output_ids.data);
+}

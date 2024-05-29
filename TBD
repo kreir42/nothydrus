@@ -1,2 +1,4 @@
 ? if link points to a file, file extension is taken from link, not file
 ? use libmpv
+- way to get video duration
+- pre-load prev/next image in list
