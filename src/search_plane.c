@@ -64,6 +64,7 @@ void search_plane(struct ncplane* plane){
 				break;
 		}
 		reset_display_plane(display_plane);
+		ncplane_erase_region(plane, 0, 0, 1, 0);
 		ncplane_printf_yx(plane, 0, 0, "Results: %ld/%ld", i+1, search->output_ids.used);
 		display_file(search->output_ids.data[i], 0, display_plane);
 		ncpile_render(plane);
