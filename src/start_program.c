@@ -48,5 +48,4 @@ void end_program(){
 	sqlite3_finalize(filepath_from_id_statement);
 
 	sqlite3_close(main_db);
-
 }

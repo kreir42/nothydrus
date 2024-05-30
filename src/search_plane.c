@@ -16,7 +16,8 @@ struct ncplane* new_search_plane(struct search* search_to_copy){
 			memcpy(search->input_ids, search_to_copy->input_ids, search->input_ids_n*sizeof(sqlite3_int64));
 		}else search->input_ids = NULL;
 		search->output_ids = new_id_dynarr(search_to_copy->output_ids.used);
-		memcpy(search->output_ids.data, search_to_copy->output_ids.data, search->output_ids.used);
+		memcpy(search->output_ids.data, search_to_copy->output_ids.data, search_to_copy->output_ids.used);
+		search->output_ids.used = search_to_copy->output_ids.used;
 	}
 
 	unsigned int screen_rows, screen_cols;
@@ -28,14 +29,14 @@ struct ncplane* new_search_plane(struct search* search_to_copy){
 	};
 	struct ncplane* plane = ncpile_create(nc, &plane_options);
 
-	strcpy(search->sql, "SELECT id FROM files ORDER BY RANDOM();");
-	run_search(search);
+	if(search_to_copy==NULL) strcpy(search->sql, "SELECT id FROM files ORDER BY RANDOM();");
 
 	return plane;
 }
 
 void search_plane(struct ncplane* plane){
 	struct search* search = ncplane_userptr(plane);
+	if(search->sql[0]!='\0') run_search(search);
 	unsigned int screen_rows, screen_cols;
 	notcurses_stddim_yx(nc, &screen_rows, &screen_cols);	//TBD use search_plane instead of stdplane
 	struct ncplane_options plane_options = {

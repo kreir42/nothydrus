@@ -70,21 +70,25 @@ int main(int argc, char** argv){
 		}else if(!strcmp(argv[i], "display")){
 			i++;
 			struct search search;
+			search.input_ids_n = 0;
 			search.input_ids = NULL;
 			search.output_ids = new_id_dynarr(10);
 			for(unsigned short j=i; j<argc; j++){
 				append_id_dynarr(&search.output_ids, strtoll(argv[j], NULL, 10));
 				fprintf(stderr, "added %d/%d value %lld\n", j, argc, strtoll(argv[j], NULL, 10));
 			}
+			fprintf(stderr, "--------%ld/%ld--------\n", search.output_ids.used, search.output_ids.size);
+			for(unsigned short j=0; j<search.output_ids.used; j++){
+				fprintf(stderr, "%lld\n", search.output_ids.data[j]);
+			}
 			if(search.output_ids.used==0){
 				fprintf(stderr, "Error: display command requires at least one argument\n");
-				fprintf(stderr, "%d\n", argc);
 				free_search(&search);
 				return -1;
 			}
 			start_program(START_PROGRAM_DISPLAY);
-			search_planes[0] = new_search_plane(&search);
-//			start_tui(START_TUI_DISPLAY);
+			start_tui(START_TUI_DISPLAY, &search);
+			free_search(&search);
 			end_program();
 			break;
 		}else{
@@ -94,7 +98,7 @@ int main(int argc, char** argv){
 	}
 	if(argc==1){	//TBD change to allow config using parameters
 		start_program(START_PROGRAM_TUI);
-		start_tui(0);
+		start_tui(0, NULL);
 		end_program();
 	}
 	return 0;

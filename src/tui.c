@@ -4,13 +4,14 @@
 struct notcurses* nc;
 struct ncplane* search_planes[MAX_SEARCH_PLANES];
 
-void start_tui(int_least8_t flags){
+void start_tui(int_least8_t flags, void* data){
 //	setlocale(LC_ALL, "");
 	struct notcurses_options opts = {
 	};
 	nc = notcurses_init(&opts, NULL);
 
 	if(flags & START_TUI_DISPLAY){
+		search_planes[0] = new_search_plane((struct search*)data);
 	}else{
 		search_planes[0] = new_search_plane(NULL);
 	}
