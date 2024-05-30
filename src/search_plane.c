@@ -16,7 +16,7 @@ struct ncplane* new_search_plane(struct search* search_to_copy){
 			memcpy(search->input_ids, search_to_copy->input_ids, search->input_ids_n*sizeof(sqlite3_int64));
 		}else search->input_ids = NULL;
 		search->output_ids = new_id_dynarr(search_to_copy->output_ids.used);
-		memcpy(search->output_ids.data, search_to_copy->output_ids.data, search_to_copy->output_ids.used);
+		memcpy(search->output_ids.data, search_to_copy->output_ids.data, search_to_copy->output_ids.used*sizeof(sqlite3_int64));
 		search->output_ids.used = search_to_copy->output_ids.used;
 	}
 
