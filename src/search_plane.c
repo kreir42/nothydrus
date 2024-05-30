@@ -9,7 +9,7 @@ struct ncplane* new_search_plane(struct search* search_to_copy){
 		search->input_ids = NULL;
 		search->output_ids = new_id_dynarr(MIN_ID_DYNARR_SIZE);
 	}else{
-		strcpy(search->sql, search_to_copy->sql);
+		if(search_to_copy->sql[0]!='\0') strcpy(search->sql, search_to_copy->sql);
 		search->input_ids_n = search_to_copy->input_ids_n;
 		if(search->input_ids_n > 0){
 			search->input_ids = malloc(search->input_ids_n*sizeof(sqlite3_int64));

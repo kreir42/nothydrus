@@ -3,10 +3,10 @@
 struct id_dynarr new_id_dynarr(unsigned long initial_size){
 	struct id_dynarr dynarr = {
 		.used = 0,
-		.size = initial_size,
+		.size = initial_size>0 ? initial_size : 1,
 		.data = NULL
 	};
-	if(initial_size>0) dynarr.data = malloc(initial_size * sizeof(sqlite3_int64));
+	dynarr.data = malloc(dynarr.size * sizeof(sqlite3_int64));
 	return dynarr;
 }
 

@@ -2,6 +2,7 @@
 #include "tui.h"
 
 struct notcurses* nc;
+struct ncplane* search_planes[MAX_SEARCH_PLANES];
 
 void start_tui(int_least8_t flags){
 //	setlocale(LC_ALL, "");
@@ -9,14 +10,16 @@ void start_tui(int_least8_t flags){
 	};
 	nc = notcurses_init(&opts, NULL);
 
-	struct ncplane* plane = new_search_plane(NULL);
 	if(flags & START_TUI_DISPLAY){
-		//TBD
 	}else{
-		search_plane(plane);
+		search_planes[0] = new_search_plane(NULL);
+	}
+	search_plane(search_planes[0]);
+
+	for(unsigned short i=0; i<MAX_SEARCH_PLANES; i++){
+		if(search_planes[i]!=NULL) free_search_plane(search_planes[i]);
 	}
 
-	free_search_plane(plane);
 	notcurses_drop_planes(nc);
 	notcurses_stop(nc);
 }

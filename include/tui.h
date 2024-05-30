@@ -4,6 +4,7 @@
 #include <notcurses/notcurses.h>
 
 extern struct notcurses* nc;
+extern struct ncplane* search_planes[MAX_SEARCH_PLANES];
 
 void start_tui(int_least8_t flags);
 #define START_TUI_DISPLAY	(1<<0)
