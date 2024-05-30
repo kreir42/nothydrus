@@ -59,7 +59,7 @@ void search_plane(struct ncplane* plane){
 				if(i==0) i = search->output_ids.used-1;
 				else i--;
 				break;
-			case 'M':
+			case 'm':
 				display_file(search->output_ids.data[i], DISPLAY_FILE_MPV, display_plane);
 				break;
 		}
