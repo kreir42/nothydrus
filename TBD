@@ -2,4 +2,3 @@
 ? use libmpv
 - way to get video duration
 - pre-load prev/next image in list
-- stdin without arguments causes segfault
