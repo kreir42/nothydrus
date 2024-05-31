@@ -75,11 +75,16 @@ int main(int argc, char** argv){
 			search.output_ids = new_id_dynarr(10);
 			for(unsigned short j=i; j<argc; j++){
 				append_id_dynarr(&search.output_ids, strtoll(argv[j], NULL, 10));
-				fprintf(stderr, "added %d/%d value %lld\n", j, argc, strtoll(argv[j], NULL, 10));
 			}
-			fprintf(stderr, "--------%ld/%ld--------\n", search.output_ids.used, search.output_ids.size);
-			for(unsigned short j=0; j<search.output_ids.used; j++){
-				fprintf(stderr, "%lld\n", search.output_ids.data[j]);
+			if(!isatty(fileno(stdin))){
+				puts("Adding from stdin:");
+				size_t linesize = 48;
+				char* line = malloc(linesize*sizeof(char));
+				while(getline(&line, &linesize, stdin)!=-1){
+					line[strlen(line)-1] = '\0';    //remove newline
+					append_id_dynarr(&search.output_ids, strtoll(line, NULL, 10));
+				}
+				free(line);
 			}
 			if(search.output_ids.used==0){
 				fprintf(stderr, "Error: display command requires at least one argument\n");
