@@ -2,7 +2,6 @@
 #define TUI_H
 
 #include <notcurses/notcurses.h>
-#include <locale.h>
 
 extern struct notcurses* nc;
 extern struct ncplane* search_planes[MAX_SEARCH_PLANES];

@@ -77,11 +77,9 @@ int main(int argc, char** argv){
 				append_id_dynarr(&search.output_ids, strtoll(argv[j], NULL, 10));
 			}
 			if(!isatty(fileno(stdin))){
-				puts("Adding from stdin:");
-				size_t linesize = 48;
+				size_t linesize = 12;
 				char* line = malloc(linesize*sizeof(char));
 				while(getline(&line, &linesize, stdin)!=-1){
-					line[strlen(line)-1] = '\0';    //remove newline
 					append_id_dynarr(&search.output_ids, strtoll(line, NULL, 10));
 				}
 				free(line);

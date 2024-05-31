@@ -5,9 +5,10 @@ struct notcurses* nc;
 struct ncplane* search_planes[MAX_SEARCH_PLANES];
 
 void start_tui(int_least8_t flags, void* data){
-	setlocale(LC_ALL, "");
-	int c;	//flush stdin
-	while((c=getchar()) != '\n' && c != EOF);
+	if(!isatty(fileno(stdin))){
+		freopen("/dev/tty", "r", stdin);	//reopen stdin if there was a pipe
+	}
+
 	struct notcurses_options opts = {
 	};
 	nc = notcurses_init(&opts, NULL);
