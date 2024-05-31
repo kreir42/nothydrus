@@ -68,6 +68,9 @@ void search_plane(struct ncplane* plane){
 				ncplane_printf_yx(plane, 0, 0, "Results: %ld/%ld", i+1, search->output_ids.used);
 				display_file(search->output_ids.data[i], 0, display_plane);
 				break;
+			case 'e':
+				display_file(search->output_ids.data[i], DISPLAY_FILE_EXTERNAL, display_plane);
+				break;
 			case 'm':
 				display_file(search->output_ids.data[i], DISPLAY_FILE_MPV, display_plane);
 				break;
