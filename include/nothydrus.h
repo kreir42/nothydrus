@@ -49,5 +49,7 @@ void add_files(char** paths, unsigned int paths_n, int_least8_t flags);
 
 //util functions
 char* filepath_from_id(sqlite3_int64 id);	//must free() afterwards
+int flags_from_id(sqlite3_int64 id);
+#define FILE_MISSING	(1<<0)
 
 #endif
