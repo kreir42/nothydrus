@@ -38,7 +38,7 @@ static short add_file(char* filepath, int_least8_t flags){
 	printf("Adding file: %s\n", filepath);
 	struct stat st;
 	if(stat(filepath, &st)){
-		perror("Error in stat:");
+		perror("Error in add_file stat:");
 		return -1;
 	}
 	if(!S_ISREG(st.st_mode)){

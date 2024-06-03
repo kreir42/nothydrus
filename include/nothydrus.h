@@ -46,10 +46,15 @@ void init();
 
 void add_files(char** paths, unsigned int paths_n, int_least8_t flags);
 #define ADD_FILES_STDIN	(1<<0)
+short check_file(sqlite3_int64 id, int_least8_t flags);
+void check_files(void* data, int_least8_t flags);
+#define CHECK_FILES_INPUT_PATHS		(1<<0)
+#define CHECK_FILES_INPUT_SEARCH	(1<<1)
+#define CHECK_FILES_STDIN		(1<<2)
+#define CHECK_FILES_HASH		(1<<3)
 
 //util functions
 char* filepath_from_id(sqlite3_int64 id);	//must free() afterwards
 int flags_from_id(sqlite3_int64 id);
-#define FILE_MISSING	(1<<0)
 
 #endif

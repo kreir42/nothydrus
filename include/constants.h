@@ -17,4 +17,7 @@
 #define FILETYPE_IMAGE 2
 #define FILETYPE_VIDEO 3
 
+//file flags
+#define FILE_MISSING	1
+
 #endif
