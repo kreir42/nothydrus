@@ -20,10 +20,14 @@ short check_file(sqlite3_int64 id, int_least8_t flags){
 	if(flags&CHECK_FILES_HASH){
 		unsigned char hash[16];
 		xxhash_file(&hash, filepath);
+		unsigned char db_hash[16];
+		//TBD:hash_from_id
 	}
+	remove_flag_from_file(id, FILE_MISSING);
 	return 0;
 
 	check_failed:
+	add_flag_to_file(id, FILE_MISSING);
 	return -1;
 }
 
