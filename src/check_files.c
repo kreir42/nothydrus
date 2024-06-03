@@ -51,12 +51,18 @@ void check_files(void* data, int_least8_t flags){
 				id_dynarr = data;
 			}
 			for(unsigned int i=0; i<id_dynarr->used; i++){
-				if(check_file(id_dynarr->data[i], flags)){
-					failed++;
-				}else passed++;
+				if(check_file(id_dynarr->data[i], flags)) failed++;
+				else passed++;
 			}
 		}
 	}
 	if(flags&CHECK_FILES_STDIN){
+		size_t linesize = 12;
+		char* line = malloc(linesize*sizeof(char));
+		while(getline(&line, &linesize, stdin)!=-1){
+			if(check_file(strtoll(line, NULL, 10), flags)) failed++;
+			else passed++;
+		}
+		free(line);
 	}
 }
