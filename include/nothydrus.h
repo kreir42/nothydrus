@@ -61,7 +61,7 @@ void untag_file(sqlite3_int64 file_id, sqlite3_int64 tag_id);//TBD
 //util functions
 char* filepath_from_id(sqlite3_int64 id);	//must free() afterwards
 int flags_from_id(sqlite3_int64 id);
-sqlite3_int64 filesize_from_id(sqlite3_int64 id);//TBD
+sqlite3_int64 filesize_from_id(sqlite3_int64 id);
 void set_file_flags(sqlite3_int64 id, int_least8_t flags);//TBD
 
 sqlite3_int64 tag_id_from_name(char* name, char* taggroup_name);//TBD
