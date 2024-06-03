@@ -3,6 +3,7 @@
 sqlite3_stmt* add_file_statement;
 sqlite3_stmt* filepath_from_id_statement;
 sqlite3_stmt* flags_from_id_statement;
+sqlite3_stmt* filesize_from_id_statement;
 
 static void prepare_add_file(){
 	if(sqlite3_prepare_v3(main_db,
@@ -32,6 +33,15 @@ static void prepare_flags_from_id(){
 	}
 }
 
+static void prepare_filesize_from_id(){
+	if(sqlite3_prepare_v3(main_db,
+				"SELECT size FROM files "
+				"WHERE id = ?;"
+				, -1, SQLITE_PREPARE_PERSISTENT, &filesize_from_id_statement, NULL) != SQLITE_OK){
+		fprintf(stderr, "Error preparing filesize_from_id_statement: %s\n", sqlite3_errmsg(main_db));
+	}
+}
+
 void start_program(int_least8_t flags){
 	//assumes it starts in the program's root directory
 	if(sqlite3_open(INIT_DIRECTORY"/"MAIN_DATABASE_NAME, &main_db)){
@@ -53,12 +63,14 @@ void start_program(int_least8_t flags){
 	prepare_add_file();
 	prepare_filepath_from_id();
 	prepare_flags_from_id();
+	prepare_filesize_from_id();
 }
 
 void end_program(){
 	sqlite3_finalize(add_file_statement);
 	sqlite3_finalize(filepath_from_id_statement);
 	sqlite3_finalize(flags_from_id_statement);
+	sqlite3_finalize(filesize_from_id_statement);
 
 	sqlite3_close(main_db);
 }

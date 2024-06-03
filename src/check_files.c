@@ -1,4 +1,5 @@
 #include "nothydrus.h"
+#include "hash.h"
 
 short check_file(sqlite3_int64 id, int_least8_t flags){
 	char* filepath = filepath_from_id(id);

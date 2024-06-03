@@ -24,15 +24,28 @@ void init(){
 
 				"CREATE TABLE tags("
 				"id INTEGER PRIMARY KEY NOT NULL, "
-				"name TEXT NOT NULL UNIQUE, "
+				"name TEXT NOT NULL, "
+				"taggroup INT DEFAULT NULL, "
 				"number INTEGER NOT NULL DEFAULT 0);"
 
-				"CREATE UNIQUE INDEX tagsname_index ON tags(name);"
+				"CREATE UNIQUE INDEX tagsnametaggroup_index ON tags(name, taggroup);"
 
 				"CREATE TABLE itemstags("
 				"item INTEGER NOT NULL, "
 				"tag INTEGER NOT NULL, "
 				"PRIMARY KEY(item, tag));"
+
+				"CREATE TABLE taggroups("
+				"id INTEGER PRIMARY KEY NOT NULL, "
+				"name TEXT NOT NULL UNIQUE, "
+				"number INTEGER NOT NULL DEFAULT 0);"
+
+				"CREATE UNIQUE INDEX taggroupsname_index ON taggroups(name);"
+
+				"CREATE TABLE tagstaggroups("
+				"tag INTEGER NOT NULL, "
+				"taggroup INTEGER NOT NULL, "
+				"PRIMARY KEY(tag, taggroup));"
 
 				,NULL, NULL, &sqlite3_error_message)){
 		fprintf(stderr, "Error when creating tables and indexes:\n%s", sqlite3_error_message);
