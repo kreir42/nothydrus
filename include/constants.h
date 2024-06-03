@@ -10,6 +10,7 @@
 #define MAX_SEARCH_PLANES 20
 #define SEARCH_MAX_SQL_LEN 2000
 #define MIN_ID_DYNARR_SIZE 100
+#define HASH_SIZE 16
 
 //filetypes
 #define FILETYPE_NONE 0

@@ -18,9 +18,9 @@ short check_file(sqlite3_int64 id, int_least8_t flags){
 		goto check_failed;
 	}
 	if(flags&CHECK_FILES_HASH){
-		unsigned char hash[16];
+		unsigned char hash[HASH_SIZE];
 		xxhash_file(&hash, filepath);
-		unsigned char db_hash[16];
+		char* db_hash = hash_from_id(id);
 		//TBD:hash_from_id
 	}
 	remove_flag_from_file(id, FILE_MISSING);

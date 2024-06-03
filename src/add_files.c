@@ -46,9 +46,9 @@ static short add_file(char* filepath, int_least8_t flags){
 		return -1;
 	}
 	//hash
-	unsigned char hash[16];
+	unsigned char hash[HASH_SIZE];
 	xxhash_file(&hash, filepath);
-	sqlite3_bind_blob(add_file_statement, 1, hash, 16, SQLITE_STATIC);
+	sqlite3_bind_blob(add_file_statement, 1, hash, HASH_SIZE, SQLITE_STATIC);
 	//filesize
 	sqlite3_bind_int64(add_file_statement, 2, st.st_size);
 	//filetype
