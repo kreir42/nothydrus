@@ -46,7 +46,7 @@ void init();
 
 void add_files(char** paths, unsigned int paths_n, int_least8_t flags);
 #define ADD_FILES_STDIN	(1<<0)
-short check_file(sqlite3_int64 id, int_least8_t flags);//TBD~
+short check_file(sqlite3_int64 id, int_least8_t flags);
 void check_files(void* data, int_least8_t flags);//TBD~
 #define CHECK_FILES_INPUT_PATHS		(1<<0)
 #define CHECK_FILES_INPUT_SEARCH	(1<<1)
@@ -59,7 +59,7 @@ void untag_file(sqlite3_int64 file_id, sqlite3_int64 tag_id);//TBD
 
 
 //util functions
-char* filepath_from_id(sqlite3_int64 id);	//must free() afterwards
+char* filepath_from_id(sqlite3_int64 id);
 int flags_from_id(sqlite3_int64 id);
 sqlite3_int64 filesize_from_id(sqlite3_int64 id);
 char* hash_from_id(sqlite3_int64 id);

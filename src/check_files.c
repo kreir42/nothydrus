@@ -34,16 +34,27 @@ short check_file(sqlite3_int64 id, int_least8_t flags){
 }
 
 void check_files(void* data, int_least8_t flags){
+	unsigned int failed=0, passed=0;
 	if(data==NULL){
 		if(!(flags&CHECK_FILES_STDIN)){
+			//TBD check all files
 		}
 	}else{
 		if(flags&CHECK_FILES_INPUT_PATHS){	//input NULL-terminated list of paths
 			char* paths = data;
-		}else if(flags&CHECK_FILES_INPUT_SEARCH){
-			struct search* search = data;
 		}else{
-			struct id_dynarr* id_dynarr = data;
+			struct id_dynarr* id_dynarr;
+			if(flags&CHECK_FILES_INPUT_SEARCH){
+				struct search* search = data;
+				id_dynarr = &search->output_ids;
+			}else{
+				id_dynarr = data;
+			}
+			for(unsigned int i=0; i<id_dynarr->used; i++){
+				if(check_file(id_dynarr->data[i], flags)){
+					failed++;
+				}else passed++;
+			}
 		}
 	}
 	if(flags&CHECK_FILES_STDIN){
