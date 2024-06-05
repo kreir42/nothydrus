@@ -18,7 +18,7 @@ void init(){
 				"size INTEGER, "
 				"filetype INTEGER NOT NULL, "
 				"flags INTEGER NOT NULL DEFAULT 0, "	//bitfield
-				"filepath TEXT);"
+				"filepath TEXT UNIQUE);"
 
 				"CREATE UNIQUE INDEX files_hashsize_index ON files(hash, size);"
 

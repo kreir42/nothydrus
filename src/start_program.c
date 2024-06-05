@@ -5,6 +5,7 @@ sqlite3_stmt* filepath_from_id_statement;
 sqlite3_stmt* flags_from_id_statement;
 sqlite3_stmt* filesize_from_id_statement;
 sqlite3_stmt* hash_from_id_statement;
+sqlite3_stmt* id_from_filepath_statement;
 sqlite3_stmt* set_file_flags_statement;
 sqlite3_stmt* add_flag_to_file_statement;
 sqlite3_stmt* remove_flag_from_file_statement;
@@ -52,6 +53,15 @@ static void prepare_hash_from_id(){
 				"WHERE id = ?;"
 				, -1, SQLITE_PREPARE_PERSISTENT, &hash_from_id_statement, NULL) != SQLITE_OK){
 		fprintf(stderr, "Error preparing hash_from_id_statement: %s\n", sqlite3_errmsg(main_db));
+	}
+}
+
+static void prepare_id_from_filepath(){
+	if(sqlite3_prepare_v3(main_db,
+				"SELECT id FROM files "
+				"WHERE filepath = ?;"
+				, -1, SQLITE_PREPARE_PERSISTENT, &id_from_filepath_statement, NULL) != SQLITE_OK){
+		fprintf(stderr, "Error preparing id_from_filepath_statement: %s\n", sqlite3_errmsg(main_db));
 	}
 }
 
@@ -108,6 +118,7 @@ void start_program(int_least8_t flags){
 	prepare_flags_from_id();
 	prepare_filesize_from_id();
 	prepare_hash_from_id();
+	prepare_id_from_filepath();
 	prepare_set_file_flags();
 	prepare_add_flag_to_file();
 	prepare_remove_flag_from_file();
@@ -119,6 +130,7 @@ void end_program(){
 	sqlite3_finalize(flags_from_id_statement);
 	sqlite3_finalize(filesize_from_id_statement);
 	sqlite3_finalize(hash_from_id_statement);
+	sqlite3_finalize(id_from_filepath_statement);
 	sqlite3_finalize(set_file_flags_statement);
 	sqlite3_finalize(add_flag_to_file_statement);
 	sqlite3_finalize(remove_flag_from_file_statement);

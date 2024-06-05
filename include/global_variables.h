@@ -9,6 +9,7 @@ extern sqlite3_stmt* filepath_from_id_statement;
 extern sqlite3_stmt* flags_from_id_statement;
 extern sqlite3_stmt* filesize_from_id_statement;
 extern sqlite3_stmt* hash_from_id_statement;
+extern sqlite3_stmt* id_from_filepath_statement;
 extern sqlite3_stmt* set_file_flags_statement;
 extern sqlite3_stmt* add_flag_to_file_statement;
 extern sqlite3_stmt* remove_flag_from_file_statement;

@@ -38,10 +38,19 @@ void check_files(void* data, int_least8_t flags){
 	if(data==NULL){
 		if(!(flags&CHECK_FILES_STDIN)){
 			//TBD check all files
+			return;
 		}
 	}else{
 		if(flags&CHECK_FILES_INPUT_PATHS){	//input NULL-terminated list of paths
-			char* paths = data;
+			char** paths = data;
+			unsigned int i=0;
+			sqlite3_int64 id;
+			while(paths[i]!=NULL){
+				i++;
+				id = id_from_filepath(paths[i]);
+				if(id!=0 && check_file(id, flags)) failed++;
+				else passed++;
+			}
 		}else{
 			struct id_dynarr* id_dynarr;
 			if(flags&CHECK_FILES_INPUT_SEARCH){
@@ -57,12 +66,24 @@ void check_files(void* data, int_least8_t flags){
 		}
 	}
 	if(flags&CHECK_FILES_STDIN){
-		size_t linesize = 12;
-		char* line = malloc(linesize*sizeof(char));
-		while(getline(&line, &linesize, stdin)!=-1){
-			if(check_file(strtoll(line, NULL, 10), flags)) failed++;
-			else passed++;
+		if(flags&CHECK_FILES_INPUT_PATHS){
+			size_t linesize = 64;
+			char* line = malloc(linesize*sizeof(char));
+			sqlite3_int64 id;
+			while(getline(&line, &linesize, stdin)!=-1){
+				id = id_from_filepath(line);
+				if(id!=0 && check_file(id, flags)) failed++;
+				else passed++;
+			}
+			free(line);
+		}else{
+			size_t linesize = 12;
+			char* line = malloc(linesize*sizeof(char));
+			while(getline(&line, &linesize, stdin)!=-1){
+				if(check_file(strtoll(line, NULL, 10), flags)) failed++;
+				else passed++;
+			}
+			free(line);
 		}
-		free(line);
 	}
 }
