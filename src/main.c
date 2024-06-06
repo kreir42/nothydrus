@@ -104,7 +104,7 @@ int main(int argc, char** argv){
 				}
 			}else{
 				while(argv[i][0]=='-' && argv[i][1]=='-'){
-					if(!strcmp(argv[i], "--filepath")) flags |= CHECK_FILES_INPUT_PATHS;
+					if(!strcmp(argv[i], "--id")) flags |= CHECK_FILES_INPUT_IDS;
 					else if(!strcmp(argv[i], "--hash")) flags |= CHECK_FILES_HASH;
 					else{
 						fprintf(stderr, "Error: unrecognized check option %s", argv[i]);
@@ -118,9 +118,7 @@ int main(int argc, char** argv){
 			}
 			start_program(0);
 			if(i<argc){
-				if(flags&CHECK_FILES_INPUT_PATHS){ //paths in arguments
-					//TBD array
-				}else{ //ids in arguments
+				if(flags&CHECK_FILES_INPUT_IDS){ //ids in arguments
 					struct id_dynarr id_dynarr = new_id_dynarr(10);
 					while(i<argc){
 						append_id_dynarr(&id_dynarr, strtoll(argv[i], NULL, 10));
@@ -128,6 +126,8 @@ int main(int argc, char** argv){
 					}
 					check_files(&id_dynarr, flags);
 					free(id_dynarr.data);
+				}else{ //paths in arguments
+					//TBD array
 				}
 			}else{
 				check_files(NULL, flags);

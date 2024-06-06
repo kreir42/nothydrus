@@ -41,17 +41,7 @@ void check_files(void* data, int_least8_t flags){
 			return;
 		}
 	}else{
-		if(flags&CHECK_FILES_INPUT_PATHS){	//input NULL-terminated list of paths
-			char** paths = data;
-			unsigned int i=0;
-			sqlite3_int64 id;
-			while(paths[i]!=NULL){
-				i++;
-				id = id_from_filepath(paths[i]);
-				if(id!=0 && check_file(id, flags)) failed++;
-				else passed++;
-			}
-		}else{
+		if(flags&CHECK_FILES_INPUT_IDS){
 			struct id_dynarr* id_dynarr;
 			if(flags&CHECK_FILES_INPUT_SEARCH){
 				struct search* search = data;
@@ -63,24 +53,36 @@ void check_files(void* data, int_least8_t flags){
 				if(check_file(id_dynarr->data[i], flags)) failed++;
 				else passed++;
 			}
-		}
-	}
-	if(flags&CHECK_FILES_STDIN){
-		if(flags&CHECK_FILES_INPUT_PATHS){
-			size_t linesize = 64;
-			char* line = malloc(linesize*sizeof(char));
+		}else{	//input NULL-terminated list of paths
+			char** paths = data;
+			unsigned int i=0;
 			sqlite3_int64 id;
-			while(getline(&line, &linesize, stdin)!=-1){
-				id = id_from_filepath(line);
+			while(paths[i]!=NULL){
+				i++;
+				id = id_from_filepath(paths[i]);
 				if(id!=0 && check_file(id, flags)) failed++;
 				else passed++;
 			}
-			free(line);
-		}else{
+		}
+	}
+	if(flags&CHECK_FILES_STDIN){
+		if(flags&CHECK_FILES_INPUT_IDS){
 			size_t linesize = 12;
 			char* line = malloc(linesize*sizeof(char));
 			while(getline(&line, &linesize, stdin)!=-1){
 				if(check_file(strtoll(line, NULL, 10), flags)) failed++;
+				else passed++;
+			}
+			free(line);
+		}else{
+			size_t linesize = 64;
+			char* line = malloc(linesize*sizeof(char));
+			sqlite3_int64 id;
+			while(getline(&line, &linesize, stdin)!=-1){
+				line[strlen(line)-1] = '\0';	//remove newline
+				id = id_from_filepath(line);
+				if(id==-1) fprintf(stderr, "Filepath %s not found in database\n", line);
+				else if(check_file(id, flags)) failed++;
 				else passed++;
 			}
 			free(line);
