@@ -123,7 +123,7 @@ static inline void prepare_add_taggroup(){
 static inline void prepare_tag_id_from_name(){
 	if(sqlite3_prepare_v3(main_db,
 				"SELECT id FROM tags "
-				"WHERE name = ?;"
+				"WHERE name = ? AND taggroup = ?;"
 				, -1, SQLITE_PREPARE_PERSISTENT, &tag_id_from_name_statement, NULL) != SQLITE_OK){
 		fprintf(stderr, "Error preparing tag_id_from_name_statement: %s\n", sqlite3_errmsg(main_db));
 	}
@@ -131,7 +131,7 @@ static inline void prepare_tag_id_from_name(){
 
 static inline void prepare_tag_name_from_id(){
 	if(sqlite3_prepare_v3(main_db,
-				"SELECT name FROM tags "
+				"SELECT name, taggroup FROM tags "
 				"WHERE id = ?;"
 				, -1, SQLITE_PREPARE_PERSISTENT, &tag_name_from_id_statement, NULL) != SQLITE_OK){
 		fprintf(stderr, "Error preparing tag_name_from_id_statement: %s\n", sqlite3_errmsg(main_db));

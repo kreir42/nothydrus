@@ -25,7 +25,7 @@ void init(){
 				"CREATE TABLE tags("
 				"id INTEGER PRIMARY KEY NOT NULL, "
 				"name TEXT NOT NULL, "
-				"taggroup INT DEFAULT NULL, "
+				"taggroup INT NOT NULL DEFAULT 1, "
 				"number INTEGER NOT NULL DEFAULT 0);"
 
 				"CREATE UNIQUE INDEX tagsnametaggroup_index ON tags(name, taggroup);"
