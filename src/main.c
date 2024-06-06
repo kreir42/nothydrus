@@ -118,17 +118,22 @@ int main(int argc, char** argv){
 			}
 			start_program(0);
 			if(i<argc){
+				struct id_dynarr id_dynarr = new_id_dynarr(10);
 				if(flags&CHECK_FILES_INPUT_IDS){ //ids in arguments
-					struct id_dynarr id_dynarr = new_id_dynarr(10);
 					while(i<argc){
 						append_id_dynarr(&id_dynarr, strtoll(argv[i], NULL, 10));
 						i++;
 					}
-					check_files(&id_dynarr, flags);
-					free(id_dynarr.data);
 				}else{ //paths in arguments
-					//TBD array
+					sqlite3_int64 id;
+					while(i<argc){
+						id = id_from_filepath(argv[i]);
+						if(id!=-1) append_id_dynarr(&id_dynarr, id);
+						i++;
+					}
 				}
+				check_files(&id_dynarr, flags);
+				free(id_dynarr.data);
 			}else{
 				check_files(NULL, flags);
 			}

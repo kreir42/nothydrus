@@ -33,6 +33,8 @@ short check_file(sqlite3_int64 id, int_least8_t flags){
 	return -1;
 }
 
+//data is struct id_dynarr* unless CHECK_FILES_INPUT_SEARCH is search, in qhich case it's a struct search*
+//stdin is a list of paths, unless CHECK_FILES_INPUT_IDS, in which case its a list of ids
 void check_files(void* data, int_least8_t flags){
 	unsigned int failed=0, passed=0;
 	if(data==NULL){
@@ -41,28 +43,16 @@ void check_files(void* data, int_least8_t flags){
 			return;
 		}
 	}else{
-		if(flags&CHECK_FILES_INPUT_IDS){
-			struct id_dynarr* id_dynarr;
-			if(flags&CHECK_FILES_INPUT_SEARCH){
-				struct search* search = data;
-				id_dynarr = &search->output_ids;
-			}else{
-				id_dynarr = data;
-			}
-			for(unsigned int i=0; i<id_dynarr->used; i++){
-				if(check_file(id_dynarr->data[i], flags)) failed++;
-				else passed++;
-			}
-		}else{	//input NULL-terminated list of paths
-			char** paths = data;
-			unsigned int i=0;
-			sqlite3_int64 id;
-			while(paths[i]!=NULL){
-				i++;
-				id = id_from_filepath(paths[i]);
-				if(id!=0 && check_file(id, flags)) failed++;
-				else passed++;
-			}
+		struct id_dynarr* id_dynarr;
+		if(flags&CHECK_FILES_INPUT_SEARCH){
+			struct search* search = data;
+			id_dynarr = &search->output_ids;
+		}else{
+			id_dynarr = data;
+		}
+		for(unsigned int i=0; i<id_dynarr->used; i++){
+			if(check_file(id_dynarr->data[i], flags)) failed++;
+			else passed++;
 		}
 	}
 	if(flags&CHECK_FILES_STDIN){
