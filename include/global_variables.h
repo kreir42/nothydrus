@@ -4,6 +4,7 @@
 #include <sqlite3.h>
 
 extern sqlite3* main_db;
+
 extern sqlite3_stmt* add_file_statement;
 extern sqlite3_stmt* filepath_from_id_statement;
 extern sqlite3_stmt* flags_from_id_statement;
@@ -13,5 +14,12 @@ extern sqlite3_stmt* id_from_filepath_statement;
 extern sqlite3_stmt* set_file_flags_statement;
 extern sqlite3_stmt* add_flag_to_file_statement;
 extern sqlite3_stmt* remove_flag_from_file_statement;
+
+extern sqlite3_stmt* add_tag_statement;
+extern sqlite3_stmt* tag_statement;
+extern sqlite3_stmt* untag_statement;
+extern sqlite3_stmt* add_taggroup_statement;
+extern sqlite3_stmt* tag_id_from_name_statement;
+extern sqlite3_stmt* tag_name_from_id_statement;
 
 #endif

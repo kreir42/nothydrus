@@ -3,3 +3,5 @@
 - way to get video duration
 - pre-load prev/next image in list
 - take endianness into account when storing/retrieving hash
+- check all case of check command
+- deal with program not being launched from folder with .nothydrus folder

@@ -9,6 +9,14 @@ sqlite3_stmt* id_from_filepath_statement;
 sqlite3_stmt* set_file_flags_statement;
 sqlite3_stmt* add_flag_to_file_statement;
 sqlite3_stmt* remove_flag_from_file_statement;
+sqlite3_stmt* add_tag_statement;
+sqlite3_stmt* add_taggroup_statement;
+sqlite3_stmt* tag_id_from_name_statement;
+
+sqlite3_stmt* tag_name_from_id_statement;
+
+sqlite3_stmt* tag_statement;
+sqlite3_stmt* untag_statement;
 
 static void prepare_add_file(){
 	if(sqlite3_prepare_v3(main_db,
@@ -95,6 +103,35 @@ static void prepare_remove_flag_from_file(){
 	}
 }
 
+static void prepare_add_tag(){
+	if(sqlite3_prepare_v3(main_db,
+				"INSERT INTO tags("
+				"name, taggroup) "
+				"VALUES(?, ?);"
+				, -1, SQLITE_PREPARE_PERSISTENT, &add_tag_statement, NULL) != SQLITE_OK){
+		fprintf(stderr, "Error preparing add_tag_statement: %s\n", sqlite3_errmsg(main_db));
+	}
+}
+
+static void prepare_add_taggroup(){
+	if(sqlite3_prepare_v3(main_db,
+				"INSERT INTO taggroups("
+				"name) "
+				"VALUES(?);"
+				, -1, SQLITE_PREPARE_PERSISTENT, &add_taggroup_statement, NULL) != SQLITE_OK){
+		fprintf(stderr, "Error preparing add_taggroup_statement: %s\n", sqlite3_errmsg(main_db));
+	}
+}
+
+static void prepare_tag_id_from_name(){
+	if(sqlite3_prepare_v3(main_db,
+				"SELECT id FROM tags "
+				"WHERE name = ?;"
+				, -1, SQLITE_PREPARE_PERSISTENT, &tag_id_from_name_statement, NULL) != SQLITE_OK){
+		fprintf(stderr, "Error preparing tag_id_from_name_statement: %s\n", sqlite3_errmsg(main_db));
+	}
+}
+
 void start_program(int_least8_t flags){
 	//assumes it starts in the program's root directory
 	if(sqlite3_open(INIT_DIRECTORY"/"MAIN_DATABASE_NAME, &main_db)){
@@ -122,6 +159,9 @@ void start_program(int_least8_t flags){
 	prepare_set_file_flags();
 	prepare_add_flag_to_file();
 	prepare_remove_flag_from_file();
+	prepare_add_tag();
+	prepare_add_taggroup();
+	prepare_tag_id_from_name();
 }
 
 void end_program(){
@@ -134,6 +174,9 @@ void end_program(){
 	sqlite3_finalize(set_file_flags_statement);
 	sqlite3_finalize(add_flag_to_file_statement);
 	sqlite3_finalize(remove_flag_from_file_statement);
+	sqlite3_finalize(add_tag_statement);
+	sqlite3_finalize(add_taggroup_statement);
+	sqlite3_finalize(tag_id_from_name_statement);
 
 	sqlite3_close(main_db);
 }
