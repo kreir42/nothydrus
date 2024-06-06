@@ -30,10 +30,10 @@ void init(){
 
 				"CREATE UNIQUE INDEX tagsnametaggroup_index ON tags(name, taggroup);"
 
-				"CREATE TABLE itemstags("
-				"item INTEGER NOT NULL, "
+				"CREATE TABLE filestags("
+				"file INTEGER NOT NULL, "
 				"tag INTEGER NOT NULL, "
-				"PRIMARY KEY(item, tag));"
+				"PRIMARY KEY(file, tag));"
 
 				"CREATE TABLE taggroups("
 				"id INTEGER PRIMARY KEY NOT NULL, "
