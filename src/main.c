@@ -94,6 +94,46 @@ int main(int argc, char** argv){
 			free_search(&search);
 			end_program();
 			break;
+		}else if(!strcmp(argv[i], "check")){
+			int_least8_t flags = 0;
+			i++;
+			if(argc==i){
+				if(isatty(fileno(stdin))){
+					fprintf(stderr, "Error: display command requires at least one argument\n");
+					return -1;
+				}
+			}else{
+				while(argv[i][0]=='-' && argv[i][1]=='-'){
+					if(!strcmp(argv[i], "--filepath")) flags |= CHECK_FILES_INPUT_PATHS;
+					else if(!strcmp(argv[i], "--hash")) flags |= CHECK_FILES_HASH;
+					else{
+						fprintf(stderr, "Error: unrecognized check option %s", argv[i]);
+						return -1;
+					}
+					i++;
+				}
+			}
+			if(!isatty(fileno(stdin))){
+				flags |= CHECK_FILES_STDIN;
+			}
+			start_program(0);
+			if(i<argc){
+				if(flags&CHECK_FILES_INPUT_PATHS){ //paths in arguments
+					//TBD array
+				}else{ //ids in arguments
+					struct id_dynarr id_dynarr = new_id_dynarr(10);
+					while(i<argc){
+						append_id_dynarr(&id_dynarr, strtoll(argv[i], NULL, 10));
+						i++;
+					}
+					check_files(&id_dynarr, flags);
+					free(id_dynarr.data);
+				}
+			}else{
+				check_files(NULL, flags);
+			}
+			end_program();
+			return 1;
 		}else{
 			fprintf(stderr, "Error: unrecognized argument %s\n", argv[i]);
 			return -1;

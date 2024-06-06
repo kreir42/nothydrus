@@ -18,7 +18,7 @@ short check_file(sqlite3_int64 id, int_least8_t flags){
 		goto check_failed;
 	}
 	if(flags&CHECK_FILES_HASH){
-		unsigned char hash[HASH_SIZE];
+		char hash[HASH_SIZE];
 		xxhash_file(&hash, filepath);
 		char* db_hash = hash_from_id(id);
 		for(unsigned short i=0; i<HASH_SIZE; i++){
@@ -86,4 +86,5 @@ void check_files(void* data, int_least8_t flags){
 			free(line);
 		}
 	}
+	printf("Call to check_files finished: %u passed, %u failed\n", passed, failed);
 }
