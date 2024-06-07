@@ -138,7 +138,7 @@ int main(int argc, char** argv){
 				check_files(NULL, flags);
 			}
 			end_program();
-			return 1;
+			return 0;
 		}else if(!strcmp(argv[i], "add_tag")){
 			i++;
 			if(i==argc){
@@ -154,7 +154,20 @@ int main(int argc, char** argv){
 			else taggroup_name = NULL;
 			add_tag(argv[i], taggroup_name);
 			end_program();
-			return 1;
+			return 0;
+		}else if(!strcmp(argv[i], "add_taggroup")){
+			i++;
+			if(i==argc){
+				fprintf(stderr, "Error: add_taggroup command requires one argument\n");
+				return -1;
+			}else if(i+1<argc){
+				fprintf(stderr, "Error: too many arguments for taggroup command\n");
+				return -1;
+			}
+			start_program(0);
+			add_taggroup(argv[i]);
+			end_program();
+			return 0;
 		}else{
 			fprintf(stderr, "Error: unrecognized argument %s\n", argv[i]);
 			return -1;
