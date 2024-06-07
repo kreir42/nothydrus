@@ -168,6 +168,43 @@ int main(int argc, char** argv){
 			add_taggroup(argv[i]);
 			end_program();
 			return 0;
+		}else if(!strcmp(argv[i], "tag")){
+			i++;
+			if(argc-i<2){
+				fprintf(stderr, "Error: add_tag command requires at least two arguments\n");
+				return -1;
+			}
+			char* tag_name = argv[i];
+			start_program(0);
+			sqlite3_int64 tag_id, taggroup_id;
+			if(!strcmp(argv[i+1], "--taggroup")){
+				taggroup_id = taggroup_id_from_name(argv[i+2]);
+				if(taggroup_id==-1){
+					fprintf(stderr, "Error: taggroup not found in database\n");
+					return -1;
+				}
+				i+=3;
+			}else{
+				taggroup_id = 1;
+				i++;
+			}
+			tag_id = tag_id_from_name(tag_name, taggroup_id);
+			if(tag_id==-1){
+				fprintf(stderr, "Error: tag not found in database\n");
+				return -1;
+			}
+			sqlite3_int64 file_id;
+			while(i<argc){
+				file_id = id_from_filepath(argv[i]);
+				i++;
+				if(file_id==-1){
+					fprintf(stderr, "Error: file not found in database\n");
+					continue;
+				}
+				tag(file_id, tag_id);
+			}
+			end_program();
+			return 0;
 		}else{
 			fprintf(stderr, "Error: unrecognized argument %s\n", argv[i]);
 			return -1;
