@@ -53,10 +53,10 @@ void check_files(void* data, int_least8_t flags);//TBD check all files if no inp
 #define CHECK_FILES_STDIN		(1<<2)
 #define CHECK_FILES_HASH		(1<<3)
 
-void add_tag(char* name, char* taggroup_name);//TBD
+void add_tag(char* name, char* taggroup_name);
+void add_taggroup(char* name);
 void tag(sqlite3_int64 file_id, sqlite3_int64 tag_id);//TBD
 void untag(sqlite3_int64 file_id, sqlite3_int64 tag_id);//TBD
-void add_taggroup(char* taggroup_name);//TBD
 
 
 //util functions

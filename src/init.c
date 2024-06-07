@@ -47,8 +47,12 @@ void init(){
 				"taggroup INTEGER NOT NULL, "
 				"PRIMARY KEY(tag, taggroup));"
 
+
+				"INSERT INTO taggroups(id, name) "
+				"VALUES(1, \""DEFAULT_TAGGROUP_NAME"\");"
+
 				,NULL, NULL, &sqlite3_error_message)){
-		fprintf(stderr, "Error when creating tables and indexes:\n%s", sqlite3_error_message);
+		fprintf(stderr, "Error when creating tables and indexes:%s\n", sqlite3_error_message);
 	}
 
 	sqlite3_free(sqlite3_error_message);

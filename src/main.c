@@ -107,7 +107,7 @@ int main(int argc, char** argv){
 					if(!strcmp(argv[i], "--id")) flags |= CHECK_FILES_INPUT_IDS;
 					else if(!strcmp(argv[i], "--hash")) flags |= CHECK_FILES_HASH;
 					else{
-						fprintf(stderr, "Error: unrecognized check option %s", argv[i]);
+						fprintf(stderr, "Error: unrecognized check option %s\n", argv[i]);
 						return -1;
 					}
 					i++;
@@ -137,6 +137,22 @@ int main(int argc, char** argv){
 			}else{
 				check_files(NULL, flags);
 			}
+			end_program();
+			return 1;
+		}else if(!strcmp(argv[i], "add_tag")){
+			i++;
+			if(i==argc){
+				fprintf(stderr, "Error: add_tag command requires at least one argument\n");
+				return -1;
+			}else if(i+2<argc){
+				fprintf(stderr, "Error: add_tag command has too many arguments\n");
+				return -1;
+			}
+			start_program(0);
+			char* taggroup_name;
+			if(i+1<argc) taggroup_name = argv[i+1];
+			else taggroup_name = NULL;
+			add_tag(argv[i], taggroup_name);
 			end_program();
 			return 1;
 		}else{
