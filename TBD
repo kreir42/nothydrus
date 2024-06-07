@@ -5,3 +5,4 @@
 - take endianness into account when storing/retrieving hash
 - 'check all' case of check command
 - deal with program not being launched from folder with .nothydrus folder
+- have 'tag' command also work with ids directly
