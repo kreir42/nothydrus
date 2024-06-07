@@ -17,6 +17,7 @@ extern sqlite3_stmt* remove_flag_from_file_statement;
 extern sqlite3_stmt* add_tag_statement;
 extern sqlite3_stmt* add_taggroup_statement;
 extern sqlite3_stmt* tag_id_from_name_statement;
+extern sqlite3_stmt* taggroup_id_from_name_statement;
 extern sqlite3_stmt* tag_name_from_id_statement;
 extern sqlite3_stmt* tag_statement;
 extern sqlite3_stmt* untag_statement;

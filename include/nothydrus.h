@@ -70,6 +70,7 @@ void add_flag_to_file(sqlite3_int64 id, int_least8_t flag);
 void remove_flag_from_file(sqlite3_int64 id, int_least8_t flag);
 
 sqlite3_int64 tag_id_from_name(char* name, sqlite3_int64 taggroup);
+sqlite3_int64 taggroup_id_from_name(char* name);
 char* tag_name_from_id(sqlite3_int64 id, sqlite3_int64* taggroup);
 
 #endif

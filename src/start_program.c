@@ -12,6 +12,7 @@ sqlite3_stmt* remove_flag_from_file_statement;
 sqlite3_stmt* add_tag_statement;
 sqlite3_stmt* add_taggroup_statement;
 sqlite3_stmt* tag_id_from_name_statement;
+sqlite3_stmt* taggroup_id_from_name_statement;
 sqlite3_stmt* tag_name_from_id_statement;
 sqlite3_stmt* tag_statement;
 sqlite3_stmt* untag_statement;
@@ -138,6 +139,15 @@ static inline void prepare_tag_name_from_id(){
 	}
 }
 
+static inline void prepare_taggroup_id_from_name(){
+	if(sqlite3_prepare_v3(main_db,
+				"SELECT id FROM taggroups "
+				"WHERE name = ?;"
+				, -1, SQLITE_PREPARE_PERSISTENT, &taggroup_id_from_name_statement, NULL) != SQLITE_OK){
+		fprintf(stderr, "Error preparing taggroup_id_from_name_statement: %s\n", sqlite3_errmsg(main_db));
+	}
+}
+
 static inline void prepare_tag(){
 	if(sqlite3_prepare_v3(main_db,
 				"INSERT INTO filestags(file,tag) "
@@ -186,6 +196,7 @@ void start_program(int_least8_t flags){
 	prepare_add_tag();
 	prepare_add_taggroup();
 	prepare_tag_id_from_name();
+	prepare_taggroup_id_from_name();
 	prepare_tag_name_from_id();
 	prepare_tag();
 	prepare_untag();
@@ -204,6 +215,7 @@ void end_program(){
 	sqlite3_finalize(add_tag_statement);
 	sqlite3_finalize(add_taggroup_statement);
 	sqlite3_finalize(tag_id_from_name_statement);
+	sqlite3_finalize(taggroup_id_from_name_statement);
 	sqlite3_finalize(tag_name_from_id_statement);
 	sqlite3_finalize(tag_statement);
 	sqlite3_finalize(untag_statement);
