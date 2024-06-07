@@ -11,13 +11,13 @@ DEPS := $(patsubst src/%.c, build/%.d, $(SOURCES))
 all: $(NAME)
 
 $(NAME): $(OBJECTS)
-	@mkdir -p build
+	@mkdir -p build/util
 	$(CC) $(OBJECTS) -o $@ $(LIB)
 
 -include $(DEPS)
 
 build/%.o: src/%.c
-	@mkdir -p build
+	@mkdir -p build/util
 	$(CC) -MMD -I include -I src $(CFLAGS) -c $< -o $@
 
 clean:
