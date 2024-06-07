@@ -170,14 +170,14 @@ int main(int argc, char** argv){
 			return 0;
 		}else if(!strcmp(argv[i], "tag")){
 			i++;
-			if(argc-i<2){
-				fprintf(stderr, "Error: add_tag command requires at least two arguments\n");
+			if(argc-i<1){
+				fprintf(stderr, "Error: add_tag command requires at least one arguments\n");
 				return -1;
 			}
 			char* tag_name = argv[i];
 			start_program(0);
 			sqlite3_int64 tag_id, taggroup_id;
-			if(!strcmp(argv[i+1], "--taggroup")){
+			if(i+1<argc && !strcmp(argv[i+1], "--taggroup")){
 				taggroup_id = taggroup_id_from_name(argv[i+2]);
 				if(taggroup_id==-1){
 					fprintf(stderr, "Error: taggroup not found in database\n");
@@ -203,6 +203,20 @@ int main(int argc, char** argv){
 				}
 				tag(file_id, tag_id);
 			}
+			if(!isatty(fileno(stdin))){
+				size_t linesize = 48;
+				char* line = malloc(linesize*sizeof(char));
+				while(getline(&line, &linesize, stdin)!=-1){
+					line[strlen(line)-1] = '\0';	//remove newline
+					file_id = id_from_filepath(line);
+					if(file_id==-1){
+						fprintf(stderr, "Error: file not found in database\n");
+						continue;
+					}
+					tag(file_id, tag_id);
+				}
+				free(line);
+			};
 			end_program();
 			return 0;
 		}else{
