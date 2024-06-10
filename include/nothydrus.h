@@ -36,14 +36,11 @@ void start_program(int_least8_t flags);
 #define START_PROGRAM_TUI		(1<<2)
 #define START_PROGRAM_SQL_SEARCH	(1<<3)
 #define START_PROGRAM_DISPLAY		(1<<4)
-
 void end_program();
 
 
 //user functions
-
 void init();
-
 void add_files(char** paths, unsigned int paths_n, int_least8_t flags);
 #define ADD_FILES_STDIN	(1<<0)
 short check_file(sqlite3_int64 id, int_least8_t flags);
@@ -52,7 +49,6 @@ void check_files(void* data, int_least8_t flags);//TBD check all files if no inp
 #define CHECK_FILES_INPUT_SEARCH	(1<<1)
 #define CHECK_FILES_STDIN		(1<<2)
 #define CHECK_FILES_HASH		(1<<3)
-
 void add_tag(char* name, char* taggroup_name);
 void add_taggroup(char* name);
 void tag(sqlite3_int64 file_id, sqlite3_int64 tag_id);
