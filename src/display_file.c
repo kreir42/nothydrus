@@ -10,13 +10,6 @@ struct ncplane* display_file(sqlite3_int64 id, int_least8_t flags, struct ncplan
 
 struct ncplane* display_file_from_filepath(char* filepath, int_least8_t flags, struct ncplane* plane){
 	if(flags & (DISPLAY_FILE_MPV | DISPLAY_FILE_EXTERNAL)){
-//		unsigned int screen_rows, screen_cols;
-//		notcurses_stddim_yx(nc, &screen_rows, &screen_cols);
-//		struct ncplane_options plane_options = {
-//			.y = 0, .x = 0,
-//			.rows = screen_rows, .cols = screen_cols,
-//		};
-//		struct ncplane* temp_plane = ncpile_create(nc, &plane_options);
 		char* system_string = malloc(50+strlen(filepath));
 		system_string[0] = '\0';
 		strcat(system_string, "mpv"" ");
@@ -24,10 +17,6 @@ struct ncplane* display_file_from_filepath(char* filepath, int_least8_t flags, s
 		strcat(system_string, " 1>/dev/null 2>&1 0>&1");
 		int status = system(system_string);	//TBD check status
 		free(system_string);
-//		ncplane_erase(temp_plane);
-//		ncpile_render(temp_plane);
-//		ncpile_rasterize(temp_plane);
-//		ncplane_destroy(temp_plane);
 		return NULL;
 	}
 	struct ncvisual* visual = ncvisual_from_file(filepath);

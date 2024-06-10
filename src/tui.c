@@ -14,11 +14,11 @@ void start_tui(int_least8_t flags, void* data){
 	nc = notcurses_init(&opts, NULL);
 
 	if(flags & START_TUI_DISPLAY){
-		search_planes[0] = new_search_plane((struct search*)data);
+		fullscreen_display((struct search*)data);
 	}else{
 		search_planes[0] = new_search_plane(NULL);
+		search_plane(search_planes[0]);
 	}
-	search_plane(search_planes[0]);
 
 	for(unsigned short i=0; i<MAX_SEARCH_PLANES; i++){
 		if(search_planes[i]!=NULL) free_search_plane(search_planes[i]);
