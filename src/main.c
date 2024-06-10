@@ -40,7 +40,6 @@ int main(int argc, char** argv){
 			break;
 		}else if(!strcmp(argv[i], "sql-search")){
 			struct search search;
-			search.input_ids = NULL;
 			search.output_ids = new_id_dynarr(MIN_ID_DYNARR_SIZE);
 			i++;
 			short output_id = 0;
@@ -70,8 +69,6 @@ int main(int argc, char** argv){
 		}else if(!strcmp(argv[i], "display")){
 			i++;
 			struct search search;
-			search.input_ids_n = 0;
-			search.input_ids = NULL;
 			search.output_ids = new_id_dynarr(10);
 			for(unsigned short j=i; j<argc; j++){
 				append_id_dynarr(&search.output_ids, strtoll(argv[j], NULL, 10));

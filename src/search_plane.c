@@ -5,16 +5,9 @@ struct ncplane* new_search_plane(struct search* search_to_copy){
 	struct search* search = malloc(sizeof(struct search));
 	if(search_to_copy==NULL){
 		search->sql[0] = '\0';
-		search->input_ids_n = 0;
-		search->input_ids = NULL;
 		search->output_ids = new_id_dynarr(MIN_ID_DYNARR_SIZE);
 	}else{
 		if(search_to_copy->sql[0]!='\0') strcpy(search->sql, search_to_copy->sql);
-		search->input_ids_n = search_to_copy->input_ids_n;
-		if(search->input_ids_n > 0){
-			search->input_ids = malloc(search->input_ids_n*sizeof(sqlite3_int64));
-			memcpy(search->input_ids, search_to_copy->input_ids, search->input_ids_n*sizeof(sqlite3_int64));
-		}else search->input_ids = NULL;
 		search->output_ids = new_id_dynarr(search_to_copy->output_ids.used);
 		memcpy(search->output_ids.data, search_to_copy->output_ids.data, search_to_copy->output_ids.used*sizeof(sqlite3_int64));
 		search->output_ids.used = search_to_copy->output_ids.used;

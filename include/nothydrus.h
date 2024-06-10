@@ -23,8 +23,6 @@ void append_id_dynarr(struct id_dynarr* dynarr, sqlite3_int64 id);
 void crop_id_dynarr(struct id_dynarr* dynarr);
 struct search{
 	char sql[SEARCH_MAX_SQL_LEN];
-	unsigned int input_ids_n;
-	sqlite3_int64* input_ids;	//NULL for all
 	struct id_dynarr output_ids;
 };
 short run_search(struct search* search);

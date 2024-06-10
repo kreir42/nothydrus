@@ -1,8 +1,6 @@
 #include "nothydrus.h"
 
 short run_search(struct search* search){
-	if(search->input_ids!=NULL) free(search->input_ids);
-	search->input_ids_n = 0;
 	search->output_ids.used = 0;
 
 	if(search->sql[0]=='\0') return -1;
@@ -25,6 +23,5 @@ short run_search(struct search* search){
 }
 
 void free_search(struct search* search){
-	if(search->input_ids!=NULL) free(search->input_ids);
 	if(search->output_ids.size>0) free(search->output_ids.data);
 }
