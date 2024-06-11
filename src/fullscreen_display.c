@@ -47,5 +47,7 @@ void fullscreen_display(struct search* search){
 		ncpile_rasterize(plane);
 	}
 	reset_display_plane(display_plane);
+	ncpile_render(plane);		//to clear the screen TBD? way to do this without another render, rasterize?
+	ncpile_rasterize(plane);
 	ncplane_destroy(plane);
 }

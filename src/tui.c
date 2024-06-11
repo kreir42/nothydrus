@@ -56,10 +56,10 @@ void start_tui(int_least8_t flags, void* data){
 	}
 	unsigned short search_planes_n = 1, current_search_plane_i = 0;
 	search_planes = malloc(search_planes_n*sizeof(struct search_plane));
-
 	new_search_plane(0, NULL);
+	struct ncplane* current_plane = search_planes[current_search_plane_i].plane;
 
-	uint32_t c = NCKEY_RESIZE;
+	uint32_t c = 'r';
 	do{
 		switch(c){
 			case 'q':
@@ -72,6 +72,11 @@ void start_tui(int_least8_t flags, void* data){
 				if(search_planes[current_search_plane_i].search->output_ids.used>0) fullscreen_display(search_planes[current_search_plane_i].search);
 				break;
 		}
+		current_plane = search_planes[current_search_plane_i].plane;
+		ncplane_erase(current_plane);
+		ncplane_printf_yx(current_plane, 2, 2, "Results: %ld", search_planes[current_search_plane_i].search->output_ids.used);
+		ncpile_render(current_plane);
+		ncpile_rasterize(current_plane);
 	}while((c=notcurses_get(nc, NULL, NULL))!='Q');
 	end_label:
 
