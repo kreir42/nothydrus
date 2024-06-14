@@ -26,7 +26,6 @@ static void new_search_plane(unsigned short i, struct search* search_to_copy){
 	struct ncplane_options plane_options = {
 		.y = 0, .x = 0,
 		.rows = screen_rows, .cols = screen_cols,
-		.userptr = search
 	};
 	search_planes[i].plane = ncpile_create(nc, &plane_options);
 
@@ -59,7 +58,8 @@ void start_tui(int_least8_t flags, void* data){
 	new_search_plane(0, NULL);
 	struct ncplane* current_plane = search_planes[current_search_plane_i].plane;
 
-	uint32_t c = 'r';
+	char search_not_run = 1;
+	uint32_t c = NCKEY_RESIZE;
 	do{
 		switch(c){
 			case 'q':
@@ -67,6 +67,7 @@ void start_tui(int_least8_t flags, void* data){
 				break;
 			case 'r':
 				run_search(search_planes[current_search_plane_i].search);
+				search_not_run = 0;
 				break;
 			case 'f':
 				if(search_planes[current_search_plane_i].search->output_ids.used>0) fullscreen_display(search_planes[current_search_plane_i].search);
@@ -74,7 +75,13 @@ void start_tui(int_least8_t flags, void* data){
 		}
 		current_plane = search_planes[current_search_plane_i].plane;
 		ncplane_erase(current_plane);
-		ncplane_printf_yx(current_plane, 2, 2, "Results: %ld", search_planes[current_search_plane_i].search->output_ids.used);
+		ncplane_printf_yx(current_plane, 0, 0, "Results: %ld", search_planes[current_search_plane_i].search->output_ids.used);
+		if(search_not_run){
+			ncplane_putstr(current_plane, " (search not run)");
+			ncplane_cursor_move_rel(current_plane, 0, -strlen("(search not run)"));
+			ncplane_format(current_plane, 0, -1, 1, 0, NCSTYLE_ITALIC);
+		}
+		ncplane_printf_yx(current_plane, 1, 0, "SQL query: %s", search_planes[current_search_plane_i].search->sql);
 		ncpile_render(current_plane);
 		ncpile_rasterize(current_plane);
 	}while((c=notcurses_get(nc, NULL, NULL))!='Q');
