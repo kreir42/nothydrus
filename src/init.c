@@ -21,6 +21,8 @@ void init(){
 				"filepath TEXT UNIQUE);"
 
 				"CREATE UNIQUE INDEX files_hashsize_index ON files(hash, size);"
+				"CREATE INDEX files_size_index ON files(size);"
+				"CREATE INDEX files_filetype_index ON files(filetype);"
 
 				"CREATE TABLE tags("
 				"id INTEGER PRIMARY KEY NOT NULL, "

@@ -3,8 +3,6 @@
 short run_search(struct search* search){
 	search->output_ids.used = 0;
 
-	if(search->sql[0]=='\0') return -1;
-
 	sqlite3_stmt* search_statement;
 	if(sqlite3_prepare_v2(main_db, search->sql, -1, &search_statement, NULL)){
 		fprintf(stderr, "Error preparing SQL search statement: %s\n", sqlite3_errmsg(main_db));
@@ -22,6 +20,30 @@ short run_search(struct search* search){
 	return 0;
 }
 
+short compose_search_sql(struct search* search){
+	strcpy(search->sql, "SELECT id FROM files");
+	switch(search->order_by){
+		case none:
+			break;
+		case size:
+			strcat(search->sql, " ORDER BY size");
+			break;
+		case random_order:
+			strcat(search->sql, " ORDER BY RANDOM()");
+			break;
+	}
+	if(search->order_by!=none && search->descending) strcat(search->sql, " DESC");
+	if(search->limit!=0){
+		char limit_str[30];
+		sprintf(limit_str, " LIMIT %lu", search->limit);
+		strcat(search->sql, limit_str);
+	}
+	strcat(search->sql, ";");
+	if(strlen(search->sql)>(SEARCH_MAX_SQL_LEN-2)) return -1;	//too long
+	else return 0;
+}
+
 void free_search(struct search* search){
 	if(search->output_ids.size>0) free(search->output_ids.data);
 }
+

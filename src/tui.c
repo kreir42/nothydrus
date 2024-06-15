@@ -28,8 +28,6 @@ static void new_search_plane(unsigned short i, struct search* search_to_copy){
 		.rows = screen_rows, .cols = screen_cols,
 	};
 	search_planes[i].plane = ncpile_create(nc, &plane_options);
-
-	if(search_to_copy==NULL) strcpy(search->sql, "SELECT id FROM files ORDER BY RANDOM();");
 }
 
 static inline void free_search_plane(unsigned short i){
@@ -76,6 +74,7 @@ void start_tui(int_least8_t flags, void* data){
 				if(search_planes[current_search_plane_i].search->output_ids.used>0) fullscreen_display(search_planes[current_search_plane_i].search);
 				break;
 		}
+		compose_search_sql(search_planes[current_search_plane_i].search);
 		current_plane = search_planes[current_search_plane_i].plane;
 		ncplane_erase(current_plane);
 		ncplane_printf_yx(current_plane, 0, 0, "Results: %ld", search_planes[current_search_plane_i].search->output_ids.used);

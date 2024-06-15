@@ -23,9 +23,20 @@ void append_id_dynarr(struct id_dynarr* dynarr, sqlite3_int64 id);
 void crop_id_dynarr(struct id_dynarr* dynarr);
 struct search{
 	char sql[SEARCH_MAX_SQL_LEN];
+	unsigned long min_size;
+	unsigned long max_size;
+	enum {none, size, random_order} order_by;
+	char descending;
+	unsigned long limit;
+	//TBD filepath
+	//TBD file flags
+	//TBD filetype
+	//TBD tags
+	//TBD number of tags in taggroup
 	struct id_dynarr output_ids;
 };
 short run_search(struct search* search);
+short compose_search_sql(struct search* search);
 void free_search(struct search* search);
 
 void start_program(int_least8_t flags);
