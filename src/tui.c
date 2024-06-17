@@ -58,6 +58,9 @@ void start_tui(int_least8_t flags, void* data){
 	search_planes = malloc(search_planes_n*sizeof(struct search_plane));
 	new_search_plane(0, NULL);
 	struct ncplane* current_plane = search_planes[current_search_plane_i].plane;
+	struct search* search = search_planes[current_search_plane_i].search;
+
+	unsigned short ui_index = 0;
 
 	char search_not_run = 1;
 	uint32_t c = NCKEY_RESIZE;
@@ -67,23 +70,55 @@ void start_tui(int_least8_t flags, void* data){
 				goto end_label;	//TBD ask for confirmation
 				break;
 			case 'r':
-				run_search(search_planes[current_search_plane_i].search);
+				run_search(search);
 				search_not_run = 0;
 				break;
 			case 'f':
-				if(search_planes[current_search_plane_i].search->output_ids.used>0) fullscreen_display(search_planes[current_search_plane_i].search);
+				if(search->output_ids.used>0) fullscreen_display(search);
+				break;
+			case NCKEY_DOWN:
+				if(ui_index<MAX_UI_INDEX) ui_index++;
+				else ui_index = 0;
+				break;
+			case NCKEY_UP:
+				if(ui_index>0) ui_index--;
+				else ui_index = MAX_UI_INDEX;
 				break;
 		}
-		compose_search_sql(search_planes[current_search_plane_i].search);
 		current_plane = search_planes[current_search_plane_i].plane;
+		search = search_planes[current_search_plane_i].search;
+		compose_search_sql(search);
 		ncplane_erase(current_plane);
+		//mark current index
+		ncplane_putstr_yx(current_plane, 1+ui_index, 0, "->");
+		//number of results
 		ncplane_printf_yx(current_plane, 0, 0, "Results: %ld", search_planes[current_search_plane_i].search->output_ids.used);
 		if(search_not_run){
 			ncplane_putstr(current_plane, " (search not run)");
 			ncplane_cursor_move_rel(current_plane, 0, -strlen("(search not run)"));
 			ncplane_format(current_plane, 0, -1, 1, 0, NCSTYLE_ITALIC);
 		}
-		ncplane_printf_yx(current_plane, 1, 0, "SQL query: %s", search_planes[current_search_plane_i].search->sql);
+		//order by
+		ncplane_putstr_yx(current_plane, 1, 3, "Order by: ");
+		switch(search->order_by){
+			case none:
+				ncplane_putstr(current_plane, "none");
+				break;
+			case size:
+				ncplane_putstr(current_plane, "size");
+				break;
+			case random_order:
+				ncplane_putstr(current_plane, "random");
+				break;
+		}
+		if(search->order_by!=none && search->order_by!=random){
+			if(search->descending) ncplane_putstr(current_plane, " descending");
+			else ncplane_putstr(current_plane, " ascending");
+		}
+		//limit
+		ncplane_printf_yx(current_plane, 2, 3, "Limit (0 for none): %lu", search->limit);
+		//SQL query
+		ncplane_printf_yx(current_plane, 10, 0, "SQL query: %s", search_planes[current_search_plane_i].search->sql);
 		ncpile_render(current_plane);
 		ncpile_rasterize(current_plane);
 	}while((c=notcurses_get(nc, NULL, NULL))!='Q');
