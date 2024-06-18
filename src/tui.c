@@ -60,7 +60,8 @@ void start_tui(int_least8_t flags, void* data){
 	struct ncplane* current_plane = search_planes[current_search_plane_i].plane;
 	struct search* search = search_planes[current_search_plane_i].search;
 
-	unsigned short ui_index = 0;
+	unsigned short ui_index = 0, tag_elements = 0;
+	unsigned short ui_elements = MIN_UI_ELEMENTS + tag_elements;
 
 	char search_not_run = 1;
 	uint32_t c = NCKEY_RESIZE;
@@ -77,20 +78,25 @@ void start_tui(int_least8_t flags, void* data){
 				if(search->output_ids.used>0) fullscreen_display(search);
 				break;
 			case NCKEY_DOWN:
-				if(ui_index<MAX_UI_INDEX) ui_index++;
+				if(ui_index<ui_elements-1) ui_index++;
 				else ui_index = 0;
 				break;
 			case NCKEY_UP:
 				if(ui_index>0) ui_index--;
-				else ui_index = MAX_UI_INDEX;
+				else ui_index = ui_elements-1;
+				break;
+			case 'G':
+				ui_index = ui_elements-1;
 				break;
 		}
 		current_plane = search_planes[current_search_plane_i].plane;
 		search = search_planes[current_search_plane_i].search;
+		ui_elements = MIN_UI_ELEMENTS + tag_elements;
 		compose_search_sql(search);
 		ncplane_erase(current_plane);
 		//mark current index
-		ncplane_putstr_yx(current_plane, 1+ui_index, 0, "->");
+		if(ui_index>=tag_elements) ncplane_putstr_yx(current_plane, 2+ui_index, 0, "->");
+		else ncplane_putstr_yx(current_plane, 1+ui_index, 0, "->");
 		//number of results
 		ncplane_printf_yx(current_plane, 0, 0, "Results: %ld", search_planes[current_search_plane_i].search->output_ids.used);
 		if(search_not_run){
@@ -99,7 +105,7 @@ void start_tui(int_least8_t flags, void* data){
 			ncplane_format(current_plane, 0, -1, 1, 0, NCSTYLE_ITALIC);
 		}
 		//order by
-		ncplane_putstr_yx(current_plane, 1, 3, "Order by: ");
+		ncplane_putstr_yx(current_plane, 1+tag_elements+1, 3, "Order by: ");
 		switch(search->order_by){
 			case none:
 				ncplane_putstr(current_plane, "none");
@@ -116,9 +122,12 @@ void start_tui(int_least8_t flags, void* data){
 			else ncplane_putstr(current_plane, " ascending");
 		}
 		//limit
-		ncplane_printf_yx(current_plane, 2, 3, "Limit (0 for none): %lu", search->limit);
+		ncplane_printf_yx(current_plane, 1+tag_elements+2, 3, "Limit (0 for none): %lu", search->limit);
+		//min, max size
+		ncplane_printf_yx(current_plane, 1+tag_elements+3, 3, "Min size: %lu", search->min_size);
+		ncplane_printf_yx(current_plane, 1+tag_elements+4, 3, "Max size (0 for none): %lu", search->max_size);
 		//SQL query
-		ncplane_printf_yx(current_plane, 10, 0, "SQL query: %s", search_planes[current_search_plane_i].search->sql);
+		ncplane_printf_yx(current_plane, ui_elements+3, 0, "SQL query: %s", search_planes[current_search_plane_i].search->sql);
 		ncpile_render(current_plane);
 		ncpile_rasterize(current_plane);
 	}while((c=notcurses_get(nc, NULL, NULL))!='Q');
