@@ -106,6 +106,27 @@ void start_tui(int_least8_t flags, void* data){
 							search_not_run = 1;
 							break;
 						case 1:	//limit
+							struct ncreader_options ncreader_options = {.flags=NCREADER_OPTION_CURSOR};
+							struct ncplane_options reader_plane_options = {
+								.y = 2+ui_index, .x = 23,
+								.rows = 1, .cols = 20,
+							};
+							struct ncplane* reader_subplane = ncplane_create(current_plane, &reader_plane_options);
+							struct ncreader* reader = ncreader_create(reader_subplane, &ncreader_options);
+							struct ncplane* reader_plane = ncreader_plane(reader);
+							struct ncinput reader_input;
+							ncplane_erase_region(current_plane, 2+ui_index, 23, 1, 20);
+							do{
+								ncpile_render(reader_plane);
+								ncpile_rasterize(reader_plane);
+								c=notcurses_get(nc, NULL, &reader_input);
+								ncreader_offer_input(reader, &reader_input);
+							}while(c!=NCKEY_ENTER);
+							char* reader_contents;
+							ncreader_destroy(reader, &reader_contents);
+							search->limit = strtol(reader_contents, NULL, 10);
+							free(reader_contents);
+							//ncplane_destroy(reader_subplane); //TBD why doesnt this work???
 							break;
 						case 2:	//min_size
 							break;
