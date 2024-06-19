@@ -13,6 +13,7 @@
 #define SEARCH_MAX_SQL_LEN 2000
 #define MIN_ID_DYNARR_SIZE 100
 #define HASH_SIZE 16
+#define WHERE_CLAUSE_SIZE 100
 
 //filetypes
 #define FILETYPE_NONE 0

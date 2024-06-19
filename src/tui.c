@@ -60,9 +60,11 @@ void start_tui(int_least8_t flags, void* data){
 	struct ncplane* current_plane = search_planes[current_search_plane_i].plane;
 	struct search* search = search_planes[current_search_plane_i].search;
 
+	enum {byte, kilobyte, megabyte, gigabyte} min_size_unit=2, max_size_unit=2;
+	unsigned int min_size=search->min_size/1000000, max_size=search->max_size/1000000;
+	char min_size_unit_str[3], max_size_unit_str[3];
 	unsigned short ui_index = 0, tag_elements = 0;
 	unsigned short ui_elements = MIN_UI_ELEMENTS + tag_elements;
-
 	char search_not_run = 1;
 	uint32_t c = NCKEY_RESIZE;
 	do{
@@ -119,10 +121,10 @@ void start_tui(int_least8_t flags, void* data){
 						search->limit++;
 						break;
 					case 2:	//min_size
-						search->min_size++;
+						min_size++;
 						break;
 					case 3:	//max_size
-						search->max_size++;
+						max_size++;
 						break;
 				}
 				break;
@@ -132,14 +134,52 @@ void start_tui(int_least8_t flags, void* data){
 						if(search->limit>0) search->limit--;
 						break;
 					case 2:	//min_size
-						if(search->min_size>0) search->min_size--;
+						if(min_size>0) min_size--;
 						break;
 					case 3:	//max_size
-						if(search->max_size>0) search->max_size--;
+						if(max_size>0) max_size--;
 						break;
 				}
 				break;
 		}
+		//update min, max sizes
+		switch(min_size_unit){
+			case byte:
+				search->min_size = min_size;
+				min_size_unit_str[0] = '\0';
+				break;
+			case kilobyte:
+				search->min_size = min_size*1000;
+				strcpy(min_size_unit_str, "KB");
+				break;
+			case megabyte:
+				search->min_size = min_size*1000000;
+				strcpy(min_size_unit_str, "MB");
+				break;
+			case gigabyte:
+				search->min_size = min_size*1000000000;
+				strcpy(min_size_unit_str, "GB");
+				break;
+		}
+		switch(max_size_unit){
+			case byte:
+				search->max_size = max_size;
+				max_size_unit_str[0] = '\0';
+				break;
+			case kilobyte:
+				search->max_size = max_size*1000;
+				strcpy(max_size_unit_str, "KB");
+				break;
+			case megabyte:
+				search->max_size = max_size*1000000;
+				strcpy(max_size_unit_str, "MB");
+				break;
+			case gigabyte:
+				search->max_size = max_size*1000000000;
+				strcpy(max_size_unit_str, "GB");
+				break;
+		}
+
 		current_plane = search_planes[current_search_plane_i].plane;
 		search = search_planes[current_search_plane_i].search;
 		ui_elements = MIN_UI_ELEMENTS + tag_elements;
@@ -175,8 +215,8 @@ void start_tui(int_least8_t flags, void* data){
 		//limit
 		ncplane_printf_yx(current_plane, 1+tag_elements+2, 3, "Limit (0 for none): %lu", search->limit);
 		//min, max size
-		ncplane_printf_yx(current_plane, 1+tag_elements+3, 3, "Min size: %lu", search->min_size);
-		ncplane_printf_yx(current_plane, 1+tag_elements+4, 3, "Max size (0 for none): %lu", search->max_size);
+		ncplane_printf_yx(current_plane, 1+tag_elements+3, 3, "Min size: %u %s", min_size, min_size_unit_str);
+		ncplane_printf_yx(current_plane, 1+tag_elements+4, 3, "Max size (0 for none): %u %s", max_size, max_size_unit_str);
 		//SQL query
 		ncplane_printf_yx(current_plane, ui_elements+3, 0, "SQL query: %s", search_planes[current_search_plane_i].search->sql);
 		ncpile_render(current_plane);

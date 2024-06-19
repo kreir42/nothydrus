@@ -23,7 +23,7 @@ void append_id_dynarr(struct id_dynarr* dynarr, sqlite3_int64 id);
 void crop_id_dynarr(struct id_dynarr* dynarr);
 struct search{
 	char sql[SEARCH_MAX_SQL_LEN];
-	enum {none, size, random_order} order_by;
+	enum {none, size, random_order} order_by;	//order by other, custom numbers(number of tags in taggroup, rating field...)
 	char descending;
 	unsigned long limit;
 	unsigned long min_size;

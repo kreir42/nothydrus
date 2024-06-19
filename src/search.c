@@ -20,8 +20,25 @@ short run_search(struct search* search){
 	return 0;
 }
 
+static void add_where_clause(char* sql, char* clause){
+	if(strcmp(&sql[strlen(sql)-6], " WHERE")!=0) strcat(sql, " AND");
+	strcat(sql, clause);
+}
+
 short compose_search_sql(struct search* search){
 	strcpy(search->sql, "SELECT id FROM files");
+	if(search->min_size || search->max_size){
+		strcat(search->sql, " WHERE");
+		char where_clause[WHERE_CLAUSE_SIZE];
+		if(search->min_size){
+			sprintf(where_clause, " size>=%lu", search->min_size);
+			add_where_clause(search->sql, where_clause);
+		}
+		if(search->max_size){
+			sprintf(where_clause, " size<=%lu", search->max_size);
+			add_where_clause(search->sql, where_clause);
+		}
+	}
 	switch(search->order_by){
 		case none:
 			break;
