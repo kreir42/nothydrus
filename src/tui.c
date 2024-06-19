@@ -113,6 +113,32 @@ void start_tui(int_least8_t flags, void* data){
 				}else{
 				}
 				break;
+			case '+':
+				if(ui_index>=tag_elements) switch(ui_index-tag_elements){
+					case 1:	//limit
+						search->limit++;
+						break;
+					case 2:	//min_size
+						search->min_size++;
+						break;
+					case 3:	//max_size
+						search->max_size++;
+						break;
+				}
+				break;
+			case '-':
+				if(ui_index>=tag_elements) switch(ui_index-tag_elements){
+					case 1:	//limit
+						if(search->limit>0) search->limit--;
+						break;
+					case 2:	//min_size
+						if(search->min_size>0) search->min_size--;
+						break;
+					case 3:	//max_size
+						if(search->max_size>0) search->max_size--;
+						break;
+				}
+				break;
 		}
 		current_plane = search_planes[current_search_plane_i].plane;
 		search = search_planes[current_search_plane_i].search;
