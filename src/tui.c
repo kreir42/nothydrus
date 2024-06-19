@@ -88,6 +88,31 @@ void start_tui(int_least8_t flags, void* data){
 			case 'G':
 				ui_index = ui_elements-1;
 				break;
+			case NCKEY_ENTER:
+			case ' ':
+				if(ui_index>=tag_elements){
+					switch(ui_index-tag_elements){
+						case 0:	//order by
+							char* order_options[] = {"None", "Size", "Random", NULL};
+							search->order_by = chooser(current_plane, order_options, search->order_by);
+							if(search->order_by==none || search->order_by==random_order){
+								search->descending = 0;
+							}else{
+								char* descending_options[] = {"Ascending", "Descending", NULL};
+								search->descending = chooser(current_plane, descending_options, search->descending);
+							}
+							search_not_run = 1;
+							break;
+						case 1:	//limit
+							break;
+						case 2:	//min_size
+							break;
+						case 3:	//max_size
+							break;
+					}
+				}else{
+				}
+				break;
 		}
 		current_plane = search_planes[current_search_plane_i].plane;
 		search = search_planes[current_search_plane_i].search;
@@ -117,7 +142,7 @@ void start_tui(int_least8_t flags, void* data){
 				ncplane_putstr(current_plane, "random");
 				break;
 		}
-		if(search->order_by!=none && search->order_by!=random){
+		if(search->order_by!=none && search->order_by!=random_order){
 			if(search->descending) ncplane_putstr(current_plane, " descending");
 			else ncplane_putstr(current_plane, " ascending");
 		}
