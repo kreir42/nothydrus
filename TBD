@@ -6,5 +6,4 @@
 - 'check all' case of check command
 - deal with program not being launched from folder with .nothydrus folder
 - have 'tag' command also work with ids directly
-- be able to write numbers directly in tui
 - decimals in tui filesize (when not bytes, use fixed-point)

@@ -36,6 +36,38 @@ static inline void free_search_plane(unsigned short i){
 	ncplane_destroy(search_planes[i].plane);
 }
 
+char* input_reader(struct ncplane* parent_plane, int y, int x, int h, int w){
+	struct ncreader_options ncreader_options = {.flags=NCREADER_OPTION_CURSOR};
+	struct ncplane_options reader_plane_options = {
+		.y = y, .x = x,
+		.rows = h, .cols = w,
+	};
+	struct ncplane* reader_subplane = ncplane_create(parent_plane, &reader_plane_options);
+	struct ncreader* reader = ncreader_create(reader_subplane, &ncreader_options);
+	struct ncplane* reader_plane = ncreader_plane(reader);
+	struct ncinput reader_input;
+	ncplane_erase_region(parent_plane, y, x, h, w);	//TBD? get initial value from here?
+	do{
+		ncpile_render(reader_plane);
+		ncpile_rasterize(reader_plane);
+		if(notcurses_get(nc, NULL, &reader_input)==NCKEY_ENTER) break;
+		ncreader_offer_input(reader, &reader_input);
+	}while(1);
+	char* reader_contents;
+	ncreader_destroy(reader, &reader_contents);
+	//ncplane_destroy(reader_subplane); //TBD why doesnt this work???
+	return reader_contents;
+}
+
+static unsigned short size_unit_from_ptr(char* ptr, unsigned short init_value){
+	while(*ptr==' ') ptr++;	//skip whitespace
+	if(*ptr=='B') return 0;
+	if(*ptr=='K') return 1;
+	if(*ptr=='M') return 2;
+	if(*ptr=='G') return 3;
+	return init_value;
+}
+
 void start_tui(int_least8_t flags, void* data){
 	if(!isatty(fileno(stdin))){
 		freopen("/dev/tty", "r", stdin);	//reopen stdin if there was a pipe
@@ -61,8 +93,9 @@ void start_tui(int_least8_t flags, void* data){
 	struct search* search = search_planes[current_search_plane_i].search;
 
 	enum {byte, kilobyte, megabyte, gigabyte} min_size_unit=2, max_size_unit=2;
-	unsigned int min_size=search->min_size/1000000, max_size=search->max_size/1000000;
+	unsigned long long min_size=search->min_size/1000000, max_size=search->max_size/1000000;
 	char min_size_unit_str[3], max_size_unit_str[3];
+	char* reader_result, * size_unit_ptr;
 	unsigned short ui_index = 0, tag_elements = 0;
 	unsigned short ui_elements = MIN_UI_ELEMENTS + tag_elements;
 	char search_not_run = 1;
@@ -106,31 +139,21 @@ void start_tui(int_least8_t flags, void* data){
 							search_not_run = 1;
 							break;
 						case 1:	//limit
-							struct ncreader_options ncreader_options = {.flags=NCREADER_OPTION_CURSOR};
-							struct ncplane_options reader_plane_options = {
-								.y = 2+ui_index, .x = 23,
-								.rows = 1, .cols = 20,
-							};
-							struct ncplane* reader_subplane = ncplane_create(current_plane, &reader_plane_options);
-							struct ncreader* reader = ncreader_create(reader_subplane, &ncreader_options);
-							struct ncplane* reader_plane = ncreader_plane(reader);
-							struct ncinput reader_input;
-							ncplane_erase_region(current_plane, 2+ui_index, 23, 1, 20);
-							do{
-								ncpile_render(reader_plane);
-								ncpile_rasterize(reader_plane);
-								c=notcurses_get(nc, NULL, &reader_input);
-								ncreader_offer_input(reader, &reader_input);
-							}while(c!=NCKEY_ENTER);
-							char* reader_contents;
-							ncreader_destroy(reader, &reader_contents);
-							search->limit = strtol(reader_contents, NULL, 10);
-							free(reader_contents);
-							//ncplane_destroy(reader_subplane); //TBD why doesnt this work???
+							reader_result = input_reader(current_plane, 2+ui_index, 23, 1, 12);
+							search->limit = strtol(reader_result, NULL, 10);
+							free(reader_result);
 							break;
 						case 2:	//min_size
+							reader_result = input_reader(current_plane, 2+ui_index, 13, 1, 18);
+							min_size = strtoull(reader_result, &size_unit_ptr, 10);
+							min_size_unit = size_unit_from_ptr(size_unit_ptr, min_size_unit);
+							free(reader_result);
 							break;
 						case 3:	//max_size
+							reader_result = input_reader(current_plane, 2+ui_index, 26, 1, 18);
+							max_size = strtoull(reader_result, &size_unit_ptr, 10);
+							max_size_unit = size_unit_from_ptr(size_unit_ptr, max_size_unit);
+							free(reader_result);
 							break;
 					}
 				}else{
@@ -163,6 +186,7 @@ void start_tui(int_least8_t flags, void* data){
 				}
 				break;
 		}
+
 		//update min, max sizes
 		switch(min_size_unit){
 			case byte:
@@ -236,8 +260,8 @@ void start_tui(int_least8_t flags, void* data){
 		//limit
 		ncplane_printf_yx(current_plane, 1+tag_elements+2, 3, "Limit (0 for none): %lu", search->limit);
 		//min, max size
-		ncplane_printf_yx(current_plane, 1+tag_elements+3, 3, "Min size: %u %s", min_size, min_size_unit_str);
-		ncplane_printf_yx(current_plane, 1+tag_elements+4, 3, "Max size (0 for none): %u %s", max_size, max_size_unit_str);
+		ncplane_printf_yx(current_plane, 1+tag_elements+3, 3, "Min size: %llu %s", min_size, min_size_unit_str);
+		ncplane_printf_yx(current_plane, 1+tag_elements+4, 3, "Max size (0 for none): %llu %s", max_size, max_size_unit_str);
 		//SQL query
 		ncplane_printf_yx(current_plane, ui_elements+3, 0, "SQL query: %s", search_planes[current_search_plane_i].search->sql);
 		ncpile_render(current_plane);
