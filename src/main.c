@@ -6,7 +6,35 @@ sqlite3* main_db;
 int main(int argc, char** argv){
 	char* target_dir = ".";
 	for(unsigned short i=1; i<argc; i++){
-		if(!strcmp(argv[i], "init")){
+		if(!strcmp(argv[i], "--help") || !strcmp(argv[i], "-h")){
+			puts("Usage: "PROGRAM_NAME" [command] [command option(s)] [argument(s)]");
+			puts("Commands:");
+			puts("     init [target directory]");
+			puts("          Creates a database in \"target directory\"/"INIT_DIRECTORY", or in "INIT_DIRECTORY" at the current path if a target directory is not given.");
+			puts("     add [target file path(s)]");
+			puts("          Adds the target files to the database, if not already there.");
+			puts("          Paths must be absolute or relative to the base path (the target directory in init command).");	//TBD change this
+			puts("          Paths can also be piped through stdin.");
+			puts("     sql-search [sql search]");
+			puts("          Returns the result of an SQL query. The query must return a single integer column.");
+			puts("          By default, the result is assumed to be file ids, and converted to filepaths. This can be specified with the --filepath command option.");
+			puts("          --id option will skip the conversion to filepath and return the number directly.");
+			puts("     display [file id(s)]");
+			puts("          Given a series of file ids as arguments and/or piped in through stdin, displays them fullscreen in a TUI.");
+			puts("     check [file(s)]");
+			puts("          Checks the presence of files, given as arguments or piped in through stdin.");
+			puts("          --id option will make the command expect file ids instead of filepaths.");
+			puts("          --hash option will make the command also check the hash of the file. Otherwise, it only checks the file exists and has the correct size.");
+//			puts("          If given no files, will check all files in the database.");TBD
+			puts("     add_tag [tag] [taggroup]");
+			puts("          Adds a single new tag to the database. Can provide a taggroup as a second argument, otherwise the default taggroup is assumed.");
+			puts("     add_taggroup [taggroup]");
+			puts("          Adds a single new taggroup to the database.");	//TBD multiple taggroups in single command
+			puts("     tag [tag] [--taggroup taggroup] [file path(s)]");
+			puts("          Tags files whose filepaths are given as arguments or piped in with tag.");
+			puts("          --taggroup option after the tag allows you to specify the tag's taggroup. Otherwise, the default taggroup is assumed.");
+			return 0;
+		}else if(!strcmp(argv[i], "init")){
 			i++;
 			if(i==(argc-1)){
 				target_dir = argv[i];
@@ -15,9 +43,9 @@ int main(int argc, char** argv){
 				return -1;
 			}
 			if(chdir(target_dir)){
-				fprintf(stderr, "Error: could not chdir to directory %s. ", target_dir);
+				fprintf(stderr, "Error: could not chdir to directory %s", target_dir);
 				perror(NULL);
-				break;
+				return -1;
 			}
 			init();
 			break;
@@ -96,7 +124,7 @@ int main(int argc, char** argv){
 			i++;
 			if(argc==i){
 				if(isatty(fileno(stdin))){
-					fprintf(stderr, "Error: display command requires at least one argument\n");
+					fprintf(stderr, "Error: check command requires at least one argument\n");
 					return -1;
 				}
 			}else{
@@ -167,8 +195,8 @@ int main(int argc, char** argv){
 			return 0;
 		}else if(!strcmp(argv[i], "tag")){
 			i++;
-			if(argc-i<1){
-				fprintf(stderr, "Error: add_tag command requires at least one arguments\n");
+			if(argc-i<2){
+				fprintf(stderr, "Error: tag command requires at least two arguments\n");
 				return -1;
 			}
 			char* tag_name = argv[i];
@@ -218,6 +246,7 @@ int main(int argc, char** argv){
 			return 0;
 		}else{
 			fprintf(stderr, "Error: unrecognized argument %s\n", argv[i]);
+			fprintf(stderr, "Run "PROGRAM_NAME" -h for help\n");
 			return -1;
 		}
 	}
