@@ -39,12 +39,13 @@ short run_search(struct search* search);
 short compose_search_sql(struct search* search);
 void free_search(struct search* search);
 
-void start_program(int_least8_t flags);
+void start_program(int_least8_t flags);	//TBD? enum instead of flag
 #define START_PROGRAM_INIT		(1<<0)
 #define START_PROGRAM_ADD_FILES		(1<<1)
 #define START_PROGRAM_TUI		(1<<2)
 #define START_PROGRAM_SQL_SEARCH	(1<<3)
 #define START_PROGRAM_DISPLAY		(1<<4)
+#define START_PROGRAM_TAG		(1<<5)
 void end_program();
 
 

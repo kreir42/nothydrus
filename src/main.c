@@ -206,7 +206,7 @@ int main(int argc, char** argv){
 				return -1;
 			}
 			char* tag_name = argv[i];
-			start_program(0);
+			start_program(START_PROGRAM_TAG);
 			sqlite3_int64 tag_id, taggroup_id;
 			if(i+1<argc && !strcmp(argv[i+1], "--taggroup")){
 				taggroup_id = taggroup_id_from_name(argv[i+2]);

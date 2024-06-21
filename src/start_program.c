@@ -194,6 +194,15 @@ void start_program(int_least8_t flags){
 		prepare_flags_from_id();
 		return;
 	}
+	if(flags & START_PROGRAM_TAG){
+		prepare_id_from_filepath();
+		prepare_add_tag();
+		prepare_add_taggroup();
+		prepare_tag_id_from_name();
+		prepare_taggroup_id_from_name();
+		prepare_tag();
+		return;
+	}
 	prepare_add_file();
 	prepare_filepath_from_id();
 	prepare_flags_from_id();
