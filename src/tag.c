@@ -1,14 +1,7 @@
 #include "nothydrus.h"
 
-void add_tag(char* name, char* taggroup_name){
+void add_tag(char* name, sqlite3_int64 taggroup_id){
 	sqlite3_bind_text(add_tag_statement, 1, name, -1, SQLITE_STATIC);
-	sqlite3_int64 taggroup_id;
-	if(taggroup_name==NULL) taggroup_id = 1;
-	else taggroup_id = taggroup_id_from_name(taggroup_name);
-	if(taggroup_id==-1){
-		fprintf(stderr, "Error in add_tag: taggroup_id_from_name(taggroup_name) returned -1, probably meaning taggroup couldnt be found\n");
-		return;
-	}
 	sqlite3_bind_int64(add_tag_statement, 2, taggroup_id);
 
 	if(sqlite3_step(add_tag_statement) != SQLITE_DONE){
