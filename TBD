@@ -7,3 +7,4 @@
 - deal with program not being launched from folder with .nothydrus folder
 - have 'tag' command also work with ids directly
 - decimals in tui filesize (when not bytes, use fixed-point)
+- flags for tag command to auto-add if not exists
