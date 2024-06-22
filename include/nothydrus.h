@@ -21,6 +21,10 @@ struct id_dynarr{
 struct id_dynarr new_id_dynarr(unsigned long initial_size);
 void append_id_dynarr(struct id_dynarr* dynarr, sqlite3_int64 id);
 void crop_id_dynarr(struct id_dynarr* dynarr);
+struct or_tag_element{
+	unsigned short or_number;	//number of ids pointed to by ids
+	sqlite3_int64* ids;
+};
 struct search{
 	char sql[SEARCH_MAX_SQL_LEN];
 	enum {none, size, random_order} order_by;	//order by other, custom numbers(number of tags in taggroup, rating field...)
@@ -28,10 +32,15 @@ struct search{
 	unsigned long limit;
 	unsigned long min_size;
 	unsigned long max_size;
+	unsigned short include_tags_n;
+	sqlite3_int64* include_tags;
+	unsigned short exclude_tags_n;
+	sqlite3_int64* exclude_tags;
+	unsigned short or_tag_elements_n;
+	struct or_tag_element* or_tag_elements;
 	//TBD filepath
 	//TBD file flags
 	//TBD filetype
-	//TBD tags
 	//TBD number of tags in taggroup
 	struct id_dynarr output_ids;
 };

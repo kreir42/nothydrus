@@ -27,7 +27,7 @@ static void add_where_clause(char* sql, char* clause){
 
 short compose_search_sql(struct search* search){
 	strcpy(search->sql, "SELECT id FROM files");
-	if(search->min_size || search->max_size){
+	if(search->min_size || search->max_size || search->include_tags_n>0 || search->exclude_tags_n>0 || search->or_tag_elements_n>0){
 		strcat(search->sql, " WHERE");
 		char where_clause[WHERE_CLAUSE_SIZE];
 		if(search->min_size){
@@ -37,6 +37,48 @@ short compose_search_sql(struct search* search){
 		if(search->max_size){
 			sprintf(where_clause, " size<=%lu", search->max_size);
 			add_where_clause(search->sql, where_clause);
+		}
+		if(search->include_tags_n>0 || search->exclude_tags_n>0 || search->or_tag_elements_n>0){
+			char tag_clause[TAG_CLAUSE_SIZE];
+			strcpy(tag_clause, " id IN(SELECT file FROM filestags WHERE tag");
+			if(search->include_tags_n>0){
+				strcat(tag_clause, " IN(");
+				for(unsigned short i=0; i<search->include_tags_n; i++){
+					if(i>0) strcat(tag_clause, ", ");
+					sprintf(where_clause, "%llu", search->include_tags[i]);
+					strcat(tag_clause, where_clause);
+				}
+				strcat(tag_clause, ")");
+				if(search->exclude_tags_n>0) strcat(tag_clause, " AND tag");
+			}
+			if(search->exclude_tags_n>0){
+				strcat(tag_clause, " NOT IN(");
+				for(unsigned short i=0; i<search->exclude_tags_n; i++){
+					if(i>0) strcat(tag_clause, ", ");
+					sprintf(where_clause, "%llu", search->exclude_tags[i]);
+					strcat(tag_clause, where_clause);
+				}
+				strcat(tag_clause, ")");
+			}
+			if(search->include_tags_n>1){
+				sprintf(where_clause, " GROUP BY file HAVING COUNT(1)=%d", search->include_tags_n);
+				strcat(tag_clause, where_clause);
+			}
+			if((search->include_tags_n>0||search->exclude_tags_n>0) && search->or_tag_elements_n>0) strcat(tag_clause, " INTERSECT SELECT file FROM filestags WHERE tag");
+			if(search->or_tag_elements_n>0){
+				for(unsigned short i=0; i<search->or_tag_elements_n; i++){
+					if(i>0) strcat(tag_clause, " INTERSECT SELECT file FROM filestags WHERE tag");
+					strcat(tag_clause, " IN(");
+					for(unsigned short j=0; j<search->or_tag_elements[i].or_number; j++){
+						if(j>0) strcat(tag_clause, ", ");
+						sprintf(where_clause, "%llu", search->or_tag_elements[i].ids[j]);
+						strcat(tag_clause, where_clause);
+					}
+					strcat(tag_clause, ")");
+				}
+			}
+			strcat(tag_clause, ")");
+			add_where_clause(search->sql, tag_clause);
 		}
 	}
 	switch(search->order_by){
