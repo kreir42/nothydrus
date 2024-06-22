@@ -68,10 +68,23 @@ static void search_tags(struct id_dynarr* dynarr, char* tag_search){
 		else break;
 	}
 
+	//TBD put strlen in variable
 	char* tag_name_search = malloc((strlen(tag_name)+3)*sizeof(char));
-	sprintf(tag_name_search, "%%%s%%", tag_name);
+	if(tag_name[0]=='"' && tag_name[strlen(tag_name)-1]=='"'){
+		tag_name++;
+		sprintf(tag_name_search, "%s", tag_name);
+		tag_name_search[strlen(tag_name_search)-1] = '\0';
+	}else{
+		sprintf(tag_name_search, "%%%s%%", tag_name);
+	}
 	char* taggroup_name_search = malloc((strlen(taggroup_name)+3)*sizeof(char));
-	sprintf(taggroup_name_search, "%%%s%%", taggroup_name);
+	if(taggroup_name[0]=='"' && taggroup_name[strlen(taggroup_name)-1]=='"'){
+		taggroup_name++;
+		sprintf(taggroup_name_search, "%s", taggroup_name);
+		taggroup_name_search[strlen(taggroup_name_search)-1] = '\0';
+	}else{
+		sprintf(taggroup_name_search, "%%%s%%", taggroup_name);
+	}
 
 	dynarr->used = 0;
 	sqlite3_clear_bindings(search_tags_statement);
