@@ -14,6 +14,6 @@ char* tag_name_from_id(sqlite3_int64 id, sqlite3_int64* taggroup){
 		sqlite3_reset(tag_name_from_id_statement);
 		return NULL;
 	}
-	*taggroup = sqlite3_column_int64(tag_name_from_id_statement, 1);
+	if(taggroup!=NULL) *taggroup = sqlite3_column_int64(tag_name_from_id_statement, 1);
 	return sqlite3_column_text(tag_name_from_id_statement, 0);
 }

@@ -59,6 +59,31 @@ char* input_reader(struct ncplane* parent_plane, int y, int x, int h, int w){
 	return reader_contents;
 }
 
+static void search_tags(struct id_dynarr* dynarr, char* tag_search){
+	char* tag_name = tag_search;
+	while(*tag_name==' ') tag_name++;	//skip begginning whitespace
+	for(unsigned short i=strlen(tag_name)-1; i>0; i--){
+		if(tag_name[i]==' ') tag_name[i]='\0';	//remove trailing whitespace
+		else break;
+	}
+
+	dynarr->used = 0;
+	sqlite3_clear_bindings(search_tags_statement);
+	if(sqlite3_reset(search_tags_statement)!=SQLITE_OK){
+		fprintf(stderr, "sqlite3_reset(search_tags_statement) returned an error: %s\n", sqlite3_errmsg(main_db));
+		return;
+	}
+	sqlite3_bind_text(search_tags_statement, 1, tag_name, -1, SQLITE_STATIC);
+	int error_code;
+	while((error_code=sqlite3_step(search_tags_statement)) == SQLITE_ROW){
+		append_id_dynarr(dynarr, sqlite3_column_int64(search_tags_statement, 0));
+	}
+	if(error_code != SQLITE_DONE){
+		fprintf(stderr, "Error executing search_tags_statement at row %ld: %s\n", dynarr->used, sqlite3_errmsg(main_db));
+		return;
+	}
+}
+
 static void add_tag_tui(struct ncplane* parent_plane, struct search* search){
 	struct ncplane_options plane_options = {
 		.y = NCALIGN_CENTER, .x = NCALIGN_CENTER,
@@ -68,7 +93,7 @@ static void add_tag_tui(struct ncplane* parent_plane, struct search* search){
 	struct ncplane* plane = ncplane_create(parent_plane, &plane_options);
 	ncplane_putstr_yx(plane, 1, 3, "Search here");
 
-	char* tag_search, *tag_search_tag, *tag_search_taggroup;
+	char* tag_search;
 	struct id_dynarr search_results = new_id_dynarr(10);
 	sqlite3_int64 tag_id = 0;
 	unsigned short ui_index=0, ui_elements=1;
@@ -87,12 +112,7 @@ static void add_tag_tui(struct ncplane* parent_plane, struct search* search){
 			case ' ':
 				if(ui_index==0){
 					tag_search = input_reader(plane, 1, 3, 1, TAG_SEARCH_COLS-2);
-					tag_search_tag = tag_search;
-					while(*tag_search_tag==' ') tag_search_tag++;	//skip begginning whitespace
-					for(unsigned short i=strlen(tag_search_tag)-1; i>0; i--){
-						if(tag_search_tag[i]==' ') tag_search_tag[i]='\0';	//remove trailing whitespace
-						else break;
-					}
+					search_tags(&search_results, tag_search);
 					ncplane_putstr_yx(plane, 1, 3, tag_search);
 //					tag_id = tag_id_from_name(tag_search_tag, 1);
 					free(tag_search);
@@ -103,6 +123,9 @@ static void add_tag_tui(struct ncplane* parent_plane, struct search* search){
 				break;
 		}
 		ncplane_putstr_yx(plane, 1+ui_index, 1, "->");
+		for(unsigned short i=0; i<search_results.used && i<TAG_SEARCH_ROWS; i++){
+			ncplane_putstr_yx(plane, i+2, 3, tag_name_from_id(search_results.data[i], NULL));
+		}
 		ncpile_render(plane);
 		ncpile_rasterize(plane);
 		c = notcurses_get(nc, NULL, NULL);
