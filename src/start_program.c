@@ -179,8 +179,9 @@ static inline void prepare_untag(){
 
 static inline void prepare_search_tags(){
 	if(sqlite3_prepare_v3(main_db,
-				"SELECT tags.id FROM tags JOIN taggroups ON taggroups.id=tags.taggroup "	//TBD use taggroup too
-				"WHERE tags.name LIKE ?;"
+				"SELECT tags.id FROM tags JOIN taggroups ON taggroups.id=tags.taggroup AND taggroups.name LIKE ? "
+				"WHERE tags.name LIKE ? "
+				"ORDER BY tags.number;"
 				, -1, SQLITE_PREPARE_PERSISTENT, &search_tags_statement, NULL) != SQLITE_OK){
 		fprintf(stderr, "Error preparing search_tags_statement: %s\n", sqlite3_errmsg(main_db));
 	}
