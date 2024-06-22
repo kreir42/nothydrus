@@ -59,6 +59,58 @@ char* input_reader(struct ncplane* parent_plane, int y, int x, int h, int w){
 	return reader_contents;
 }
 
+static void add_tag_tui(struct ncplane* parent_plane, struct search* search){
+	struct ncplane_options plane_options = {
+		.y = NCALIGN_CENTER, .x = NCALIGN_CENTER,
+		.rows = TAG_SEARCH_ROWS+3, .cols = TAG_SEARCH_COLS+2,	//TBD take max size into account
+		.flags = NCPLANE_OPTION_HORALIGNED | NCPLANE_OPTION_VERALIGNED
+	};
+	struct ncplane* plane = ncplane_create(parent_plane, &plane_options);
+	ncplane_putstr_yx(plane, 1, 3, "Search here");
+
+	char* tag_search, *tag_search_tag, *tag_search_taggroup;
+	struct id_dynarr search_results = new_id_dynarr(10);
+	sqlite3_int64 tag_id = 0;
+	unsigned short ui_index=0, ui_elements=1;
+	uint32_t c = NCKEY_RESIZE;
+	do{
+		switch(c){
+			case NCKEY_DOWN:
+				if(ui_index<ui_elements-1) ui_index++;
+				else ui_index = 0;
+				break;
+			case NCKEY_UP:
+				if(ui_index>0) ui_index--;
+				else ui_index = ui_elements-1;
+				break;
+			case NCKEY_ENTER:
+			case ' ':
+				if(ui_index==0){
+					tag_search = input_reader(plane, 1, 3, 1, TAG_SEARCH_COLS-2);
+					tag_search_tag = tag_search;
+					while(*tag_search_tag==' ') tag_search_tag++;	//skip begginning whitespace
+					for(unsigned short i=strlen(tag_search_tag)-1; i>0; i--){
+						if(tag_search_tag[i]==' ') tag_search_tag[i]='\0';	//remove trailing whitespace
+						else break;
+					}
+					ncplane_putstr_yx(plane, 1, 3, tag_search);
+//					tag_id = tag_id_from_name(tag_search_tag, 1);
+					free(tag_search);
+				}
+				break;
+			case 'a':
+				//TBD add
+				break;
+		}
+		ncplane_putstr_yx(plane, 1+ui_index, 1, "->");
+		ncpile_render(plane);
+		ncpile_rasterize(plane);
+		c = notcurses_get(nc, NULL, NULL);
+	}while(c!='q' && c!='Q');
+	ncplane_destroy(plane);
+	if(search_results.data!=NULL) free(search_results.data);
+}
+
 static unsigned short size_unit_from_ptr(char* ptr, unsigned short init_value){
 	while(*ptr==' ') ptr++;	//skip whitespace
 	if(*ptr=='B') return 0;
@@ -122,6 +174,9 @@ void start_tui(int_least8_t flags, void* data){
 				break;
 			case 'G':
 				ui_index = ui_elements-1;
+				break;
+			case 't':
+				add_tag_tui(current_plane, search);
 				break;
 			case NCKEY_ENTER:
 			case ' ':

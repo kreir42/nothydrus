@@ -15,6 +15,8 @@
 #define HASH_SIZE 16
 #define WHERE_CLAUSE_SIZE 200
 #define TAG_CLAUSE_SIZE 2000
+#define TAG_SEARCH_ROWS 16
+#define TAG_SEARCH_COLS 40
 
 //filetypes
 #define FILETYPE_NONE 0

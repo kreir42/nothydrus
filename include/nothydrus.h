@@ -21,6 +21,7 @@ struct id_dynarr{
 struct id_dynarr new_id_dynarr(unsigned long initial_size);
 void append_id_dynarr(struct id_dynarr* dynarr, sqlite3_int64 id);
 void crop_id_dynarr(struct id_dynarr* dynarr);
+
 struct or_tag_element{
 	unsigned short or_number;	//number of ids pointed to by ids
 	sqlite3_int64* ids;
