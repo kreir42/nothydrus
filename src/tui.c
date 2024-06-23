@@ -103,6 +103,18 @@ static void search_tags(struct id_dynarr* dynarr, char* tag_search){
 	free(taggroup_name_search);
 }
 
+static void add_tag_to_search(char exclude_flag, sqlite3_int64 tag_id, struct search* search){
+	if(exclude_flag){
+		search->exclude_tags_n++;
+		search->exclude_tags = realloc(search->exclude_tags, sizeof(sqlite3_int64)*search->exclude_tags_n);
+		search->exclude_tags[search->exclude_tags_n-1] = tag_id;
+	}else{
+		search->include_tags_n++;
+		search->include_tags = realloc(search->include_tags, sizeof(sqlite3_int64)*search->include_tags_n);
+		search->include_tags[search->include_tags_n-1] = tag_id;
+	}
+}
+
 static void add_tag_tui(struct ncplane* parent_plane, struct search* search){
 	struct ncplane_options plane_options = {
 		.y = NCALIGN_CENTER, .x = NCALIGN_CENTER,
@@ -144,15 +156,14 @@ static void add_tag_tui(struct ncplane* parent_plane, struct search* search){
 					ncplane_putstr_yx(plane, 1, 3, tag_search);
 					free(tag_search);
 				}else{
-					sqlite3_int64 tag_id = search_results.data[ui_index-1];
-					if(exclude_flag){
-						search->exclude_tags_n++;
-						search->exclude_tags = realloc(search->exclude_tags, sizeof(sqlite3_int64)*search->exclude_tags_n);
-						search->exclude_tags[search->exclude_tags_n-1] = tag_id;
-					}else{
-						search->include_tags_n++;
-						search->include_tags = realloc(search->include_tags, sizeof(sqlite3_int64)*search->include_tags_n);
-						search->include_tags[search->include_tags_n-1] = tag_id;
+					add_tag_to_search(exclude_flag, search_results.data[ui_index-1], search);
+					goto end_label;
+				}
+				break;
+			case 'A':	//TBD change to OR
+				if(search_results.used>0){
+					for(unsigned short i=0; i<search_results.used; i++){
+						add_tag_to_search(exclude_flag, search_results.data[i], search);
 					}
 					goto end_label;
 				}
