@@ -18,6 +18,7 @@ static struct {
 	"mpeg", FILETYPE_VIDEO,
 	"wmv", FILETYPE_VIDEO,
 	"mov", FILETYPE_VIDEO,
+	"gif", FILETYPE_VIDEO,
 	NULL, FILETYPE_NONE
 };
 

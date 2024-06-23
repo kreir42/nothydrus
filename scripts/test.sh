@@ -1,3 +1,3 @@
 #!/bin/sh
 rm -rd .nothydrus
-make && ./nothydrus init && time ./nothydrus add test_files/* && ./nothydrus "$@" && tree -a .nothydrus && du -sh .nothydrus
+make && ./nothydrus init && time ./scripts/hydrus_txt_import.sh test_files/* | tee test_log.txt && ./nothydrus "$@" && tree -a .nothydrus && du -sh .nothydrus

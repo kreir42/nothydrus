@@ -212,7 +212,7 @@ int main(int argc, char** argv){
 				taggroup_id = taggroup_id_from_name(argv[i+2]);
 				if(taggroup_id==-1){
 					if(add_flag){
-						puts("taggroup not found, adding");
+						printf("taggroup '%s' not found, adding\n", argv[i+2]);
 						add_taggroup(argv[i+2]);
 						taggroup_id = taggroup_id_from_name(argv[i+2]);
 					}else{
@@ -228,7 +228,7 @@ int main(int argc, char** argv){
 			tag_id = tag_id_from_name(tag_name, taggroup_id);
 			if(tag_id==-1){
 				if(add_flag){
-					puts("tag not found, adding");
+					printf("tag '%s' not found, adding\n", tag_name);
 					add_tag(tag_name, taggroup_id);
 					tag_id = tag_id_from_name(tag_name, taggroup_id);
 				}else{
