@@ -8,6 +8,8 @@ static struct search_plane{
 	struct search* search;
 }* search_planes;
 
+char search_not_run = 1;
+
 static void new_search_plane(unsigned short i, struct search* search_to_copy){
 	search_planes[i].search = malloc(sizeof(struct search));
 	struct search* search = search_planes[i].search;
@@ -104,6 +106,7 @@ static void search_tags(struct id_dynarr* dynarr, char* tag_search){
 }
 
 static void add_tag_to_search(char exclude_flag, sqlite3_int64 tag_id, struct search* search){
+	//TBD search for duplicate tabs
 	if(exclude_flag){
 		search->exclude_tags_n++;
 		search->exclude_tags = realloc(search->exclude_tags, sizeof(sqlite3_int64)*search->exclude_tags_n);
@@ -113,6 +116,7 @@ static void add_tag_to_search(char exclude_flag, sqlite3_int64 tag_id, struct se
 		search->include_tags = realloc(search->include_tags, sizeof(sqlite3_int64)*search->include_tags_n);
 		search->include_tags[search->include_tags_n-1] = tag_id;
 	}
+	search_not_run = 1;
 }
 
 static void add_tag_tui(struct ncplane* parent_plane, struct search* search){
@@ -224,7 +228,6 @@ void start_tui(int_least8_t flags, void* data){
 	char* reader_result, * size_unit_ptr;
 	unsigned short ui_index = 0, tag_elements = 0;
 	unsigned short ui_elements = MIN_UI_ELEMENTS + tag_elements;
-	char search_not_run = 1;
 	uint32_t c = NCKEY_RESIZE;
 	do{
 		switch(c){
@@ -246,71 +249,90 @@ void start_tui(int_least8_t flags, void* data){
 				if(ui_index>0) ui_index--;
 				else ui_index = ui_elements-1;
 				break;
+			case 'g':
+				ui_index = 0;
+				break;
 			case 'G':
-				ui_index = ui_elements-1;
+				ui_index = ui_elements;
 				break;
 			case 't':
 				add_tag_tui(current_plane, search);
 				break;
 			case NCKEY_ENTER:
 			case ' ':
-				if(ui_index>=tag_elements){
-					switch(ui_index-tag_elements){
-						case 0:	//order by
-							char* order_options[] = {"None", "Size", "Random", NULL};
-							search->order_by = chooser(current_plane, order_options, search->order_by);
-							if(search->order_by==none || search->order_by==random_order){
-								search->descending = 0;
-							}else{
-								char* descending_options[] = {"Ascending", "Descending", NULL};
-								search->descending = chooser(current_plane, descending_options, search->descending);
-							}
-							search_not_run = 1;
-							break;
-						case 1:	//limit
-							reader_result = input_reader(current_plane, 2+ui_index, 23, 1, 12);
-							search->limit = strtol(reader_result, NULL, 10);
-							free(reader_result);
-							break;
-						case 2:	//min_size
-							reader_result = input_reader(current_plane, 2+ui_index, 13, 1, 18);
-							min_size = strtoull(reader_result, &size_unit_ptr, 10);
-							min_size_unit = size_unit_from_ptr(size_unit_ptr, min_size_unit);
-							free(reader_result);
-							break;
-						case 3:	//max_size
-							reader_result = input_reader(current_plane, 2+ui_index, 26, 1, 18);
-							max_size = strtoull(reader_result, &size_unit_ptr, 10);
-							max_size_unit = size_unit_from_ptr(size_unit_ptr, max_size_unit);
-							free(reader_result);
-							break;
-					}
-				}else{
+				switch(ui_index){
+					case 0:	//order by
+						char* order_options[] = {"None", "Size", "Random", NULL};
+						search->order_by = chooser(current_plane, order_options, search->order_by);
+						if(search->order_by==none || search->order_by==random_order){
+							search->descending = 0;
+						}else{
+							char* descending_options[] = {"Ascending", "Descending", NULL};
+							search->descending = chooser(current_plane, descending_options, search->descending);
+						}
+						search_not_run = 1;
+						break;
+					case 1:	//limit
+						reader_result = input_reader(current_plane, 1+ui_index, 23, 1, 12);
+						search->limit = strtol(reader_result, NULL, 10);
+						free(reader_result);
+						search_not_run = 1;
+						break;
+					case 2:	//min_size
+						reader_result = input_reader(current_plane, 1+ui_index, 13, 1, 18);
+						min_size = strtoull(reader_result, &size_unit_ptr, 10);
+						min_size_unit = size_unit_from_ptr(size_unit_ptr, min_size_unit);
+						free(reader_result);
+						search_not_run = 1;
+						break;
+					case 3:	//max_size
+						reader_result = input_reader(current_plane, 1+ui_index, 26, 1, 18);
+						max_size = strtoull(reader_result, &size_unit_ptr, 10);
+						max_size_unit = size_unit_from_ptr(size_unit_ptr, max_size_unit);
+						free(reader_result);
+						search_not_run = 1;
+						break;
+					case 4:	//add tag
+						break;
+					default:
+						break;
 				}
 				break;
 			case '+':
-				if(ui_index>=tag_elements) switch(ui_index-tag_elements){
+				switch(ui_index){
 					case 1:	//limit
 						search->limit++;
+						search_not_run = 1;
 						break;
 					case 2:	//min_size
 						min_size++;
+						search_not_run = 1;
 						break;
 					case 3:	//max_size
 						max_size++;
+						search_not_run = 1;
 						break;
 				}
 				break;
 			case '-':
-				if(ui_index>=tag_elements) switch(ui_index-tag_elements){
+				switch(ui_index){
 					case 1:	//limit
-						if(search->limit>0) search->limit--;
+						if(search->limit>0){
+							search->limit--;
+							search_not_run = 1;
+						}
 						break;
 					case 2:	//min_size
-						if(min_size>0) min_size--;
+						if(min_size>0){
+							min_size--;
+							search_not_run = 1;
+						}
 						break;
 					case 3:	//max_size
-						if(max_size>0) max_size--;
+						if(max_size>0){
+							max_size--;
+							search_not_run = 1;
+						}
 						break;
 				}
 				break;
@@ -356,12 +378,13 @@ void start_tui(int_least8_t flags, void* data){
 
 		current_plane = search_planes[current_search_plane_i].plane;
 		search = search_planes[current_search_plane_i].search;
+		tag_elements = search->include_tags_n + search->exclude_tags_n + search->or_tag_elements_n;
 		ui_elements = MIN_UI_ELEMENTS + tag_elements;
 		compose_search_sql(search);
 		ncplane_erase(current_plane);
 		//mark current index
-		if(ui_index>=tag_elements) ncplane_putstr_yx(current_plane, 2+ui_index, 0, "->");
-		else ncplane_putstr_yx(current_plane, 1+ui_index, 0, "->");
+		if(ui_index<MIN_UI_ELEMENTS-1) ncplane_putstr_yx(current_plane, 1+ui_index, 0, "->");
+		else ncplane_putstr_yx(current_plane, 2+ui_index, 0, "->");
 		//number of results
 		ncplane_printf_yx(current_plane, 0, 0, "Results: %ld", search_planes[current_search_plane_i].search->output_ids.used);
 		if(search_not_run){
@@ -370,7 +393,7 @@ void start_tui(int_least8_t flags, void* data){
 			ncplane_format(current_plane, 0, -1, 1, 0, NCSTYLE_ITALIC);
 		}
 		//order by
-		ncplane_putstr_yx(current_plane, 1+tag_elements+1, 3, "Order by: ");
+		ncplane_putstr_yx(current_plane, 1, 3, "Order by: ");
 		switch(search->order_by){
 			case none:
 				ncplane_putstr(current_plane, "none");
@@ -387,10 +410,22 @@ void start_tui(int_least8_t flags, void* data){
 			else ncplane_putstr(current_plane, " ascending");
 		}
 		//limit
-		ncplane_printf_yx(current_plane, 1+tag_elements+2, 3, "Limit (0 for none): %lu", search->limit);
+		ncplane_printf_yx(current_plane, 2, 3, "Limit (0 for none): %lu", search->limit);
 		//min, max size
-		ncplane_printf_yx(current_plane, 1+tag_elements+3, 3, "Min size: %llu %s", min_size, min_size_unit_str);
-		ncplane_printf_yx(current_plane, 1+tag_elements+4, 3, "Max size (0 for none): %llu %s", max_size, max_size_unit_str);
+		ncplane_printf_yx(current_plane, 3, 3, "Min size: %llu %s", min_size, min_size_unit_str);
+		ncplane_printf_yx(current_plane, 4, 3, "Max size (0 for none): %llu %s", max_size, max_size_unit_str);
+		//add new tag button
+		ncplane_putstr_yx(current_plane, 6, 3, "Add new tag");
+		//tags
+		for(unsigned short i=0; i<search->include_tags_n; i++){
+			ncplane_putstr_yx(current_plane, 2+MIN_UI_ELEMENTS+i, 3, tag_name_from_id(search->include_tags[i], NULL));
+		}
+		for(unsigned short i=0; i<search->exclude_tags_n; i++){
+			ncplane_printf_yx(current_plane, 2+MIN_UI_ELEMENTS+search->include_tags_n+i, 3, "-%s", tag_name_from_id(search->exclude_tags[i], NULL));
+		}
+		for(unsigned short i=0; i<search->or_tag_elements_n; i++){
+			//TBD
+		}
 		//SQL query
 		ncplane_printf_yx(current_plane, ui_elements+3, 0, "SQL query: %s", search_planes[current_search_plane_i].search->sql);
 		ncpile_render(current_plane);
