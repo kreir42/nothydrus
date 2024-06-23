@@ -14,6 +14,7 @@ sqlite3_stmt* add_taggroup_statement;
 sqlite3_stmt* tag_id_from_name_statement;
 sqlite3_stmt* taggroup_id_from_name_statement;
 sqlite3_stmt* tag_name_from_id_statement;
+sqlite3_stmt* tag_fullname_from_id_statement;
 sqlite3_stmt* taggroup_name_from_id_statement;
 sqlite3_stmt* tag_statement;
 sqlite3_stmt* untag_statement;
@@ -142,6 +143,20 @@ static inline void prepare_tag_name_from_id(){
 	}
 }
 
+static inline void prepare_tag_fullname_from_id(){
+	if(sqlite3_prepare_v3(main_db,
+				"SELECT CASE tags.taggroup "
+					"WHEN 1 THEN tags.name "
+					"ELSE taggroups.name||':'||tags.name "
+				"END "
+				"FROM tags "
+				"JOIN taggroups ON tags.taggroup = taggroups.id "
+				"AND tags.id = ?;"
+				, -1, SQLITE_PREPARE_PERSISTENT, &tag_fullname_from_id_statement, NULL) != SQLITE_OK){
+		fprintf(stderr, "Error preparing tag_fullname_from_id_statement: %s\n", sqlite3_errmsg(main_db));
+	}
+}
+
 static inline void prepare_taggroup_name_from_id(){
 	if(sqlite3_prepare_v3(main_db,
 				"SELECT name FROM taggroups "
@@ -238,6 +253,7 @@ void start_program(int_least8_t flags){
 	prepare_tag_id_from_name();
 	prepare_taggroup_id_from_name();
 	prepare_tag_name_from_id();
+	prepare_tag_fullname_from_id();
 	prepare_taggroup_name_from_id();
 	prepare_tag();
 	prepare_untag();
@@ -260,6 +276,7 @@ void end_program(){
 	sqlite3_finalize(tag_id_from_name_statement);
 	sqlite3_finalize(taggroup_id_from_name_statement);
 	sqlite3_finalize(tag_name_from_id_statement);
+	sqlite3_finalize(tag_fullname_from_id_statement);
 	sqlite3_finalize(taggroup_name_from_id_statement);
 	sqlite3_finalize(tag_statement);
 	sqlite3_finalize(untag_statement);

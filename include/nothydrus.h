@@ -87,6 +87,7 @@ void remove_flag_from_file(sqlite3_int64 id, int_least8_t flag);
 
 sqlite3_int64 tag_id_from_name(char* name, sqlite3_int64 taggroup);
 char* tag_name_from_id(sqlite3_int64 id, sqlite3_int64* taggroup);
+char* tag_fullname_from_id(sqlite3_int64 id);
 sqlite3_int64 taggroup_id_from_name(char* name);
 char* taggroup_name_from_id(sqlite3_int64 id);
 

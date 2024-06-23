@@ -178,7 +178,7 @@ static void add_tag_tui(struct ncplane* parent_plane, struct search* search){
 		ui_elements = 1 + search_results.used;
 		if(ui_elements>1+TAG_SEARCH_ROWS) ui_elements = 1+TAG_SEARCH_ROWS;
 		for(unsigned short i=0; i<search_results.used && i<TAG_SEARCH_ROWS; i++){
-			ncplane_putstr_yx(plane, i+2, 3, tag_name_from_id(search_results.data[i], NULL));
+			ncplane_putstr_yx(plane, i+2, 3, tag_fullname_from_id(search_results.data[i]));
 		}
 		ncpile_render(plane);
 		ncpile_rasterize(plane);
@@ -419,10 +419,10 @@ void start_tui(int_least8_t flags, void* data){
 		ncplane_putstr_yx(current_plane, 6, 3, "Add new tag");
 		//tags
 		for(unsigned short i=0; i<search->include_tags_n; i++){
-			ncplane_putstr_yx(current_plane, 2+MIN_UI_ELEMENTS+i, 3, tag_name_from_id(search->include_tags[i], NULL));
+			ncplane_putstr_yx(current_plane, 2+MIN_UI_ELEMENTS+i, 3, tag_fullname_from_id(search->include_tags[i]));
 		}
 		for(unsigned short i=0; i<search->exclude_tags_n; i++){
-			ncplane_printf_yx(current_plane, 2+MIN_UI_ELEMENTS+search->include_tags_n+i, 3, "-%s", tag_name_from_id(search->exclude_tags[i], NULL));
+			ncplane_printf_yx(current_plane, 2+MIN_UI_ELEMENTS+search->include_tags_n+i, 3, "-%s", tag_fullname_from_id(search->exclude_tags[i]));
 		}
 		for(unsigned short i=0; i<search->or_tag_elements_n; i++){
 			//TBD
