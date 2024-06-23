@@ -34,7 +34,6 @@ void fullscreen_display(struct search* search){
 	ncpile_render(plane);
 	ncpile_rasterize(plane);
 	struct id_dynarr file_tags = new_id_dynarr(10);
-	sqlite3_int64 taggroup_id;
 	char* tag_fullname;
 	uint32_t c = NCKEY_RESIZE;
 	do{
@@ -60,6 +59,7 @@ void fullscreen_display(struct search* search){
 		}
 		ncplane_erase(plane);
 		ncplane_printf_yx(plane, 0, 0, "%ld/%ld", i+1, search->output_ids.used);
+		ncplane_putstr_aligned(plane, 0, NCALIGN_CENTER, filepath_from_id(search->output_ids.data[i]));
 		get_file_tags(search->output_ids.data[i], &file_tags);
 		for(unsigned short j=0; j<file_tags.used; j++){
 			tag_fullname = tag_fullname_from_id(file_tags.data[j]);
