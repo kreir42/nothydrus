@@ -293,6 +293,7 @@ void start_tui(int_least8_t flags, void* data){
 						search_not_run = 1;
 						break;
 					case 4:	//add tag
+						add_tag_tui(current_plane, search);
 						break;
 					default:
 						break;
