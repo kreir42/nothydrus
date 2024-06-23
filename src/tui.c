@@ -62,7 +62,6 @@ char* input_reader(struct ncplane* parent_plane, int y, int x, int h, int w){
 static void search_tags(struct id_dynarr* dynarr, char* tag_search){
 	char* tag_name = tag_search;
 	char* taggroup_name = "%";	//TBD implement taggroup search
-	while(*tag_name==' ') tag_name++;	//skip begginning whitespace
 	for(unsigned short i=strlen(tag_name)-1; i>0; i--){
 		if(tag_name[i]==' ') tag_name[i]='\0';	//remove trailing whitespace
 		else break;
@@ -113,9 +112,9 @@ static void add_tag_tui(struct ncplane* parent_plane, struct search* search){
 	struct ncplane* plane = ncplane_create(parent_plane, &plane_options);
 	ncplane_putstr_yx(plane, 1, 3, "Search here");
 
-	char* tag_search;
+	char* tag_search, *tag_search_ptr;
 	struct id_dynarr search_results = new_id_dynarr(10);
-	sqlite3_int64 tag_id = 0;
+	char exclude_flag = 0;
 	unsigned short ui_index=0, ui_elements=1;
 	uint32_t c = NCKEY_RESIZE;
 	do{
@@ -128,21 +127,41 @@ static void add_tag_tui(struct ncplane* parent_plane, struct search* search){
 				if(ui_index>0) ui_index--;
 				else ui_index = ui_elements-1;
 				break;
+			case 'g':
+				ui_index = 0;
+				break;
 			case NCKEY_ENTER:
 			case ' ':
 				if(ui_index==0){
 					tag_search = input_reader(plane, 1, 3, 1, TAG_SEARCH_COLS-2);
-					search_tags(&search_results, tag_search);
+					tag_search_ptr = tag_search;
+					while(*tag_search_ptr==' ') tag_search_ptr++;	//skip begginning whitespace
+					if(tag_search_ptr[0]=='-'){
+						tag_search_ptr++;
+						exclude_flag = 1;
+					}else exclude_flag = 0;
+					search_tags(&search_results, tag_search_ptr);
 					ncplane_putstr_yx(plane, 1, 3, tag_search);
-//					tag_id = tag_id_from_name(tag_search_tag, 1);
 					free(tag_search);
+				}else{
+					sqlite3_int64 tag_id = search_results.data[ui_index-1];
+					if(exclude_flag){
+						search->exclude_tags_n++;
+						search->exclude_tags = realloc(search->exclude_tags, sizeof(sqlite3_int64)*search->exclude_tags_n);
+						search->exclude_tags[search->exclude_tags_n-1] = tag_id;
+					}else{
+						search->include_tags_n++;
+						search->include_tags = realloc(search->include_tags, sizeof(sqlite3_int64)*search->include_tags_n);
+						search->include_tags[search->include_tags_n-1] = tag_id;
+					}
+					goto end_label;
 				}
 				break;
-			case 'a':
-				//TBD add
-				break;
 		}
+		ncplane_erase_region(plane, 1, 1, 1+TAG_SEARCH_ROWS, 2);
 		ncplane_putstr_yx(plane, 1+ui_index, 1, "->");
+		ui_elements = 1 + search_results.used;
+		if(ui_elements>1+TAG_SEARCH_ROWS) ui_elements = 1+TAG_SEARCH_ROWS;
 		for(unsigned short i=0; i<search_results.used && i<TAG_SEARCH_ROWS; i++){
 			ncplane_putstr_yx(plane, i+2, 3, tag_name_from_id(search_results.data[i], NULL));
 		}
@@ -150,6 +169,7 @@ static void add_tag_tui(struct ncplane* parent_plane, struct search* search){
 		ncpile_rasterize(plane);
 		c = notcurses_get(nc, NULL, NULL);
 	}while(c!='q' && c!='Q');
+	end_label:
 	ncplane_destroy(plane);
 	if(search_results.data!=NULL) free(search_results.data);
 }
