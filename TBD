@@ -8,3 +8,4 @@
 - have 'tag' command also work with ids directly
 - decimals in tui filesize (when not bytes, use fixed-point)
 ? command for mass tagging to be used in sidecar script
+? tag exclusion doesnt work properly?

@@ -18,6 +18,7 @@ sqlite3_stmt* taggroup_name_from_id_statement;
 sqlite3_stmt* tag_statement;
 sqlite3_stmt* untag_statement;
 sqlite3_stmt* search_tags_statement;
+sqlite3_stmt* get_file_tags_statement;
 
 static inline void prepare_add_file(){
 	if(sqlite3_prepare_v3(main_db,
@@ -187,6 +188,15 @@ static inline void prepare_search_tags(){
 	}
 }
 
+static inline void prepare_get_file_tags(){
+	if(sqlite3_prepare_v3(main_db,
+				"SELECT tag FROM filestags "
+				"WHERE file = ?;"
+				, -1, SQLITE_PREPARE_PERSISTENT, &get_file_tags_statement, NULL) != SQLITE_OK){
+		fprintf(stderr, "Error preparing get_file_tags_statement: %s\n", sqlite3_errmsg(main_db));
+	}
+}
+
 void start_program(int_least8_t flags){
 	//assumes it starts in the program's root directory
 	if(sqlite3_open(INIT_DIRECTORY"/"MAIN_DATABASE_NAME, &main_db)){
@@ -232,6 +242,7 @@ void start_program(int_least8_t flags){
 	prepare_tag();
 	prepare_untag();
 	prepare_search_tags();
+	prepare_get_file_tags();
 }
 
 void end_program(){
@@ -253,6 +264,7 @@ void end_program(){
 	sqlite3_finalize(tag_statement);
 	sqlite3_finalize(untag_statement);
 	sqlite3_finalize(search_tags_statement);
+	sqlite3_finalize(get_file_tags_statement);
 
 	sqlite3_close(main_db);
 }
