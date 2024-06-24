@@ -40,8 +40,8 @@ short compose_search_sql(struct search* search){
 		}
 		if(search->include_tags_n>0 || search->exclude_tags_n>0 || search->or_tag_elements_n>0){
 			char tag_clause[TAG_CLAUSE_SIZE];
-			strcpy(tag_clause, " id IN(SELECT file FROM filestags WHERE tag");
 			if(search->include_tags_n>0){
+				strcpy(tag_clause, " id IN(SELECT file FROM filestags WHERE tag");
 				strcat(tag_clause, " IN(");
 				for(unsigned short i=0; i<search->include_tags_n; i++){
 					if(i>0) strcat(tag_clause, ", ");
@@ -49,10 +49,14 @@ short compose_search_sql(struct search* search){
 					strcat(tag_clause, where_clause);
 				}
 				strcat(tag_clause, ")");
-				if(search->exclude_tags_n>0) strcat(tag_clause, " AND tag");
+				if(search->include_tags_n>1){
+					sprintf(where_clause, " GROUP BY file HAVING COUNT(1)=%d", search->include_tags_n);
+					strcat(tag_clause, where_clause);
+				}
+				if(search->exclude_tags_n>0) strcat(tag_clause, " EXCLUDE SELECT file FROM filestags WHERE tag IN(");
 			}
 			if(search->exclude_tags_n>0){
-				strcat(tag_clause, " NOT IN(");
+				if(search->include_tags_n==0) strcpy(tag_clause, " id NOT IN(SELECT file FROM filestags WHERE tag IN(");
 				for(unsigned short i=0; i<search->exclude_tags_n; i++){
 					if(i>0) strcat(tag_clause, ", ");
 					sprintf(where_clause, "%llu", search->exclude_tags[i]);
@@ -60,12 +64,10 @@ short compose_search_sql(struct search* search){
 				}
 				strcat(tag_clause, ")");
 			}
-			if(search->include_tags_n>1){
-				sprintf(where_clause, " GROUP BY file HAVING COUNT(1)=%d", search->include_tags_n);
-				strcat(tag_clause, where_clause);
-			}
-			if((search->include_tags_n>0||search->exclude_tags_n>0) && search->or_tag_elements_n>0) strcat(tag_clause, " INTERSECT SELECT file FROM filestags WHERE tag");
 			if(search->or_tag_elements_n>0){
+				if(search->include_tags_n>0) strcat(tag_clause, " INTERSECT SELECT file FROM filestags WHERE tag");
+				else if(search->exclude_tags_n>0) strcat(tag_clause, " AND id IN(SELECT file FROM filestags WHERE tag");
+				else strcpy(tag_clause, " id IN(SELECT file FROM filestags WHERE tag");;
 				for(unsigned short i=0; i<search->or_tag_elements_n; i++){
 					if(i>0) strcat(tag_clause, " INTERSECT SELECT file FROM filestags WHERE tag");
 					strcat(tag_clause, " IN(");
@@ -76,6 +78,7 @@ short compose_search_sql(struct search* search){
 					}
 					strcat(tag_clause, ")");
 				}
+				if(search->include_tags_n==0 && search->exclude_tags_n>0) strcat(tag_clause, ")");
 			}
 			strcat(tag_clause, ")");
 			add_where_clause(search->sql, tag_clause);
