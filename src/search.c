@@ -53,7 +53,7 @@ short compose_search_sql(struct search* search){
 					sprintf(where_clause, " GROUP BY file HAVING COUNT(1)=%d", search->include_tags_n);
 					strcat(tag_clause, where_clause);
 				}
-				if(search->exclude_tags_n>0) strcat(tag_clause, " EXCLUDE SELECT file FROM filestags WHERE tag IN(");
+				if(search->exclude_tags_n>0) strcat(tag_clause, " EXCEPT SELECT file FROM filestags WHERE tag IN(");
 			}
 			if(search->exclude_tags_n>0){
 				if(search->include_tags_n==0) strcpy(tag_clause, " id NOT IN(SELECT file FROM filestags WHERE tag IN(");
