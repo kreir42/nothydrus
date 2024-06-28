@@ -1,4 +1,4 @@
-? if link points to a file, file extension is taken from link, not file
+? if link points to a file, file extension is taken from link, not file (what about size, metadata?)
 ? use libmpv
 - way to get video duration
 - pre-load prev/next image in list
@@ -8,3 +8,4 @@
 - have 'tag' command also work with ids directly
 - decimals in tui filesize (when not bytes, use fixed-point)
 ? command for mass tagging to be used in sidecar script
+- add more file info to fullscreen display
