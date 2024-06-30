@@ -9,3 +9,4 @@
 - decimals in tui filesize (when not bytes, use fixed-point)
 ? command for mass tagging to be used in sidecar script
 - add more file info to fullscreen display
+- ability to remove tags from search

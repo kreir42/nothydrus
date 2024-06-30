@@ -202,6 +202,12 @@ static void add_tag_tui(struct ncplane* parent_plane, struct search* search){
 					if(or_tags_n==1){
 						add_tag_to_search(exclude_flag, or_tags[0], search);
 					}else{
+						search->or_tag_elements_n++;
+						search->or_tag_elements = realloc(search->or_tag_elements, sizeof(struct or_tag_element)*search->or_tag_elements_n);
+						search->or_tag_elements[search->or_tag_elements_n-1].or_number = or_tags_n;
+						search->or_tag_elements[search->or_tag_elements_n-1].ids = malloc(or_tags_n*sizeof(sqlite3_int64));
+						memcpy(search->or_tag_elements[search->or_tag_elements_n-1].ids, or_tags, or_tags_n*sizeof(sqlite3_int64));
+						search_not_run=1;
 					}
 					goto end_label;
 				}
