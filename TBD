@@ -8,5 +8,5 @@
 - have 'tag' command also work with ids directly
 - decimals in tui filesize (when not bytes, use fixed-point)
 ? command for mass tagging to be used in sidecar script
-- add more file info to fullscreen display
+- add more file info to fullscreen display(resolution, duration)
 - ability to remove tags from search
