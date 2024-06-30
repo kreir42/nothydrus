@@ -106,7 +106,7 @@ static void search_tags(struct id_dynarr* dynarr, char* tag_search){
 }
 
 static void add_tag_to_search(char exclude_flag, sqlite3_int64 tag_id, struct search* search){
-	//TBD search for duplicate tabs
+	//TBD search for duplicate tags
 	if(exclude_flag){
 		search->exclude_tags_n++;
 		search->exclude_tags = realloc(search->exclude_tags, sizeof(sqlite3_int64)*search->exclude_tags_n);
@@ -122,45 +122,87 @@ static void add_tag_to_search(char exclude_flag, sqlite3_int64 tag_id, struct se
 static void add_tag_tui(struct ncplane* parent_plane, struct search* search){
 	struct ncplane_options plane_options = {
 		.y = NCALIGN_CENTER, .x = NCALIGN_CENTER,
-		.rows = TAG_SEARCH_ROWS+3, .cols = TAG_SEARCH_COLS+2,	//TBD take max size into account
+		.rows = TAG_SEARCH_ROWS+2, .cols = TAG_SEARCH_COLS,	//TBD take max size into account
 		.flags = NCPLANE_OPTION_HORALIGNED | NCPLANE_OPTION_VERALIGNED
 	};
 	struct ncplane* plane = ncplane_create(parent_plane, &plane_options);
-	ncplane_putstr_yx(plane, 1, 3, "Search here");
+	plane_options.x = NCALIGN_RIGHT;
+	struct ncplane* or_plane = ncplane_create(parent_plane, &plane_options);
 
 	char* tag_search, *tag_search_ptr;
 	struct id_dynarr search_results = new_id_dynarr(10);
-	char exclude_flag = 0;
-	unsigned short ui_index=0, ui_elements=1;
+	char exclude_flag=0, or_plane_flag=0;
+	sqlite3_int64* or_tags = NULL;
+	unsigned short or_tags_n = 0;
+	unsigned short ui_index=0, ui_elements=1, or_ui_index=0;
 	uint32_t c = NCKEY_RESIZE;
 	do{
 		switch(c){
 			case NCKEY_DOWN:
-				if(ui_index<ui_elements-1) ui_index++;
-				else ui_index = 0;
+				if(or_plane_flag){
+					if(or_ui_index<or_tags_n-1) or_ui_index++;
+					else or_ui_index = 0;
+				}else{
+					if(ui_index<ui_elements-1) ui_index++;
+					else ui_index = 0;
+				}
 				break;
 			case NCKEY_UP:
-				if(ui_index>0) ui_index--;
-				else ui_index = ui_elements-1;
+				if(or_plane_flag){
+					if(or_ui_index>0) or_ui_index--;
+					else or_ui_index = or_tags_n-1;
+				}else{
+					if(ui_index>0) ui_index--;
+					else ui_index = ui_elements-1;
+				}
+				break;
+			case NCKEY_RIGHT:
+			case NCKEY_LEFT:
+				if(or_tags_n>0){
+					if(or_plane_flag) or_plane_flag=0;
+					else or_plane_flag=1;
+				}
 				break;
 			case 'g':
 				ui_index = 0;
 				break;
 			case NCKEY_ENTER:
-			case ' ':
-				if(ui_index==0){
-					tag_search = input_reader(plane, 1, 3, 1, TAG_SEARCH_COLS-2);
-					tag_search_ptr = tag_search;
-					while(*tag_search_ptr==' ') tag_search_ptr++;	//skip begginning whitespace
-					if(tag_search_ptr[0]=='-'){
-						tag_search_ptr++;
-						exclude_flag = 1;
-					}else exclude_flag = 0;
-					search_tags(&search_results, tag_search_ptr);
-					ncplane_putstr_yx(plane, 1, 3, tag_search);
-					free(tag_search);
+				if(or_plane_flag){
 				}else{
-					add_tag_to_search(exclude_flag, search_results.data[ui_index-1], search);
+					if(ui_index==0){
+						tag_search = input_reader(plane, 0, 2, 1, TAG_SEARCH_COLS);
+						tag_search_ptr = tag_search;
+						while(*tag_search_ptr==' ') tag_search_ptr++;	//skip begginning whitespace
+						if(tag_search_ptr[0]=='-'){
+							tag_search_ptr++;
+							exclude_flag = 1;
+						}else exclude_flag = 0;
+						search_tags(&search_results, tag_search_ptr);
+						ncplane_putstr_yx(plane, 0, 2, tag_search);
+						free(tag_search);
+					}else{
+						add_tag_to_search(exclude_flag, search_results.data[ui_index-1], search);
+						goto end_label;
+					}
+				}
+				break;
+			case ' ':
+				if(or_plane_flag){
+				}else{
+					if(ui_index>0){
+						//TBD check for doubles
+						or_tags_n++;
+						or_tags = realloc(or_tags, sizeof(sqlite3_int64)*or_tags_n);
+						or_tags[or_tags_n-1] = search_results.data[ui_index-1];
+					}
+				}
+				break;
+			case 'a':
+				if(or_tags_n>0){
+					if(or_tags_n==1){
+						add_tag_to_search(exclude_flag, or_tags[0], search);
+					}else{
+					}
 					goto end_label;
 				}
 				break;
@@ -173,20 +215,40 @@ static void add_tag_tui(struct ncplane* parent_plane, struct search* search){
 				}
 				break;
 		}
-		ncplane_erase_region(plane, 1, 1, 1+TAG_SEARCH_ROWS, 2);
-		ncplane_putstr_yx(plane, 1+ui_index, 1, "->");
+		ncplane_erase(plane);
+		ncplane_erase(or_plane);
 		ui_elements = 1 + search_results.used;
 		if(ui_elements>1+TAG_SEARCH_ROWS) ui_elements = 1+TAG_SEARCH_ROWS;
+		//mark cursor position
+		if(or_plane_flag){
+			ncplane_putstr_yx(or_plane, 1+or_ui_index, 0, "->");
+		}else{
+			if(ui_index==0) ncplane_putstr_yx(plane, 0, 0, "->");
+			else ncplane_putstr_yx(plane, 1+ui_index, 0, "->");
+		}
+		//print search results
 		for(unsigned short i=0; i<search_results.used && i<TAG_SEARCH_ROWS; i++){
-			ncplane_putstr_yx(plane, i+2, 3, tag_fullname_from_id(search_results.data[i]));
+			ncplane_putstr_yx(plane, i+2, 2, tag_fullname_from_id(search_results.data[i]));
 		}
 		ncpile_render(plane);
 		ncpile_rasterize(plane);
+		//OR plane
+		if(or_tags_n>0){
+			//TBD box
+			ncplane_putstr_yx(or_plane, 0, 2, "Any of:");
+			for(unsigned short i=0; i<or_tags_n; i++){
+				ncplane_putstr_yx(or_plane, 1+i, 2, tag_fullname_from_id(or_tags[i]));
+			}
+		}
+		ncpile_render(or_plane);
+		ncpile_rasterize(or_plane);
 		c = notcurses_get(nc, NULL, NULL);
 	}while(c!='q' && c!='Q');
 	end_label:
 	ncplane_destroy(plane);
+	ncplane_destroy(or_plane);
 	if(search_results.data!=NULL) free(search_results.data);
+	if(or_tags!=NULL) free(or_tags);
 }
 
 static unsigned short size_unit_from_ptr(char* ptr, unsigned short init_value){
