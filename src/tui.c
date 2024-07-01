@@ -509,3 +509,54 @@ void start_tui(int_least8_t flags, void* data){
 	notcurses_drop_planes(nc);
 	notcurses_stop(nc);
 }
+
+void file_tag_tui(sqlite3_int64 id){
+	unsigned int screen_rows, screen_cols;
+	notcurses_stddim_yx(nc, &screen_rows, &screen_cols);
+	struct ncplane_options plane_options = {
+		.y = 0, .x = 0,
+		.rows = screen_rows, .cols = screen_cols,
+	};
+	struct ncplane* plane = ncpile_create(nc, &plane_options);
+
+	struct id_dynarr file_tags = new_id_dynarr(10);
+	unsigned short ui_index = 0;
+	uint32_t c = NCKEY_RESIZE;
+	do{
+		switch(c){
+			case NCKEY_DOWN:
+				if(ui_index<file_tags.used) ui_index++;
+				else ui_index = 0;
+				break;
+			case NCKEY_UP:
+				if(ui_index>0) ui_index--;
+				else ui_index = file_tags.used;
+				break;
+			case 'd':
+				if(ui_index>0){
+					untag(id, file_tags.data[ui_index-1]);
+				}
+				break;
+			case NCKEY_ENTER:
+				if(ui_index==0){
+				}
+				break;
+		}
+		get_file_tags(id, &file_tags);
+		//redraw plane
+		ncplane_erase(plane);
+		ncplane_putstr_yx(plane, 0, 2, "Add new tag");
+		ncplane_putstr_yx(plane, 3, 2, "Current tags:");
+		for(unsigned short j=0; j<file_tags.used; j++){
+			ncplane_putstr_yx(plane, 5+j, 2, tag_fullname_from_id(file_tags.data[j]));
+		}
+		//mark current index
+		if(ui_index==0) ncplane_putstr_yx(plane, 0, 0, "->");
+		else ncplane_putstr_yx(plane, 4+ui_index, 0, "->");
+		ncpile_render(plane);
+		ncpile_rasterize(plane);
+	}while((c=notcurses_get(nc, NULL, NULL))!='q');
+
+	free(file_tags.data);
+	ncplane_destroy(plane);
+}

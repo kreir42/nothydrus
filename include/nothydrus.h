@@ -91,4 +91,6 @@ char* tag_fullname_from_id(sqlite3_int64 id);
 sqlite3_int64 taggroup_id_from_name(char* name);
 char* taggroup_name_from_id(sqlite3_int64 id);
 
+void get_file_tags(sqlite3_int64 file_id, struct id_dynarr* dynarr);
+
 #endif

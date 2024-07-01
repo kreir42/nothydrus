@@ -19,4 +19,6 @@ struct ncplane* display_file_from_filepath(char* filepath, int_least8_t flags, s
 #define DISPLAY_FILE_EXTERNAL	(1<<2)
 void reset_display_plane(struct ncplane* plane);
 
+void file_tag_tui(sqlite3_int64 id);
+
 #endif
