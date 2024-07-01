@@ -5,9 +5,14 @@
 - take endianness into account when storing/retrieving hash
 - 'check all' case of check command
 - deal with program not being launched from folder with .nothydrus folder
-- have 'tag' command also work with ids directly
+- have 'tag' cli command also work with ids directly
 - decimals in tui filesize (when not bytes, use fixed-point)
 ? command for mass tagging to be used in sidecar script
-- add more file info to fullscreen display(resolution, duration)
+- add more file info to fullscreen display (resolution, duration)
 - ability to remove tags from search
 - scrolling in planes
+- script to export file tags
+- custom rating(s) and filters
+- adding already existing tag to file returns error
+- use RESTRICT
+- custom keyboard shortcuts for tagging, etc
