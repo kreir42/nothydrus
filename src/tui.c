@@ -130,7 +130,7 @@ static void add_tag_tui(struct ncplane* parent_plane, struct search* search){
 	plane_options.x = NCALIGN_RIGHT;
 	struct ncplane* or_plane = ncplane_create(parent_plane, &plane_options);
 
-	char* tag_search, *tag_search_ptr;
+	char* tag_search = NULL, *tag_search_ptr;
 	struct id_dynarr search_results = new_id_dynarr(10);
 	char exclude_flag=0, or_plane_flag=0;
 	sqlite3_int64* or_tags = NULL;
@@ -171,6 +171,7 @@ static void add_tag_tui(struct ncplane* parent_plane, struct search* search){
 				if(or_plane_flag){
 				}else{
 					if(ui_index==0){
+						if(tag_search!=NULL) free(tag_search);
 						tag_search = input_reader(plane, 0, 2, 1, TAG_SEARCH_COLS);
 						tag_search_ptr = tag_search;
 						while(*tag_search_ptr==' ') tag_search_ptr++;	//skip begginning whitespace
@@ -180,7 +181,6 @@ static void add_tag_tui(struct ncplane* parent_plane, struct search* search){
 						}else exclude_flag = 0;
 						search_tags(&search_results, tag_search_ptr);
 						ncplane_putstr_yx(plane, 0, 2, tag_search);
-						free(tag_search);
 					}else{
 						add_tag_to_search(exclude_flag, search_results.data[ui_index-1], search);
 						goto end_label;
@@ -226,6 +226,8 @@ static void add_tag_tui(struct ncplane* parent_plane, struct search* search){
 		ncplane_erase(or_plane);
 		ui_elements = 1 + search_results.used;
 		if(ui_elements>1+TAG_SEARCH_ROWS) ui_elements = 1+TAG_SEARCH_ROWS;
+		if(tag_search==NULL) ncplane_putstr_yx(plane, 0, 2, "Search here");
+		else ncplane_putstr_yx(plane, 0, 2, tag_search);
 		//mark cursor position
 		if(or_plane_flag){
 			ncplane_putstr_yx(or_plane, 1+or_ui_index, 0, "->");
@@ -254,6 +256,7 @@ static void add_tag_tui(struct ncplane* parent_plane, struct search* search){
 	end_label:
 	ncplane_destroy(plane);
 	ncplane_destroy(or_plane);
+	if(tag_search!=NULL) free(tag_search);
 	if(search_results.data!=NULL) free(search_results.data);
 	if(or_tags!=NULL) free(or_tags);
 }
@@ -511,7 +514,7 @@ void start_tui(int_least8_t flags, void* data){
 	notcurses_stop(nc);
 }
 
-static sqlite3_int64 add_tag_to_file_tui(struct ncplane* parent_plane, sqlite3_int64 file_id, struct id_dynarr* file_tags){
+static sqlite3_int64 add_tag_to_file_tui(struct ncplane* parent_plane){
 	struct ncplane_options plane_options = {
 		.y = NCALIGN_CENTER, .x = NCALIGN_CENTER,
 		.rows = TAG_SEARCH_ROWS+2, .cols = TAG_SEARCH_COLS,	//TBD take max size into account
@@ -520,7 +523,7 @@ static sqlite3_int64 add_tag_to_file_tui(struct ncplane* parent_plane, sqlite3_i
 	struct ncplane* plane = ncplane_create(parent_plane, &plane_options);
 
 	sqlite3_int64 tag_id = -1;
-	char* tag_search;
+	char* tag_search = NULL;
 	struct id_dynarr search_results = new_id_dynarr(10);
 	unsigned short ui_index = 0;
 	uint32_t c = NCKEY_ENTER;
@@ -534,8 +537,12 @@ static sqlite3_int64 add_tag_to_file_tui(struct ncplane* parent_plane, sqlite3_i
 				if(ui_index>0) ui_index--;
 				else ui_index = search_results.used;
 				break;
+			case 'a':
+				add_tag(tag_search, 1);	//TBD also be able to add taggroup, get tag_name and taggroup_name from tag_search
+				break;
 			case NCKEY_ENTER:
 				if(ui_index==0){
+					if(tag_search!=NULL) free(tag_search);
 					tag_search = input_reader(plane, 0, 2, 1, TAG_SEARCH_COLS-2);
 					search_tags(&search_results, tag_search);
 				}else{
@@ -545,8 +552,13 @@ static sqlite3_int64 add_tag_to_file_tui(struct ncplane* parent_plane, sqlite3_i
 				break;
 		}
 		ncplane_erase(plane);
-		for(unsigned short i=0; i<search_results.used; i++){
-			ncplane_putstr_yx(plane, 2+i, 2, tag_fullname_from_id(search_results.data[i]));
+		ncplane_putstr_yx(plane, 0, 2, tag_search);
+		if(search_results.used==0){
+			ncplane_putstr_yx(plane, 2, 2, "No tag found, press 'a' to add new tag to file");
+		}else{
+			for(unsigned short i=0; i<search_results.used; i++){
+				ncplane_putstr_yx(plane, 2+i, 2, tag_fullname_from_id(search_results.data[i]));
+			}
 		}
 		//mark current index
 		if(ui_index==0) ncplane_putstr_yx(plane, 0, 0, "->");
@@ -555,7 +567,7 @@ static sqlite3_int64 add_tag_to_file_tui(struct ncplane* parent_plane, sqlite3_i
 		ncpile_rasterize(plane);
 	}while((c=notcurses_get(nc, NULL, NULL))!='q');
 	end_flag:
-	free(tag_search);
+	if(tag_search!=NULL) free(tag_search);
 	if(search_results.data!=NULL) free(search_results.data);
 	ncplane_destroy(plane);
 	return tag_id;
@@ -591,7 +603,7 @@ void file_tag_tui(sqlite3_int64 id){
 				break;
 			case NCKEY_ENTER:
 				if(ui_index==0){
-					new_tag_id = add_tag_to_file_tui(plane, id, &file_tags);
+					new_tag_id = add_tag_to_file_tui(plane);
 					if(new_tag_id!=-1) tag(id, new_tag_id);
 				}
 				break;
