@@ -64,6 +64,7 @@ char* input_reader(struct ncplane* parent_plane, int y, int x, int h, int w){
 static void search_tags(struct id_dynarr* dynarr, char* tag_search){
 	char* tag_name = tag_search;
 	char* taggroup_name = "%";	//TBD implement taggroup search
+	while(*tag_name==' ') tag_name++;	//skip begginning whitespace
 	for(unsigned short i=strlen(tag_name)-1; i>0; i--){
 		if(tag_name[i]==' ') tag_name[i]='\0';	//remove trailing whitespace
 		else break;
@@ -510,6 +511,56 @@ void start_tui(int_least8_t flags, void* data){
 	notcurses_stop(nc);
 }
 
+static sqlite3_int64 add_tag_to_file_tui(struct ncplane* parent_plane, sqlite3_int64 file_id, struct id_dynarr* file_tags){
+	struct ncplane_options plane_options = {
+		.y = NCALIGN_CENTER, .x = NCALIGN_CENTER,
+		.rows = TAG_SEARCH_ROWS+2, .cols = TAG_SEARCH_COLS,	//TBD take max size into account
+		.flags = NCPLANE_OPTION_HORALIGNED | NCPLANE_OPTION_VERALIGNED
+	};
+	struct ncplane* plane = ncplane_create(parent_plane, &plane_options);
+
+	sqlite3_int64 tag_id = -1;
+	char* tag_search;
+	struct id_dynarr search_results = new_id_dynarr(10);
+	unsigned short ui_index = 0;
+	uint32_t c = NCKEY_ENTER;
+	do{
+		switch(c){
+			case NCKEY_DOWN:
+				if(ui_index<search_results.used) ui_index++;
+				else ui_index = 0;
+				break;
+			case NCKEY_UP:
+				if(ui_index>0) ui_index--;
+				else ui_index = search_results.used;
+				break;
+			case NCKEY_ENTER:
+				if(ui_index==0){
+					tag_search = input_reader(plane, 0, 2, 1, TAG_SEARCH_COLS-2);
+					search_tags(&search_results, tag_search);
+				}else{
+					tag_id = search_results.data[ui_index-1];
+					goto end_flag;
+				}
+				break;
+		}
+		ncplane_erase(plane);
+		for(unsigned short i=0; i<search_results.used; i++){
+			ncplane_putstr_yx(plane, 2+i, 2, tag_fullname_from_id(search_results.data[i]));
+		}
+		//mark current index
+		if(ui_index==0) ncplane_putstr_yx(plane, 0, 0, "->");
+		else ncplane_putstr_yx(plane, 1+ui_index, 0, "->");
+		ncpile_render(plane);
+		ncpile_rasterize(plane);
+	}while((c=notcurses_get(nc, NULL, NULL))!='q');
+	end_flag:
+	free(tag_search);
+	if(search_results.data!=NULL) free(search_results.data);
+	ncplane_destroy(plane);
+	return tag_id;
+}
+
 void file_tag_tui(sqlite3_int64 id){
 	unsigned int screen_rows, screen_cols;
 	notcurses_stddim_yx(nc, &screen_rows, &screen_cols);
@@ -519,6 +570,7 @@ void file_tag_tui(sqlite3_int64 id){
 	};
 	struct ncplane* plane = ncpile_create(nc, &plane_options);
 
+	sqlite3_int64 new_tag_id = -1;
 	struct id_dynarr file_tags = new_id_dynarr(10);
 	unsigned short ui_index = 0;
 	uint32_t c = NCKEY_RESIZE;
@@ -539,6 +591,8 @@ void file_tag_tui(sqlite3_int64 id){
 				break;
 			case NCKEY_ENTER:
 				if(ui_index==0){
+					new_tag_id = add_tag_to_file_tui(plane, id, &file_tags);
+					if(new_tag_id!=-1) tag(id, new_tag_id);
 				}
 				break;
 		}
