@@ -5,8 +5,16 @@
 
 struct tui_options{
 	unsigned long search_limit;
-	//TBD shortcuts
+	unsigned char shortcuts_n;
+	struct shortcut{
+		uint32_t key;
+		unsigned char type;
+		sqlite3_int64 id;
+	}* shortcuts;
 };
+#define SHORTCUT_TYPE_TAG_FILE 1
+#define SHORTCUT_TYPE_UNTAG_FILE 2
+#define SHORTCUT_TYPE_TAG_UNTAG_FILE 3
 
 extern struct notcurses* nc;
 extern struct tui_options tui_options;
