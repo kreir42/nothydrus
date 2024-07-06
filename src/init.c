@@ -18,7 +18,8 @@ void init(){
 				"size INTEGER, "
 				"filetype INTEGER NOT NULL, "
 				"flags INTEGER NOT NULL DEFAULT 0, "	//bitfield
-				"filepath TEXT UNIQUE);"
+				"filepath TEXT UNIQUE)"
+				"STRICT;"
 
 				"CREATE UNIQUE INDEX files_hashsize_index ON files(hash, size);"
 				"CREATE INDEX files_size_index ON files(size);"
@@ -28,26 +29,30 @@ void init(){
 				"id INTEGER PRIMARY KEY NOT NULL, "
 				"name TEXT NOT NULL, "
 				"taggroup INT NOT NULL DEFAULT 1, "
-				"number INTEGER NOT NULL DEFAULT 0);"
+				"number INTEGER NOT NULL DEFAULT 0)"
+				"STRICT;"
 
 				"CREATE UNIQUE INDEX tagsnametaggroup_index ON tags(name, taggroup);"
 
 				"CREATE TABLE filestags("
 				"file INTEGER NOT NULL, "
 				"tag INTEGER NOT NULL, "
-				"PRIMARY KEY(file, tag));"
+				"PRIMARY KEY(file, tag))"
+				"STRICT;"
 
 				"CREATE TABLE taggroups("
 				"id INTEGER PRIMARY KEY NOT NULL, "
 				"name TEXT NOT NULL UNIQUE, "
-				"number INTEGER NOT NULL DEFAULT 0);"
+				"number INTEGER NOT NULL DEFAULT 0)"
+				"STRICT;"
 
 				"CREATE UNIQUE INDEX taggroupsname_index ON taggroups(name);"
 
 				"CREATE TABLE tagstaggroups("
 				"tag INTEGER NOT NULL, "
 				"taggroup INTEGER NOT NULL, "
-				"PRIMARY KEY(tag, taggroup));"
+				"PRIMARY KEY(tag, taggroup))"
+				"STRICT;"
 
 
 				"INSERT INTO taggroups(id, name) "
