@@ -3,7 +3,13 @@
 
 #include <notcurses/notcurses.h>
 
+struct tui_options{
+	unsigned long search_limit;
+	//TBD shortcuts
+};
+
 extern struct notcurses* nc;
+extern struct tui_options tui_options;
 
 void start_tui(int_least8_t flags, void* data);
 #define START_TUI_DISPLAY	(1<<0)

@@ -2,9 +2,9 @@
 #include "tui.h"
 
 struct notcurses* nc;
-
 struct search* search;
 struct ncplane* search_plane;
+struct tui_options tui_options;
 
 char search_not_run = 1;
 
@@ -13,6 +13,7 @@ static void new_search_plane(struct search* search_to_copy){
 	if(search_to_copy==NULL){
 		search->sql[0] = '\0';
 		search->output_ids = new_id_dynarr(MIN_ID_DYNARR_SIZE);
+		search->limit = tui_options.search_limit;
 	}else{
 		if(search_to_copy->sql[0]!='\0') strcpy(search->sql, search_to_copy->sql);
 		search->output_ids = new_id_dynarr(search_to_copy->output_ids.used);
