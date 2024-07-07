@@ -14,7 +14,7 @@ struct tui_options{
 };
 #define SHORTCUT_TYPE_TAG_FILE 1
 #define SHORTCUT_TYPE_UNTAG_FILE 2
-#define SHORTCUT_TYPE_TAG_UNTAG_FILE 3
+#define SHORTCUT_TYPE_TAG_UNTAG_FILE 3	//TBD
 
 extern struct notcurses* nc;
 extern struct tui_options tui_options;

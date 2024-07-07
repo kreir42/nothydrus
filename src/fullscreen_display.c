@@ -43,6 +43,22 @@ void fullscreen_display(struct search* search){
 			case 'T':
 				file_tag_tui(search->output_ids.data[i]);
 				break;
+			default:
+				for(unsigned short j=0; j<tui_options.shortcuts_n; j++){
+					if(c==tui_options.shortcuts[j].key){
+						switch(tui_options.shortcuts[j].type){
+							case SHORTCUT_TYPE_TAG_FILE:
+								tag(search->output_ids.data[i], tui_options.shortcuts[j].id);
+								break;
+							case SHORTCUT_TYPE_UNTAG_FILE:
+								untag(search->output_ids.data[i], tui_options.shortcuts[j].id);
+								break;
+							case SHORTCUT_TYPE_TAG_UNTAG_FILE:
+								break;
+						}
+					}
+				}
+				break;
 		}
 		ncplane_erase(plane);
 		ncplane_printf_yx(plane, 0, 0, "%ld/%ld", i+1, search->output_ids.used);
