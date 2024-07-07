@@ -4,7 +4,10 @@
 #include <notcurses/notcurses.h>
 
 struct tui_options{
+	enum order_by_enum search_order_by;
+	char search_descending;
 	unsigned long search_limit;
+
 	unsigned char shortcuts_n;
 	struct shortcut{
 		uint32_t key;

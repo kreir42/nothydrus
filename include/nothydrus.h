@@ -26,9 +26,10 @@ struct or_tag_element{
 	unsigned short or_number;	//number of ids pointed to by ids
 	sqlite3_int64* ids;
 };
+enum order_by_enum {none, size, random_order};
 struct search{
 	char sql[SEARCH_MAX_SQL_LEN];
-	enum {none, size, random_order} order_by;	//order by other, custom numbers(number of tags in taggroup, rating field...)
+	enum order_by_enum order_by;	//order by other, custom numbers(number of tags in taggroup, rating field...)
 	char descending;
 	unsigned long limit;
 	unsigned long min_size;
