@@ -318,6 +318,9 @@ void start_tui(int_least8_t flags, void* data){
 			case 't':
 				add_tag_tui();
 				break;
+			case 'o':
+				options_tui();
+				break;
 			case NCKEY_ENTER:
 			case ' ':
 				switch(ui_index){
