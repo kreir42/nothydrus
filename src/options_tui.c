@@ -87,4 +87,5 @@ void options_tui(){
 	}while((c=notcurses_get(nc, NULL, NULL))!='q');
 
 	ncplane_destroy(plane);
+	save_tui_options(INIT_DIRECTORY"/""tui_options");
 }

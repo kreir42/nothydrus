@@ -8,7 +8,7 @@ struct tui_options{
 	char search_descending;
 	unsigned long search_limit;
 
-	unsigned char shortcuts_n;
+	unsigned short shortcuts_n;
 	struct shortcut{
 		uint32_t key;
 		unsigned char type;
@@ -19,6 +19,8 @@ struct tui_options{
 #define SHORTCUT_TYPE_UNTAG_FILE 2
 #define SHORTCUT_TYPE_TAG_UNTAG_FILE 3	//TBD
 void options_tui();
+short save_tui_options(char* name);
+short load_tui_options(char* name);
 
 extern struct notcurses* nc;
 extern struct tui_options tui_options;
