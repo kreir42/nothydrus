@@ -17,12 +17,12 @@ void options_tui(){
 	do{
 		switch(c){
 			case NCKEY_DOWN:
-				if(ui_index<ui_elements) ui_index++;
+				if(ui_index<ui_elements-1) ui_index++;
 				else ui_index = 0;
 				break;
 			case NCKEY_UP:
 				if(ui_index>0) ui_index--;
-				else ui_index = ui_elements;
+				else ui_index = ui_elements-1;
 				break;
 			case 'd':
 				if(ui_index>=OPTIONS_TUI_MIN_ELEMENTS){
@@ -62,7 +62,7 @@ void options_tui(){
 		ncplane_erase(plane);
 
 		//mark current index
-		if(ui_index<OPTIONS_TUI_MIN_ELEMENTS-1) ncplane_putstr_yx(plane, ui_index, 0, "->");
+		if(ui_index<OPTIONS_TUI_MIN_ELEMENTS) ncplane_putstr_yx(plane, ui_index, 0, "->");
 		else ncplane_putstr_yx(plane, 2+ui_index, 0, "->");
 		//order by
 		ncplane_putstr_yx(plane, 0, 3, "Default search order: ");
@@ -82,6 +82,7 @@ void options_tui(){
 			else ncplane_putstr(plane, " ascending");
 		}
 		ncplane_printf_yx(plane, 1, 3, "Default search limit (0 for none): %lu", tui_options.search_limit);	//limit
+		ncplane_putstr_yx(plane, 2, 3, "Add new shortcut");
 		ncpile_render(plane);
 		ncpile_rasterize(plane);
 	}while((c=notcurses_get(nc, NULL, NULL))!='q');
