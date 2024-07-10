@@ -110,7 +110,19 @@ void options_tui(){
 		ncplane_printf_yx(plane, 1, 3, "Default search limit (0 for none): %lu", tui_options.search_limit);	//limit
 		ncplane_putstr_yx(plane, 4, 3, "Add new shortcut");
 		for(unsigned short i=0; i<tui_options.shortcuts_n; i++){
-			ncplane_putstr_yx(plane, 5+i, 3, "shortcut description TBD");
+			ncplane_printf_yx(plane, 5+i, 3, "%c --> ", tui_options.shortcuts[i].key);
+			switch(tui_options.shortcuts[i].type){
+				case SHORTCUT_TYPE_TAG_FILE:
+					ncplane_putstr(plane, "add tag to file: ");
+					break;
+				case SHORTCUT_TYPE_UNTAG_FILE:
+					ncplane_putstr(plane, "add tag to file: ");
+					break;
+				case SHORTCUT_TYPE_TAG_UNTAG_FILE:
+					ncplane_putstr(plane, "add tag to file: ");
+					break;
+			}
+			ncplane_putstr(plane, tag_fullname_from_id(tui_options.shortcuts[i].id));
 		}
 		ncpile_render(plane);
 		ncpile_rasterize(plane);
