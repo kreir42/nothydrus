@@ -15,9 +15,9 @@ struct tui_options{
 		sqlite3_int64 id;
 	}* shortcuts;
 };
-#define SHORTCUT_TYPE_TAG_FILE 1
-#define SHORTCUT_TYPE_UNTAG_FILE 2
-#define SHORTCUT_TYPE_TAG_UNTAG_FILE 3	//TBD
+#define SHORTCUT_TYPE_TAG_FILE 0
+#define SHORTCUT_TYPE_UNTAG_FILE 1
+#define SHORTCUT_TYPE_TAG_UNTAG_FILE 2	//TBD
 void options_tui();
 short save_tui_options(char* name);
 short load_tui_options(char* name);

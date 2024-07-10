@@ -3,6 +3,21 @@
 
 #define OPTIONS_TUI_MIN_ELEMENTS 3
 
+static uint32_t ask_for_key(struct ncplane* parent_plane){
+	struct ncplane_options plane_options = {
+		.y = NCALIGN_CENTER, .x = NCALIGN_CENTER,
+		.rows = 3, .cols = 30,
+		.flags = NCPLANE_OPTION_HORALIGNED | NCPLANE_OPTION_VERALIGNED,
+	};
+	struct ncplane* plane = ncplane_create(parent_plane, &plane_options);
+	ncplane_putstr_yx(plane, 1, 1, "Press a key: ");
+	ncpile_render(plane);
+	ncpile_rasterize(plane);
+	uint32_t key = notcurses_get(nc, NULL, NULL);
+	ncplane_destroy(plane);
+	return key;
+}
+
 void options_tui(){
 	unsigned int screen_rows, screen_cols;
 	notcurses_stddim_yx(nc, &screen_rows, &screen_cols);
@@ -54,6 +69,10 @@ void options_tui(){
 					case 1:
 						break;
 					case 2:
+						struct shortcut shortcut = {};
+						shortcut.key = ask_for_key(plane);
+						char* shortcut_options[] = {"Tag file", "Untag file", "Tag/untag file", NULL};
+						shortcut.type = chooser(plane, shortcut_options, 0);
 						break;
 				}
 				break;
@@ -62,7 +81,7 @@ void options_tui(){
 		ncplane_erase(plane);
 
 		//mark current index
-		if(ui_index<OPTIONS_TUI_MIN_ELEMENTS) ncplane_putstr_yx(plane, ui_index, 0, "->");
+		if(ui_index<OPTIONS_TUI_MIN_ELEMENTS-1) ncplane_putstr_yx(plane, ui_index, 0, "->");
 		else ncplane_putstr_yx(plane, 2+ui_index, 0, "->");
 		//order by
 		ncplane_putstr_yx(plane, 0, 3, "Default search order: ");
@@ -82,7 +101,7 @@ void options_tui(){
 			else ncplane_putstr(plane, " ascending");
 		}
 		ncplane_printf_yx(plane, 1, 3, "Default search limit (0 for none): %lu", tui_options.search_limit);	//limit
-		ncplane_putstr_yx(plane, 2, 3, "Add new shortcut");
+		ncplane_putstr_yx(plane, 4, 3, "Add new shortcut");
 		ncpile_render(plane);
 		ncpile_rasterize(plane);
 	}while((c=notcurses_get(nc, NULL, NULL))!='q');
