@@ -41,4 +41,5 @@ void reset_display_plane(struct ncplane* plane);
 
 void file_tag_tui(sqlite3_int64 id);
 
+sqlite3_int64 search_tag_tui();
 #endif

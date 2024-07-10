@@ -73,6 +73,13 @@ void options_tui(){
 						shortcut.key = ask_for_key(plane);
 						char* shortcut_options[] = {"Tag file", "Untag file", "Tag/untag file", NULL};
 						shortcut.type = chooser(plane, shortcut_options, 0);
+						shortcut.id = search_tag_tui();
+						if(shortcut.id!=-1){
+							tui_options.shortcuts_n++;
+							tui_options.shortcuts = realloc(tui_options.shortcuts, sizeof(struct shortcut)*tui_options.shortcuts_n);
+							tui_options.shortcuts[tui_options.shortcuts_n-1] = shortcut;
+							//TBD check for conflicts
+						}
 						break;
 				}
 				break;
@@ -102,6 +109,9 @@ void options_tui(){
 		}
 		ncplane_printf_yx(plane, 1, 3, "Default search limit (0 for none): %lu", tui_options.search_limit);	//limit
 		ncplane_putstr_yx(plane, 4, 3, "Add new shortcut");
+		for(unsigned short i=0; i<tui_options.shortcuts_n; i++){
+			ncplane_putstr_yx(plane, 5+i, 3, "shortcut description TBD");
+		}
 		ncpile_render(plane);
 		ncpile_rasterize(plane);
 	}while((c=notcurses_get(nc, NULL, NULL))!='q');
