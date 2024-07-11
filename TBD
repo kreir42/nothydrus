@@ -14,5 +14,4 @@
 - script to export file tags
 - custom rating(s) and filters
 - adding already existing tag to file returns error
-- custom keyboard shortcuts for tagging, etc
 - option to export search tui results

@@ -41,7 +41,12 @@ void options_tui(){
 				break;
 			case 'd':
 				if(ui_index>=OPTIONS_TUI_MIN_ELEMENTS){
-					//delete shortcut
+					tui_options.shortcuts_n--;
+					for(unsigned short i=ui_index-OPTIONS_TUI_MIN_ELEMENTS-1; i<tui_options.shortcuts_n; i++){
+						tui_options.shortcuts[i] = tui_options.shortcuts[i+1];
+					}
+					tui_options.shortcuts = realloc(tui_options.shortcuts, sizeof(struct shortcut)*tui_options.shortcuts_n);
+					if(tui_options.shortcuts_n==0) ui_index--;
 				}
 				break;
 			case '+':
