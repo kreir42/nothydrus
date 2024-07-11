@@ -54,6 +54,7 @@ void fullscreen_display(struct search* search){
 								untag(search->output_ids.data[i], tui_options.shortcuts[j].id);
 								break;
 							case SHORTCUT_TYPE_TAG_UNTAG_FILE:
+								//TBD
 								break;
 						}
 					}

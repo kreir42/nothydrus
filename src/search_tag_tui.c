@@ -15,6 +15,7 @@ sqlite3_int64 search_tag_tui(){
 	struct id_dynarr search_results = new_id_dynarr(10);
 	unsigned short ui_index = 0;
 	uint32_t c = NCKEY_ENTER;
+	ncplane_putstr_yx(plane, 0, 2, "Search here: ");
 	do{
 		switch(c){
 			case NCKEY_DOWN:
@@ -32,7 +33,7 @@ sqlite3_int64 search_tag_tui(){
 			case NCKEY_ENTER:
 				if(ui_index==0){
 					if(tag_search!=NULL) free(tag_search);
-					tag_search = input_reader(plane, 0, 2, 1, TAG_SEARCH_COLS-2);
+					tag_search = input_reader(plane, 0, 15, 1, screen_cols-16);
 					search_tags(&search_results, tag_search);
 				}else{
 					tag_id = search_results.data[ui_index-1];
@@ -41,17 +42,18 @@ sqlite3_int64 search_tag_tui(){
 				break;
 		}
 		ncplane_erase(plane);
-		ncplane_putstr_yx(plane, 0, 2, tag_search);
+		ncplane_printf_yx(plane, 0, 2, "Search here: %s", tag_search);
 		if(search_results.used==0){
-			ncplane_putstr_yx(plane, 2, 2, "No tag found, press 'a' to add new tag");
+			ncplane_putstr_yx(plane, 2, 2, "No tag found, press 'a' to add search as new tag");
 		}else{
+			ncplane_putstr_yx(plane, 2, 2, "Search results:");
 			for(unsigned short i=0; i<search_results.used; i++){
-				ncplane_putstr_yx(plane, 2+i, 2, tag_fullname_from_id(search_results.data[i]));
+				ncplane_putstr_yx(plane, 3+i, 2, tag_fullname_from_id(search_results.data[i]));
 			}
 		}
 		//mark current index
 		if(ui_index==0) ncplane_putstr_yx(plane, 0, 0, "->");
-		else ncplane_putstr_yx(plane, 1+ui_index, 0, "->");
+		else ncplane_putstr_yx(plane, 2+ui_index, 0, "->");
 		ncpile_render(plane);
 		ncpile_rasterize(plane);
 	}while((c=notcurses_get(nc, NULL, NULL))!='q');
