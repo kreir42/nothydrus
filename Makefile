@@ -24,4 +24,10 @@ clean:
 	rm -rd build/
 	rm $(NAME)
 
-.PHONY: clean all
+install: all
+	install -D -t $(DESTDIR)$(PREFIX)/bin $(NAME)
+
+uninstall:
+	rm -f $(DESTDIR)$(PREFIX)/bin/$(NAME)
+
+.PHONY: clean all install uninstall
