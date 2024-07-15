@@ -20,7 +20,7 @@ struct tui_options{
 #define SHORTCUT_TYPE_TAG_UNTAG_FILE 2	//TBD
 void options_tui();
 short save_tui_options(char* name);
-short load_tui_options(char* name);
+void load_tui_options(char* name);
 
 extern struct notcurses* nc;
 extern struct tui_options tui_options;

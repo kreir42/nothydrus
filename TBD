@@ -15,3 +15,4 @@
 - custom rating(s) and filters
 - adding already existing tag to file returns error
 - option to export search tui results
+? redirect stderr to file for tui

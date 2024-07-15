@@ -229,6 +229,7 @@ void start_tui(int_least8_t flags, void* data){
 	struct timespec bugfix_timespec = {.tv_nsec = 100};
 	while(notcurses_get(nc, &bugfix_timespec, NULL)){}	//bugfix for notcurses getting strange input on startup; TBD find cause of weird input
 
+	load_tui_options(INIT_DIRECTORY"/""tui_options");
 	if(flags & START_TUI_DISPLAY){
 		fullscreen_display((struct search*)data);
 		notcurses_drop_planes(nc);
