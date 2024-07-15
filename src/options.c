@@ -34,7 +34,7 @@ short save_tui_options(char* name){
 
 	//write shortcuts
 	for(unsigned short i=0; i<tui_options.shortcuts_n; i++){
-		fprintf(fp, "KEY:%u, TYPE:%c, ID:%lld\n", tui_options.shortcuts[i].key, tui_options.shortcuts[i].type, tui_options.shortcuts[i].id);
+		fprintf(fp, "KEY:%ld, TYPE:%d, ID:%lld\n", (long int)tui_options.shortcuts[i].key, (int)tui_options.shortcuts[i].type, tui_options.shortcuts[i].id);
 	}
 
 	fclose(fp);
