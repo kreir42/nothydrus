@@ -13,6 +13,8 @@ static void new_search_plane(struct search* search_to_copy){
 	if(search_to_copy==NULL){
 		search->sql[0] = '\0';
 		search->output_ids = new_id_dynarr(MIN_ID_DYNARR_SIZE);
+		search->order_by = tui_options.search_order_by;
+		search->descending = tui_options.search_descending;
 		search->limit = tui_options.search_limit;
 	}else{
 		if(search_to_copy->sql[0]!='\0') strcpy(search->sql, search_to_copy->sql);
