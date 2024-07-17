@@ -64,6 +64,11 @@ static void remove_trailing_spaces(char* str){
 }
 
 void load_tui_options(char* name){
+	if(access(name, F_OK)!=0){
+		//file doesn't exist
+		save_tui_options(name);
+		return;
+	}
 	FILE* fp = fopen(name, "r");
 	if(fp==NULL){
 		fprintf(stderr, "load_tui_options:'%s' file could not be opened.\n", name);
