@@ -16,3 +16,4 @@
 - adding already existing tag to file returns error
 - option to export search tui results
 ? redirect stderr to file for tui
+- create tui_options on init

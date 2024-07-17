@@ -27,4 +27,12 @@
 //file flags
 #define FILE_MISSING	1
 
+//custom columns
+#define COLUMN_NOT_NULL 1
+
+//custom column types
+#define COLUMN_TYPE_TEXT 0
+#define COLUMN_TYPE_INTEGER 1
+#define COLUMN_TYPE_REAL 2
+
 #endif

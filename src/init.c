@@ -28,7 +28,7 @@ void init(){
 				"CREATE TABLE tags("
 				"id INTEGER PRIMARY KEY NOT NULL, "
 				"name TEXT NOT NULL, "
-				"taggroup INT NOT NULL DEFAULT 1, "
+				"taggroup INTEGER NOT NULL DEFAULT 1, "
 				"number INTEGER NOT NULL DEFAULT 0)"
 				"STRICT;"
 
@@ -54,9 +54,16 @@ void init(){
 				"PRIMARY KEY(tag, taggroup))"
 				"STRICT;"
 
-
 				"INSERT INTO taggroups(id, name) "
 				"VALUES(1, \""DEFAULT_TAGGROUP_NAME"\");"
+
+				"CREATE TABLE custom_columns("
+				"name TEXT NOT NULL, "
+				"type INTEGER NOT NULL, "
+				"flags INTEGER NOT NULL DEFAULT 0, "	//bitfield
+				"lower_limit INTEGER, "
+				"upper_limit INTEGER)"
+				"STRICT;"
 
 				,NULL, NULL, &sqlite3_error_message)){
 		fprintf(stderr, "Error when creating tables and indexes:%s\n", sqlite3_error_message);
