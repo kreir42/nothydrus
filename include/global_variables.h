@@ -25,5 +25,6 @@ extern sqlite3_stmt* tag_statement;
 extern sqlite3_stmt* untag_statement;
 extern sqlite3_stmt* search_tags_statement;
 extern sqlite3_stmt* get_file_tags_statement;
+extern sqlite3_stmt* add_custom_column_statement;
 
 #endif

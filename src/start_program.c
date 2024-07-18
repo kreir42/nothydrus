@@ -20,6 +20,7 @@ sqlite3_stmt* tag_statement;
 sqlite3_stmt* untag_statement;
 sqlite3_stmt* search_tags_statement;
 sqlite3_stmt* get_file_tags_statement;
+sqlite3_stmt* add_custom_column_statement;
 
 static inline void prepare_add_file(){
 	if(sqlite3_prepare_v3(main_db,
@@ -212,6 +213,16 @@ static inline void prepare_get_file_tags(){
 	}
 }
 
+void prepare_add_custom_column(){
+	if(sqlite3_prepare_v3(main_db,
+				"INSERT INTO custom_columns("
+				"name, type, flags, lower_limit, upper_limit) "
+				"VALUES(?, ?, ?, ?, ?);"
+				, -1, SQLITE_PREPARE_PERSISTENT, &add_custom_column_statement, NULL) != SQLITE_OK){
+		fprintf(stderr, "Error preparing add_custom_column_statement: %s\n", sqlite3_errmsg(main_db));
+	}
+}
+
 void start_program(int_least8_t flags){
 	//assumes it starts in the program's root directory
 	if(sqlite3_open(INIT_DIRECTORY"/"MAIN_DATABASE_NAME, &main_db)){
@@ -259,6 +270,7 @@ void start_program(int_least8_t flags){
 	prepare_untag();
 	prepare_search_tags();
 	prepare_get_file_tags();
+	prepare_add_custom_column();
 }
 
 void end_program(){
@@ -282,6 +294,7 @@ void end_program(){
 	sqlite3_finalize(untag_statement);
 	sqlite3_finalize(search_tags_statement);
 	sqlite3_finalize(get_file_tags_statement);
+	sqlite3_finalize(add_custom_column_statement);
 
 	sqlite3_close(main_db);
 }

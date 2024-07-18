@@ -76,6 +76,7 @@ void tag(sqlite3_int64 file_id, sqlite3_int64 tag_id);
 void untag(sqlite3_int64 file_id, sqlite3_int64 tag_id);
 
 void search_tags(struct id_dynarr* dynarr, char* tag_search);	//TBD? command
+void add_custom_column(char* name, short type, uint_least8_t flags, int lower_limit, int upper_limit);	//TBD command
 
 //util functions
 char* filepath_from_id(sqlite3_int64 id);
@@ -95,4 +96,5 @@ char* taggroup_name_from_id(sqlite3_int64 id);
 
 void get_file_tags(sqlite3_int64 file_id, struct id_dynarr* dynarr);
 
+void prepare_add_custom_column();
 #endif

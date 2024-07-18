@@ -29,6 +29,8 @@
 
 //custom columns
 #define COLUMN_NOT_NULL 1
+#define COLUMN_NO_LOWER_LIMIT 2
+#define COLUMN_NO_UPPER_LIMIT 4
 
 //custom column types
 #define COLUMN_TYPE_TEXT 0
