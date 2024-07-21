@@ -58,6 +58,7 @@ void init(){
 				"VALUES(1, \""DEFAULT_TAGGROUP_NAME"\");"
 
 				"CREATE TABLE custom_columns("
+				"id INTEGER PRIMARY KEY NOT NULL, "
 				"name TEXT NOT NULL UNIQUE, "
 				"type INTEGER NOT NULL, "
 				"flags INTEGER NOT NULL DEFAULT 0, "	//bitfield
