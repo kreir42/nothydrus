@@ -70,7 +70,6 @@ void init(){
 		fprintf(stderr, "Error when creating tables and indexes:%s\n", sqlite3_error_message);
 	}
 	prepare_add_custom_column();
-	add_custom_column("Rating", COLUMN_TYPE_INTEGER, 0, 0, 10);	//debug, to remove
 
 	sqlite3_free(sqlite3_error_message);
 	end_program();

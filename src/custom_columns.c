@@ -13,12 +13,12 @@ void add_custom_column(char* name, short type, uint_least8_t flags, int lower_li
 			strcpy(type_name, "REAL");
 			break;
 	}
-	sprintf(sql_statement, "ALTER TABLE files ADD COLUMN %s %s", name, type_name);
+	sprintf(sql_statement, "ALTER TABLE files ADD COLUMN \"%s\" %s", name, type_name);
 	if(flags & COLUMN_NOT_NULL) strcat(sql_statement, " NOT NULL");
 	strcat(sql_statement, ";");
 	char* sqlite3_error_message;
 	if(sqlite3_exec(main_db, sql_statement, NULL, NULL, &sqlite3_error_message)){
-		fprintf(stderr, "Error when creating tables and indexes:%s\n", sqlite3_error_message);
+		fprintf(stderr, "sqlite3_exec(%s) in add_custom_column returned an error:%s\n", sql_statement, sqlite3_error_message);
 		goto end_flag;
 	}
 

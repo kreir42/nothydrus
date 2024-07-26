@@ -34,6 +34,8 @@ int main(int argc, char** argv){
 			puts("          Tags files whose filepaths are given as arguments or piped in with tag.");
 			puts("          --add option will add the tag and taggroup if they don't already exist.");
 			puts("          --taggroup option after the tag allows you to specify the tag's taggroup. Otherwise, the default taggroup is assumed.");
+			puts("     add_custom_columns [name] [type] [flags] [lower limit] [upper limit]");
+			puts("          Arguments must be (in order): name, type (\"text\", \"integer\" or \"real\"), flags (1 for NOT NULL), lower limit, upper limit");	//TBD? special value MAX for limits
 			return 0;
 		}else if(!strcmp(argv[i], "init")){
 			i++;
@@ -260,6 +262,27 @@ int main(int argc, char** argv){
 				}
 				free(line);
 			};
+			end_program();
+			return 0;
+		}else if(!strcmp(argv[i], "add_custom_column")){
+			i++;
+			if(argc-i!=5){
+				fprintf(stderr, "Error: wrong number of arguments for add_custom_column\n");
+				return -1;
+			}
+			short new_custom_column_type;
+			if(!strcmp(argv[i+1], "text")){
+				new_custom_column_type = COLUMN_TYPE_TEXT;
+			}else if(!strcmp(argv[i+1], "integer")){
+				new_custom_column_type = COLUMN_TYPE_INTEGER;
+			}else if(!strcmp(argv[i+1], "real")){
+				new_custom_column_type = COLUMN_TYPE_REAL;
+			}else{
+				fprintf(stderr, "Error: unrecognized \"type\" argument %s for add_custom_column. See --help\n", argv[i+1]);
+				return -1;
+			}
+			start_program(0);
+			add_custom_column(argv[i], new_custom_column_type, strtol(argv[i+2], NULL, 10), strtol(argv[i+3], NULL, 10), strtol(argv[i+4], NULL, 10));
 			end_program();
 			return 0;
 		}else{
