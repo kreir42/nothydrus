@@ -34,7 +34,7 @@ int main(int argc, char** argv){
 			puts("          Tags files whose filepaths are given as arguments or piped in with tag.");
 			puts("          --add option will add the tag and taggroup if they don't already exist.");
 			puts("          --taggroup option after the tag allows you to specify the tag's taggroup. Otherwise, the default taggroup is assumed.");
-			puts("     add_custom_columns [name] [type] [flags] [lower limit] [upper limit]");
+			puts("     add_custom_column [name] [type] [flags] [lower limit] [upper limit]");
 			puts("          Arguments must be (in order): name, type (\"text\", \"integer\" or \"real\"), flags (1 for NOT NULL), lower limit, upper limit");	//TBD? special value MAX for limits
 			return 0;
 		}else if(!strcmp(argv[i], "init")){
