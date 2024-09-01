@@ -21,7 +21,7 @@ sqlite3_stmt* untag_statement;
 sqlite3_stmt* search_tags_statement;
 sqlite3_stmt* get_file_tags_statement;
 sqlite3_stmt* add_custom_column_statement;
-sqlite3_stmt* custom_column_id_from_name_statement;
+sqlite3_stmt* get_file_columns_statement;
 
 unsigned int custom_columns_n;
 struct custom_column* custom_columns;
@@ -227,12 +227,12 @@ void prepare_add_custom_column(){
 	}
 }
 
-static inline void prepare_custom_column_id_from_name(){
+static inline void prepare_get_file_columns(){
 	if(sqlite3_prepare_v3(main_db,
-				"SELECT id FROM custom_columns "
-				"WHERE name = ?;"
-				, -1, SQLITE_PREPARE_PERSISTENT, &custom_column_id_from_name_statement, NULL) != SQLITE_OK){
-		fprintf(stderr, "Error preparing custom_column_id_from_name_statement: %s\n", sqlite3_errmsg(main_db));
+				"SELECT * FROM files "
+				"WHERE id = ?;"
+				, -1, SQLITE_PREPARE_PERSISTENT, &get_file_columns_statement, NULL) != SQLITE_OK){
+		fprintf(stderr, "Error preparing get_file_columns_statement: %s\n", sqlite3_errmsg(main_db));
 	}
 }
 
@@ -286,7 +286,7 @@ void start_program(int_least8_t flags){
 	prepare_search_tags();
 	prepare_get_file_tags();
 	prepare_add_custom_column();
-	prepare_custom_column_id_from_name();
+	prepare_get_file_columns();
 }
 
 void end_program(){
@@ -311,7 +311,7 @@ void end_program(){
 	sqlite3_finalize(search_tags_statement);
 	sqlite3_finalize(get_file_tags_statement);
 	sqlite3_finalize(add_custom_column_statement);
-	sqlite3_finalize(custom_column_id_from_name_statement);
+	sqlite3_finalize(get_file_columns_statement);
 
 	sqlite3_close(main_db);
 }

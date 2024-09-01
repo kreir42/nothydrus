@@ -32,7 +32,6 @@ struct custom_column{
 };
 void prepare_add_custom_column();
 void get_custom_columns();
-sqlite3_int64 custom_column_id_from_name(char* name);	//TBD
 
 struct or_tag_element{
 	unsigned short or_number;	//number of ids pointed to by ids
@@ -108,4 +107,5 @@ sqlite3_int64 taggroup_id_from_name(char* name);
 char* taggroup_name_from_id(sqlite3_int64 id);
 
 void get_file_tags(sqlite3_int64 file_id, struct id_dynarr* dynarr);
+void get_file_columns(sqlite3_int64 file_id);
 #endif

@@ -74,8 +74,18 @@ void fullscreen_display(struct search* search){
 		}
 		//print file custom columns
 		for(unsigned short j=0; j<custom_columns_n; j++){
-			//TBD get value depending on custom column type
-			ncplane_printf_aligned(plane, 1+j, NCALIGN_RIGHT, "%s", custom_columns[j].name);
+			get_file_columns(search->output_ids.data[i]);
+			switch(custom_columns[j].type){
+				case COLUMN_TYPE_TEXT:
+					ncplane_printf_aligned(plane, 1+j, NCALIGN_RIGHT, "%s: %s", custom_columns[j].name, sqlite3_column_text(get_file_columns_statement, j+NON_CUSTOM_FILE_COLUMNS));
+					break;
+				case COLUMN_TYPE_INTEGER:
+					ncplane_printf_aligned(plane, 1+j, NCALIGN_RIGHT, "%s: %d", custom_columns[j].name, sqlite3_column_int(get_file_columns_statement, j+NON_CUSTOM_FILE_COLUMNS));
+					break;
+				case COLUMN_TYPE_REAL:
+					ncplane_printf_aligned(plane, 1+j, NCALIGN_RIGHT, "%s: %f", custom_columns[j].name, sqlite3_column_double(get_file_columns_statement, j+NON_CUSTOM_FILE_COLUMNS));
+					break;
+			}
 		}
 		ncpile_render(plane);
 		ncpile_rasterize(plane);
