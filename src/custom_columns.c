@@ -38,3 +38,40 @@ void add_custom_column(char* name, short type, uint_least8_t flags, int lower_li
 	end_flag:
 	sqlite3_free(sqlite3_error_message);
 }
+
+//get all custom columns data from the custom_columns SQL table into the custom_columns global variable
+void get_custom_columns(){
+	sqlite3_stmt* statement;
+	if(sqlite3_prepare_v3(main_db,
+				"SELECT COUNT(1) FROM custom_columns;"
+				, -1, 0, &statement, NULL) != SQLITE_OK){
+		fprintf(stderr, "Error preparing count statement in get_custom_columns: %s\n", sqlite3_errmsg(main_db));
+	}
+	if(sqlite3_step(statement) != SQLITE_ROW){
+		fprintf(stderr, "sqlite3_step(statement) returned an error for count statement in get_custom_columns: %s\n", sqlite3_errmsg(main_db));
+		return;
+	}
+	custom_columns_n = sqlite3_column_int(statement, 0);
+	sqlite3_finalize(statement);
+	if(sqlite3_prepare_v3(main_db,
+				"SELECT * FROM custom_columns;"
+				, -1, 0, &statement, NULL) != SQLITE_OK){
+		fprintf(stderr, "Error preparing statement in get_custom_columns: %s\n", sqlite3_errmsg(main_db));
+	}
+	custom_columns = realloc(custom_columns, custom_columns_n*sizeof(struct custom_column));
+	int error_code;
+	unsigned int row_n = 0;
+	while((error_code=sqlite3_step(statement)) == SQLITE_ROW){
+		custom_columns[row_n].id = sqlite3_column_int64(statement, 0);
+		strcpy(custom_columns[row_n].name, (char* )sqlite3_column_text(statement, 1));
+		custom_columns[row_n].type = sqlite3_column_int(statement, 2);
+		custom_columns[row_n].flags = sqlite3_column_int(statement, 3);
+		custom_columns[row_n].lower_limit = sqlite3_column_int(statement, 4);
+		custom_columns[row_n].upper_limit = sqlite3_column_int(statement, 5);
+		row_n++;
+	}
+	if(error_code != SQLITE_DONE){
+		fprintf(stderr, "Error executing statement in get_custom_columns at row %d of %d: %s\n", row_n, custom_columns_n, sqlite3_errmsg(main_db));
+	}
+	sqlite3_finalize(statement);
+}

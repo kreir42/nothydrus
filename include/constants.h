@@ -17,6 +17,7 @@
 #define TAG_CLAUSE_SIZE 2000
 #define TAG_SEARCH_ROWS 30
 #define TAG_SEARCH_COLS 50
+#define CUSTOM_COLUMN_NAME_SIZE 64
 
 //filetypes
 #define FILETYPE_NONE 0

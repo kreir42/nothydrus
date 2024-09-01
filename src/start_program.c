@@ -23,6 +23,9 @@ sqlite3_stmt* get_file_tags_statement;
 sqlite3_stmt* add_custom_column_statement;
 sqlite3_stmt* custom_column_id_from_name_statement;
 
+unsigned int custom_columns_n;
+struct custom_column* custom_columns;
+
 static inline void prepare_add_file(){
 	if(sqlite3_prepare_v3(main_db,
 				"INSERT INTO files("
@@ -243,6 +246,7 @@ void start_program(int_least8_t flags){
 	if(flags & START_PROGRAM_INIT){
 		return;
 	}
+	get_custom_columns();
 	if(flags & START_PROGRAM_ADD_FILES){
 		prepare_add_file();
 		return;

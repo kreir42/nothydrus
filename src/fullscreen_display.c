@@ -62,12 +62,20 @@ void fullscreen_display(struct search* search){
 				break;
 		}
 		ncplane_erase(plane);
+		//print file position
 		ncplane_printf_yx(plane, 0, 0, "%ld/%ld", i+1, search->output_ids.used);
+		//print filepath
 		ncplane_printf_aligned(plane, 0, NCALIGN_CENTER, "%s %f MB", filepath_from_id(search->output_ids.data[i]), (double)filesize_from_id(search->output_ids.data[i])/1000000);
+		//print file tags
 		get_file_tags(search->output_ids.data[i], &file_tags);
 		for(unsigned short j=0; j<file_tags.used; j++){
 			tag_fullname = tag_fullname_from_id(file_tags.data[j]);
 			ncplane_putstr_yx(plane, 1+j, 0, tag_fullname);
+		}
+		//print file custom columns
+		for(unsigned short j=0; j<custom_columns_n; j++){
+			//TBD get value depending on custom column type
+			ncplane_printf_aligned(plane, 1+j, NCALIGN_RIGHT, "%s", custom_columns[j].name);
 		}
 		ncpile_render(plane);
 		ncpile_rasterize(plane);

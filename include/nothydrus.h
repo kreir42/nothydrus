@@ -22,6 +22,18 @@ struct id_dynarr new_id_dynarr(unsigned long initial_size);
 void append_id_dynarr(struct id_dynarr* dynarr, sqlite3_int64 id);
 void crop_id_dynarr(struct id_dynarr* dynarr);
 
+struct custom_column{
+	sqlite3_int64 id;
+	char name[CUSTOM_COLUMN_NAME_SIZE];
+	short type;
+	uint_least8_t flags;
+	int lower_limit;
+	int upper_limit;
+};
+void prepare_add_custom_column();
+void get_custom_columns();
+sqlite3_int64 custom_column_id_from_name(char* name);	//TBD
+
 struct or_tag_element{
 	unsigned short or_number;	//number of ids pointed to by ids
 	sqlite3_int64* ids;
@@ -96,7 +108,4 @@ sqlite3_int64 taggroup_id_from_name(char* name);
 char* taggroup_name_from_id(sqlite3_int64 id);
 
 void get_file_tags(sqlite3_int64 file_id, struct id_dynarr* dynarr);
-
-void prepare_add_custom_column();
-sqlite3_int64 custom_column_id_from_name(char* name);	//TBD
 #endif

@@ -28,4 +28,7 @@ extern sqlite3_stmt* get_file_tags_statement;
 extern sqlite3_stmt* add_custom_column_statement;
 extern sqlite3_stmt* custom_column_id_from_name_statement;
 
+extern unsigned int custom_columns_n;
+extern struct custom_column* custom_columns;
+
 #endif
