@@ -18,6 +18,9 @@ struct tui_options{
 #define SHORTCUT_TYPE_TAG_FILE 0
 #define SHORTCUT_TYPE_UNTAG_FILE 1
 #define SHORTCUT_TYPE_TAG_UNTAG_FILE 2	//TBD
+#define SHORTCUT_TYPE_CUSTOM_COLUMN_INCREASE 3 //TBD
+#define SHORTCUT_TYPE_CUSTOM_COLUMN_DECREASE 4 //TBD
+#define SHORTCUT_TYPE_CUSTOM_COLUMN_REMOVE 5 //TBD
 void options_tui();
 short save_tui_options(char* name);
 void load_tui_options(char* name);

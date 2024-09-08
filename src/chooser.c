@@ -2,13 +2,15 @@
 #include "tui.h"
 
 unsigned short chooser(struct ncplane* parent_plane, char** options, unsigned short initial_value){
-	unsigned short options_n = 0;
+	unsigned short options_n = 0, length = 0, max_length = 0;
 	while(options[options_n]!=NULL){
+		length = strlen(options[options_n]);
+		if(length>max_length) max_length = length;
 		options_n++;
 	}
 	struct ncplane_options plane_options = {
 		.x = NCALIGN_CENTER, .y = NCALIGN_CENTER,
-		.rows = options_n+2, .cols = 2+12,
+		.rows = options_n+2, .cols = 2+max_length,
 		.flags = NCPLANE_OPTION_HORALIGNED | NCPLANE_OPTION_VERALIGNED,
 	};
 	struct ncplane* plane = ncplane_create(parent_plane, &plane_options);

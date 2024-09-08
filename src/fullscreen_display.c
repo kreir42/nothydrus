@@ -56,6 +56,35 @@ void fullscreen_display(struct search* search){
 							case SHORTCUT_TYPE_TAG_UNTAG_FILE:
 								//TBD
 								break;
+							case SHORTCUT_TYPE_CUSTOM_COLUMN_INCREASE:{
+								if(tui_options.shortcuts[j].type==COLUMN_TYPE_TEXT) break;
+								get_file_columns(search->output_ids.data[i]);
+								int value = sqlite3_column_int(get_file_columns_statement, NON_CUSTOM_FILE_COLUMNS+tui_options.shortcuts[j].id);
+								if(value<custom_columns[tui_options.shortcuts[j].id].upper_limit) value++;
+								set_custom_column_value(search->output_ids.data[i], tui_options.shortcuts[j].id, &value);
+								break;}
+							case SHORTCUT_TYPE_CUSTOM_COLUMN_DECREASE:{
+								if(tui_options.shortcuts[j].type==COLUMN_TYPE_TEXT) break;
+								get_file_columns(search->output_ids.data[i]);
+								float value = sqlite3_column_int(get_file_columns_statement, NON_CUSTOM_FILE_COLUMNS+tui_options.shortcuts[j].id);
+								if(value>custom_columns[tui_options.shortcuts[j].id].lower_limit) value--;
+								set_custom_column_value(search->output_ids.data[i], tui_options.shortcuts[j].id, &value);
+								break;}
+							case SHORTCUT_TYPE_CUSTOM_COLUMN_REMOVE:
+								switch(custom_columns[tui_options.shortcuts[j].id].type){
+									case COLUMN_TYPE_TEXT:
+										set_custom_column_value(search->output_ids.data[i], tui_options.shortcuts[j].id, "");
+										break;
+									case COLUMN_TYPE_INTEGER:{
+										int reset_value = 0;
+										set_custom_column_value(search->output_ids.data[i], tui_options.shortcuts[j].id, &reset_value);
+										break;}
+									case COLUMN_TYPE_REAL:{
+										float reset_value = 0;
+										set_custom_column_value(search->output_ids.data[i], tui_options.shortcuts[j].id, &reset_value);
+										break;}
+								}
+								break;
 						}
 					}
 				}

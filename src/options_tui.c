@@ -18,6 +18,11 @@ static uint32_t ask_for_key(struct ncplane* parent_plane){
 	return key;
 }
 
+static unsigned short choose_custom_column(){
+	//TBD
+	return 0;
+}
+
 void options_tui(){
 	unsigned int screen_rows, screen_cols;
 	notcurses_stddim_yx(nc, &screen_rows, &screen_cols);
@@ -76,9 +81,20 @@ void options_tui(){
 					case 2:
 						struct shortcut shortcut = {};
 						shortcut.key = ask_for_key(plane);
-						char* shortcut_options[] = {"Tag file", "Untag file", "Tag/untag file", NULL};
+						char* shortcut_options[] = {"Tag file", "Untag file", "Tag/untag file", "Increase custom column value", "Decrease custom column value", "Remove custom column value", NULL};
 						shortcut.type = chooser(plane, shortcut_options, 0);
-						shortcut.id = search_tag_tui();
+						switch(shortcut.type){
+							case SHORTCUT_TYPE_TAG_FILE:
+							case SHORTCUT_TYPE_UNTAG_FILE:
+							case SHORTCUT_TYPE_TAG_UNTAG_FILE:
+								shortcut.id = search_tag_tui();
+								break;
+							case SHORTCUT_TYPE_CUSTOM_COLUMN_INCREASE:
+							case SHORTCUT_TYPE_CUSTOM_COLUMN_DECREASE:
+							case SHORTCUT_TYPE_CUSTOM_COLUMN_REMOVE:
+								shortcut.id = choose_custom_column();
+								break;
+						}
 						if(shortcut.id!=-1){
 							tui_options.shortcuts_n++;
 							tui_options.shortcuts = realloc(tui_options.shortcuts, sizeof(struct shortcut)*tui_options.shortcuts_n);
@@ -119,15 +135,29 @@ void options_tui(){
 			switch(tui_options.shortcuts[i].type){
 				case SHORTCUT_TYPE_TAG_FILE:
 					ncplane_putstr(plane, "Add tag to file: ");
+					ncplane_putstr(plane, tag_fullname_from_id(tui_options.shortcuts[i].id));
 					break;
 				case SHORTCUT_TYPE_UNTAG_FILE:
 					ncplane_putstr(plane, "Remove tag from file: ");
+					ncplane_putstr(plane, tag_fullname_from_id(tui_options.shortcuts[i].id));
 					break;
 				case SHORTCUT_TYPE_TAG_UNTAG_FILE:
 					ncplane_putstr(plane, "Add or remove tag to file: ");
+					ncplane_putstr(plane, tag_fullname_from_id(tui_options.shortcuts[i].id));
+					break;
+				case SHORTCUT_TYPE_CUSTOM_COLUMN_INCREASE:
+					ncplane_putstr(plane, "Increase value of custom column: ");
+					ncplane_putstr(plane, custom_columns[tui_options.shortcuts[i].id].name);
+					break;
+				case SHORTCUT_TYPE_CUSTOM_COLUMN_DECREASE:
+					ncplane_putstr(plane, "Decrease value of custom column: ");
+					ncplane_putstr(plane, custom_columns[tui_options.shortcuts[i].id].name);
+					break;
+				case SHORTCUT_TYPE_CUSTOM_COLUMN_REMOVE:
+					ncplane_putstr(plane, "Remove value of custom column: ");
+					ncplane_putstr(plane, custom_columns[tui_options.shortcuts[i].id].name);
 					break;
 			}
-			ncplane_putstr(plane, tag_fullname_from_id(tui_options.shortcuts[i].id));
 		}
 		ncpile_render(plane);
 		ncpile_rasterize(plane);

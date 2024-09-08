@@ -17,3 +17,6 @@
 - option to export search tui results
 ? redirect stderr to file for tui
 - commands to list all taggroups, tags
+- chooser not properly calculating width?
+- special custom columns upper and lower limit values for no limits: max and min int64 in constants
+- change increase and decrease custom column values for real number columns
