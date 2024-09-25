@@ -107,9 +107,23 @@ void load_tui_options(char* name){
 	tui_options.search_limit = strtol(current, NULL, 10);
 	current=str;
 	//shortcuts
+	unsigned short shortcuts_n = 0;
+	struct shortcut* shortcuts = malloc(200*sizeof(struct shortcut));	//TBD? remove max shortcuts limit by having a proper dynarr?
 	while(fgets(str, 1000, fp)!=NULL){
-		current=str;
+		long int key;
+		int type;
+		sqlite3_int64 id;
+		if(sscanf(str, "KEY:%ld, TYPE:%d, ID:%lld", &key, &type, &id)==3){
+			shortcuts[shortcuts_n].key = key;
+			shortcuts[shortcuts_n].type = type;
+			shortcuts[shortcuts_n].id = id;
+			shortcuts_n++;
+		}
 	}
+	shortcuts = realloc(shortcuts, sizeof(struct shortcut)*shortcuts_n);
+	tui_options.shortcuts_n = shortcuts_n;
+	free(tui_options.shortcuts);
+	tui_options.shortcuts = shortcuts;
 
 	fclose(fp);
 	return;
