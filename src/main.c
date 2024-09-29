@@ -4,7 +4,6 @@
 sqlite3* main_db;
 
 int main(int argc, char** argv){
-	char* target_dir = ".";
 	for(unsigned short i=1; i<argc; i++){
 		if(!strcmp(argv[i], "--help") || !strcmp(argv[i], "-h")){
 			puts("Usage: "PROGRAM_NAME" [command] [command option(s)] [argument(s)]");
@@ -39,6 +38,7 @@ int main(int argc, char** argv){
 			return 0;
 		}else if(!strcmp(argv[i], "init")){
 			i++;
+			char* target_dir = ".";
 			if(i==(argc-1)){
 				target_dir = argv[i];
 			}else if(i!=argc){
@@ -53,6 +53,7 @@ int main(int argc, char** argv){
 			init();
 			break;
 		}else if(!strcmp(argv[i], "add")){
+			if(set_main_path()){ fprintf(stderr, "Error: could not locate main path\n"); return 1;}
 			start_program(START_PROGRAM_ADD_FILES);
 			i++;
 			int_least8_t add_flags = 0;
@@ -83,6 +84,7 @@ int main(int argc, char** argv){
 				return -1;
 			}
 			strcpy(search.sql, argv[i]);
+			if(set_main_path()){ fprintf(stderr, "Error: could not locate main path\n"); return 1;}
 			start_program(START_PROGRAM_SQL_SEARCH);
 			run_search(&search);
 			if(output_id){
@@ -117,6 +119,7 @@ int main(int argc, char** argv){
 				free_search(&search);
 				return -1;
 			}
+			if(set_main_path()){ fprintf(stderr, "Error: could not locate main path\n"); return 1;}
 			start_program(START_PROGRAM_DISPLAY);
 			start_tui(START_TUI_DISPLAY, &search);
 			free_search(&search);
@@ -144,6 +147,7 @@ int main(int argc, char** argv){
 			if(!isatty(fileno(stdin))){
 				flags |= CHECK_FILES_STDIN;
 			}
+			if(set_main_path()){ fprintf(stderr, "Error: could not locate main path\n"); return 1;}
 			start_program(0);
 			if(i<argc){
 				struct id_dynarr id_dynarr = new_id_dynarr(10);
@@ -176,6 +180,7 @@ int main(int argc, char** argv){
 				fprintf(stderr, "Error: add_tag command has too many arguments\n");
 				return -1;
 			}
+			if(set_main_path()){ fprintf(stderr, "Error: could not locate main path\n"); return 1;}
 			start_program(0);
 			sqlite3_int64 taggroup_id;
 			if(i+1<argc) taggroup_id = taggroup_id_from_name(argv[i+1]);
@@ -192,6 +197,7 @@ int main(int argc, char** argv){
 				fprintf(stderr, "Error: too many arguments for taggroup command\n");
 				return -1;
 			}
+			if(set_main_path()){ fprintf(stderr, "Error: could not locate main path\n"); return 1;}
 			start_program(0);
 			add_taggroup(argv[i]);
 			end_program();
@@ -208,6 +214,7 @@ int main(int argc, char** argv){
 				return -1;
 			}
 			char* tag_name = argv[i];
+			if(set_main_path()){ fprintf(stderr, "Error: could not locate main path\n"); return 1;}
 			start_program(START_PROGRAM_TAG);
 			sqlite3_int64 tag_id, taggroup_id;
 			if(i+1<argc && !strcmp(argv[i+1], "--taggroup")){
@@ -281,6 +288,7 @@ int main(int argc, char** argv){
 				fprintf(stderr, "Error: unrecognized \"type\" argument %s for add_custom_column. See --help\n", argv[i+1]);
 				return -1;
 			}
+			if(set_main_path()){ fprintf(stderr, "Error: could not locate main path\n"); return 1;}
 			start_program(0);
 			add_custom_column(argv[i], new_custom_column_type, strtol(argv[i+2], NULL, 10), strtol(argv[i+3], NULL, 10), strtol(argv[i+4], NULL, 10));
 			end_program();
@@ -292,6 +300,7 @@ int main(int argc, char** argv){
 		}
 	}
 	if(argc==1){	//TBD change to allow config using parameters
+		if(set_main_path()){ fprintf(stderr, "Error: could not locate main path\n"); return 1;}
 		start_program(START_PROGRAM_TUI);
 		start_tui(0, NULL);
 		end_program();

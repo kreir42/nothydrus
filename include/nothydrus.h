@@ -11,6 +11,7 @@
 
 #include "constants.h"
 #include "global_variables.h"
+#include "paths.h"
 
 
 struct id_dynarr{

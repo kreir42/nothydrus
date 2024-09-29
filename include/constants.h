@@ -1,6 +1,7 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
+
 #define PROGRAM_NAME "nothydrus"
 #define INIT_DIRECTORY "."PROGRAM_NAME
 #define MAIN_DATABASE_NAME "main.db"
@@ -19,6 +20,8 @@
 #define TAG_SEARCH_ROWS 30
 #define TAG_SEARCH_COLS 50
 #define CUSTOM_COLUMN_NAME_SIZE 100
+#include <limits.h>
+#define MAX_PATH PATH_MAX
 
 //filetypes
 #define FILETYPE_NONE 0

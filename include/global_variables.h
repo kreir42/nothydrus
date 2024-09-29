@@ -3,6 +3,8 @@
 
 #include <sqlite3.h>
 
+#include "constants.h"
+
 extern sqlite3* main_db;
 
 extern sqlite3_stmt* add_file_statement;
@@ -30,5 +32,8 @@ extern sqlite3_stmt* get_file_columns_statement;
 
 extern unsigned int custom_columns_n;
 extern struct custom_column* custom_columns;
+
+extern char main_path[MAX_PATH];	//path where .nothydrus directory is located
+extern char execution_path[MAX_PATH];
 
 #endif
