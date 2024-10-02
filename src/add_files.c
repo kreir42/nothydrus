@@ -81,8 +81,11 @@ static short add_file(char* filepath, int_least8_t flags){
 void add_files(char** paths, unsigned int paths_n, int_least8_t flags){
 	unsigned int added=0, failed=0;
 	for(unsigned int i=0; i<paths_n; i++){
-		if(add_file(paths[i], flags)) failed++;
+		char* path = transform_input_path(paths[i]);
+		if(path==NULL){failed++; continue;}
+		else if(add_file(path, flags)) failed++;
 		else added++;
+		free(path);
 	}
 	if(flags & ADD_FILES_STDIN){
 		puts("Adding paths from stdin:");
@@ -91,9 +94,12 @@ void add_files(char** paths, unsigned int paths_n, int_least8_t flags){
 		unsigned int counter = 0;
 		while(getline(&line, &linesize, stdin)!=-1){
 			line[strlen(line)-1] = '\0';	//remove newline
-			if(add_file(line, flags)) failed++;
+			char* path = transform_input_path(line);
+			if(path==NULL){failed++; continue;}
+			else if(add_file(path, flags)) failed++;
 			else added++;
 			counter++;
+			free(path);
 		}
 		printf("Added %d paths from stdin\n", counter);
 		free(line);

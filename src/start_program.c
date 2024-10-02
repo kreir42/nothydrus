@@ -238,7 +238,7 @@ static inline void prepare_get_file_columns(){
 
 
 void start_program(int_least8_t flags){
-	//assumes it starts in the program's root directory
+	chdir(main_path);
 	if(sqlite3_open(INIT_DIRECTORY"/"MAIN_DATABASE_NAME, &main_db)){
 		fprintf(stderr, "Error opening main database: %s\n", sqlite3_errmsg(main_db));
 		return;

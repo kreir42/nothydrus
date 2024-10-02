@@ -20,3 +20,5 @@
 - chooser not properly calculating width?
 - special custom columns upper and lower limit values for no limits: max and min int64 in constants
 - change increase and decrease custom column values for real number columns
+? transform filepaths coming in from stdin differently?
+- nothydrus display segfault

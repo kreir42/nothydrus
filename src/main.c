@@ -93,7 +93,9 @@ int main(int argc, char** argv){
 				}
 			}else{
 				for(unsigned long i=0; i<search.output_ids.used; i++){
-					printf("%s\n", filepath_from_id(search.output_ids.data[i]));
+					char* path = transform_output_path(filepath_from_id(search.output_ids.data[i]));
+					printf("%s\n", path);
+					free(path);
 				}
 			}
 			free_search(&search);
@@ -147,7 +149,7 @@ int main(int argc, char** argv){
 			if(!isatty(fileno(stdin))){
 				flags |= CHECK_FILES_STDIN;
 			}
-			if(set_main_path()){ fprintf(stderr, "Error: could not locate main path\n"); return 1;}
+			if(set_main_path()){fprintf(stderr, "Error: could not locate main path\n"); return 1;}
 			start_program(0);
 			if(i<argc){
 				struct id_dynarr id_dynarr = new_id_dynarr(10);
@@ -159,8 +161,12 @@ int main(int argc, char** argv){
 				}else{ //paths in arguments
 					sqlite3_int64 id;
 					while(i<argc){
-						id = id_from_filepath(argv[i]);
-						if(id!=-1) append_id_dynarr(&id_dynarr, id);
+						char* path = transform_input_path(argv[i]);
+						if(path!=NULL){
+							id = id_from_filepath(path);
+							free(path);
+							if(id!=-1) append_id_dynarr(&id_dynarr, id);
+						}
 						i++;
 					}
 				}
@@ -247,25 +253,33 @@ int main(int argc, char** argv){
 			}
 			sqlite3_int64 file_id;
 			while(i<argc){
-				file_id = id_from_filepath(argv[i]);
-				i++;
-				if(file_id==-1){
-					fprintf(stderr, "Error: file not found in database\n");
-					continue;
+				char* path = transform_input_path(argv[i]);
+				if(path!=NULL){
+					file_id = id_from_filepath(path);
+					free(path);
+					if(file_id==-1){
+						fprintf(stderr, "Error: file not found in database\n");
+					}else{
+						tag(file_id, tag_id);
+					}
 				}
-				tag(file_id, tag_id);
+				i++;
 			}
 			if(!isatty(fileno(stdin))){
 				size_t linesize = 48;
 				char* line = malloc(linesize*sizeof(char));
 				while(getline(&line, &linesize, stdin)!=-1){
 					line[strlen(line)-1] = '\0';	//remove newline
-					file_id = id_from_filepath(line);
-					if(file_id==-1){
-						fprintf(stderr, "Error: file not found in database\n");
-						continue;
+					char* path = transform_input_path(line);
+					if(path!=NULL){
+						file_id = id_from_filepath(path);
+						free(path);
+						if(file_id==-1){
+							fprintf(stderr, "Error: file not found in database\n");
+							continue;
+						}
+						tag(file_id, tag_id);
 					}
-					tag(file_id, tag_id);
 				}
 				free(line);
 			};

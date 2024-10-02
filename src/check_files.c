@@ -70,7 +70,13 @@ void check_files(void* data, int_least8_t flags){
 			sqlite3_int64 id;
 			while(getline(&line, &linesize, stdin)!=-1){
 				line[strlen(line)-1] = '\0';	//remove newline
-				id = id_from_filepath(line);
+				char* path = transform_input_path(line);
+				if(path==NULL){
+					failed++;
+					continue;
+				}
+				id = id_from_filepath(path);
+				free(path);
 				if(id==-1) fprintf(stderr, "Filepath %s not found in database\n", line);
 				else if(check_file(id, flags)) failed++;
 				else passed++;
