@@ -279,6 +279,38 @@ void start_tui(int_least8_t flags, void* data){
 			case 'o':
 				options_tui();
 				break;
+			case 'd':	//delete tag from search list
+				if(ui_index>(MIN_UI_ELEMENTS-1)){
+					unsigned short tag_n = ui_index-5;
+					if(tag_n<search->include_tags_n){
+						while(tag_n<search->include_tags_n){
+							search->include_tags[tag_n] = search->include_tags[tag_n+1];
+							tag_n++;
+						}
+						search->include_tags_n-=1;
+						search->include_tags = realloc(search->include_tags, sizeof(sqlite3_int64)*search->include_tags_n);
+					}else{
+						tag_n-=search->include_tags_n;
+						if(tag_n<search->exclude_tags_n){
+							while(tag_n<search->exclude_tags_n){
+								search->exclude_tags[tag_n] = search->exclude_tags[tag_n+1];
+								tag_n++;
+							}
+							search->exclude_tags_n-=1;
+							search->exclude_tags = realloc(search->exclude_tags, sizeof(sqlite3_int64)*search->exclude_tags_n);
+						}else{
+							tag_n-=search->exclude_tags_n;
+							while(tag_n<search->or_tag_elements_n){
+								search->or_tag_elements[tag_n] = search->or_tag_elements[tag_n+1];
+								tag_n++;
+							}
+							search->or_tag_elements_n-=1;
+							search->or_tag_elements = realloc(search->or_tag_elements, sizeof(sqlite3_int64)*search->or_tag_elements_n);
+						}
+					}
+					if(ui_index == ui_elements-1) ui_index--;
+				}
+				break;
 			case NCKEY_ENTER:
 			case ' ':
 				switch(ui_index){
