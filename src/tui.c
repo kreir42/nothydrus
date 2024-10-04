@@ -271,7 +271,7 @@ void start_tui(int_least8_t flags, void* data){
 				ui_index = 0;
 				break;
 			case 'G':
-				ui_index = ui_elements;
+				ui_index = ui_elements-1;
 				break;
 			case 't':
 				add_tag_tui();
