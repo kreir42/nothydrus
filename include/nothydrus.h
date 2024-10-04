@@ -67,8 +67,7 @@ void start_program(int_least8_t flags);	//TBD? enum instead of flag
 #define START_PROGRAM_ADD_FILES		(1<<1)
 #define START_PROGRAM_TUI		(1<<2)
 #define START_PROGRAM_SQL_SEARCH	(1<<3)
-#define START_PROGRAM_DISPLAY		(1<<4)
-#define START_PROGRAM_TAG		(1<<5)
+#define START_PROGRAM_TAG		(1<<4)
 void end_program();
 
 

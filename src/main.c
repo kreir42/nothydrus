@@ -122,7 +122,7 @@ int main(int argc, char** argv){
 				return -1;
 			}
 			if(set_main_path()){ fprintf(stderr, "Error: could not locate main path\n"); return 1;}
-			start_program(START_PROGRAM_DISPLAY);
+			start_program(0);
 			start_tui(START_TUI_DISPLAY, &search);
 			free_search(&search);
 			end_program();
