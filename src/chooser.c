@@ -10,7 +10,7 @@ unsigned short chooser(struct ncplane* parent_plane, char** options, unsigned sh
 	}
 	struct ncplane_options plane_options = {
 		.x = NCALIGN_CENTER, .y = NCALIGN_CENTER,
-		.rows = options_n+2, .cols = 2+max_length,
+		.rows = options_n+2, .cols = 4+max_length,
 		.flags = NCPLANE_OPTION_HORALIGNED | NCPLANE_OPTION_VERALIGNED,
 	};
 	struct ncplane* plane = ncplane_create(parent_plane, &plane_options);
