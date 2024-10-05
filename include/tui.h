@@ -32,7 +32,7 @@ void start_tui(int_least8_t flags, void* data);
 #define START_TUI_DISPLAY	(1<<0)
 
 void fullscreen_display(struct search* search);
-unsigned short chooser(struct ncplane* parent_plane, char** options, unsigned short initial_value);
+short chooser(struct ncplane* parent_plane, char** options, short initial_value);
 char* input_reader(struct ncplane* parent_plane, int y, int x, int h, int w);	//TBD initial value
 
 struct ncplane* display_file(sqlite3_int64 id, int_least8_t flags, struct ncplane* plane);

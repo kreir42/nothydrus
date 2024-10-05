@@ -1,7 +1,7 @@
 #include "nothydrus.h"
 #include "tui.h"
 
-unsigned short chooser(struct ncplane* parent_plane, char** options, unsigned short initial_value){
+short chooser(struct ncplane* parent_plane, char** options, short initial_value){
 	unsigned short options_n = 0, length = 0, max_length = 0;
 	while(options[options_n]!=NULL){
 		length = strlen(options[options_n]);
@@ -21,7 +21,8 @@ unsigned short chooser(struct ncplane* parent_plane, char** options, unsigned sh
 	}
 
 	uint32_t c = NCKEY_RESIZE;
-	unsigned short option = initial_value;
+	unsigned short option = 0;
+	if(initial_value>=0) option = initial_value;
 	do{
 		ncplane_erase_region(plane, option+1, 1, options_n, 3);
 		switch(c){

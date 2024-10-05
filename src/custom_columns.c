@@ -62,7 +62,6 @@ void get_custom_columns(){
 	int error_code;
 	unsigned int row_n = 0;
 	while((error_code=sqlite3_step(statement)) == SQLITE_ROW){
-		custom_columns[row_n].id = sqlite3_column_int64(statement, 0);
 		strcpy(custom_columns[row_n].name, (char* )sqlite3_column_text(statement, 1));
 		custom_columns[row_n].type = sqlite3_column_int(statement, 2);
 		custom_columns[row_n].flags = sqlite3_column_int(statement, 3);

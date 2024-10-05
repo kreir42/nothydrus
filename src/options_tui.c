@@ -18,9 +18,14 @@ static uint32_t ask_for_key(struct ncplane* parent_plane){
 	return key;
 }
 
-static unsigned short choose_custom_column(){
-	//TBD
-	return 0;
+static short choose_custom_column(struct ncplane* plane){
+	char** options = malloc(sizeof(char*)*custom_columns_n);
+	for(unsigned short i=0; i<custom_columns_n; i++){
+		options[i] = custom_columns[i].name;
+	}
+	short choice = chooser(plane, options, -1);
+	free(options);
+	return choice;
 }
 
 void options_tui(){
@@ -47,11 +52,11 @@ void options_tui(){
 			case 'd':
 				if(ui_index>=OPTIONS_TUI_MIN_ELEMENTS){
 					tui_options.shortcuts_n--;
-					for(unsigned short i=ui_index-OPTIONS_TUI_MIN_ELEMENTS-1; i<tui_options.shortcuts_n; i++){
+					for(unsigned short i=ui_index-OPTIONS_TUI_MIN_ELEMENTS; i<tui_options.shortcuts_n; i++){
 						tui_options.shortcuts[i] = tui_options.shortcuts[i+1];
 					}
 					tui_options.shortcuts = realloc(tui_options.shortcuts, sizeof(struct shortcut)*tui_options.shortcuts_n);
-					if(tui_options.shortcuts_n==0) ui_index--;
+					if(tui_options.shortcuts_n==0 || ui_index==OPTIONS_TUI_MIN_ELEMENTS+tui_options.shortcuts_n) ui_index--;
 				}
 				break;
 			case '+':
@@ -92,7 +97,7 @@ void options_tui(){
 							case SHORTCUT_TYPE_CUSTOM_COLUMN_INCREASE:
 							case SHORTCUT_TYPE_CUSTOM_COLUMN_DECREASE:
 							case SHORTCUT_TYPE_CUSTOM_COLUMN_REMOVE:
-								shortcut.id = choose_custom_column();
+								shortcut.id = choose_custom_column(plane);
 								break;
 						}
 						if(shortcut.id!=-1){

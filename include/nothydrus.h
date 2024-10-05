@@ -24,7 +24,6 @@ void append_id_dynarr(struct id_dynarr* dynarr, sqlite3_int64 id);
 void crop_id_dynarr(struct id_dynarr* dynarr);
 
 struct custom_column{
-	sqlite3_int64 id;
 	char name[CUSTOM_COLUMN_NAME_SIZE];
 	short type;
 	uint_least8_t flags;
