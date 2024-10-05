@@ -300,6 +300,7 @@ void start_tui(int_least8_t flags, void* data){
 							search->exclude_tags = realloc(search->exclude_tags, sizeof(sqlite3_int64)*search->exclude_tags_n);
 						}else{
 							tag_n-=search->exclude_tags_n;
+							free(search->or_tag_elements[tag_n].ids);
 							while(tag_n<search->or_tag_elements_n){
 								search->or_tag_elements[tag_n] = search->or_tag_elements[tag_n+1];
 								tag_n++;

@@ -19,3 +19,4 @@
 - change increase and decrease custom column values for real number columns
 ? transform filepaths coming in from stdin differently?
 - order tags (display mode, search mode?)
+- choose_custom_column function
