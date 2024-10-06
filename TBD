@@ -20,3 +20,4 @@
 ? transform filepaths coming in from stdin differently?
 - order tags (display mode, search mode?)
 - command to remove custom column
+- not allow adding custom shortcuts for already taken keys

@@ -87,7 +87,9 @@ void options_tui(){
 						struct shortcut shortcut = {};
 						shortcut.key = ask_for_key(plane);
 						char* shortcut_options[] = {"Tag file", "Untag file", "Tag/untag file", "Increase custom column value", "Decrease custom column value", "Remove custom column value", NULL};
-						shortcut.type = chooser(plane, shortcut_options, 0);
+						short choice = chooser(plane, shortcut_options, -1);
+						if(choice==-1) break;
+						shortcut.type = choice;
 						switch(shortcut.type){
 							case SHORTCUT_TYPE_TAG_FILE:
 							case SHORTCUT_TYPE_UNTAG_FILE:
