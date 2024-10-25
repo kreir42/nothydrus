@@ -496,11 +496,10 @@ void start_tui(int_least8_t flags, void* data){
 static sqlite3_int64 add_tag_to_file_tui(struct ncplane* parent_plane){
 	struct ncplane_options plane_options = {
 		.y = NCALIGN_CENTER, .x = NCALIGN_CENTER,
-		.rows = TAG_SEARCH_ROWS+2, .cols = TAG_SEARCH_COLS,	//TBD take max size into account
+		.rows = TAG_SEARCH_ROWS+4, .cols = TAG_SEARCH_COLS,	//TBD take max size into account
 		.flags = NCPLANE_OPTION_HORALIGNED | NCPLANE_OPTION_VERALIGNED
 	};
 	struct ncplane* plane = ncplane_create(parent_plane, &plane_options);
-
 	sqlite3_int64 tag_id = -1;
 	char* tag_search = NULL;
 	struct id_dynarr search_results = new_id_dynarr(10);
@@ -522,7 +521,8 @@ static sqlite3_int64 add_tag_to_file_tui(struct ncplane* parent_plane){
 			case NCKEY_ENTER:
 				if(ui_index==0){
 					if(tag_search!=NULL) free(tag_search);
-					tag_search = input_reader(plane, 0, 2, 1, TAG_SEARCH_COLS-2);
+					ncplane_putstr_yx(plane, 0, 2, "Type to search:");
+					tag_search = input_reader(plane, 1, 2, 1, TAG_SEARCH_COLS-2);
 					search_tags(&search_results, tag_search);
 				}else{
 					tag_id = search_results.data[ui_index-1];
@@ -531,17 +531,19 @@ static sqlite3_int64 add_tag_to_file_tui(struct ncplane* parent_plane){
 				break;
 		}
 		ncplane_erase(plane);
-		ncplane_putstr_yx(plane, 0, 2, tag_search);
+		ncplane_putstr_yx(plane, 0, 2, "Searching for:");
+		ncplane_putstr_yx(plane, 1, 2, tag_search);
+		ncplane_putstr_yx(plane, 3, 2, "Search results:");
 		if(search_results.used==0){
-			ncplane_putstr_yx(plane, 2, 2, "No tag found, press 'a' to add new tag to file");
+			ncplane_putstr_yx(plane, 4, 2, "No tag found, press 'a' to add new tag to file");
 		}else{
 			for(unsigned short i=0; i<search_results.used; i++){
-				ncplane_putstr_yx(plane, 2+i, 2, tag_fullname_from_id(search_results.data[i]));
+				ncplane_putstr_yx(plane, 4+i, 2, tag_fullname_from_id(search_results.data[i]));
 			}
 		}
 		//mark current index
-		if(ui_index==0) ncplane_putstr_yx(plane, 0, 0, "->");
-		else ncplane_putstr_yx(plane, 1+ui_index, 0, "->");
+		if(ui_index==0) ncplane_putstr_yx(plane, 1, 0, "->");
+		else ncplane_putstr_yx(plane, 3+ui_index, 0, "->");
 		ncpile_render(plane);
 		ncpile_rasterize(plane);
 	}while((c=notcurses_get(nc, NULL, NULL))!='q');
