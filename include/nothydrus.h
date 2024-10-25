@@ -85,7 +85,7 @@ void add_taggroup(char* name);
 void tag(sqlite3_int64 file_id, sqlite3_int64 tag_id);
 void untag(sqlite3_int64 file_id, sqlite3_int64 tag_id);
 void search_tags(struct id_dynarr* dynarr, char* tag_search);	//TBD? command
-void add_custom_column(char* name, short type, uint_least8_t flags, int lower_limit, int upper_limit);	//TBD command
+void add_custom_column(char* name, short type, uint_least8_t flags, int lower_limit, int upper_limit);
 void set_custom_column_value(sqlite3_int64 file_id, unsigned short custom_column_id, void* value);
 
 //util functions
