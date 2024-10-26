@@ -582,6 +582,7 @@ void file_tag_tui(sqlite3_int64 id){
 				if(ui_index>0){
 					untag(id, file_tags.data[ui_index-1]);
 					search_not_run = 1;
+					if(ui_index==file_tags.used) ui_index--;
 				}
 				break;
 			case NCKEY_ENTER:
