@@ -24,4 +24,3 @@
 - recursive options
 - key hints
 - regex for searches
--improve tui for adding new tag case in add_tag_to_file_tui

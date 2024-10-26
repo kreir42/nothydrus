@@ -515,8 +515,9 @@ static sqlite3_int64 add_tag_to_file_tui(struct ncplane* parent_plane){
 				if(ui_index>0) ui_index--;
 				else ui_index = search_results.used;
 				break;
-			case 'a':
+			case 'n':
 				add_tag(tag_search, 1);	//TBD also be able to add taggroup, get tag_name and taggroup_name from tag_search
+				search_tags(&search_results, tag_search);
 				break;
 			case NCKEY_ENTER:
 				if(ui_index==0){
@@ -535,7 +536,7 @@ static sqlite3_int64 add_tag_to_file_tui(struct ncplane* parent_plane){
 		ncplane_putstr_yx(plane, 1, 2, tag_search);
 		ncplane_putstr_yx(plane, 3, 2, "Search results:");
 		if(search_results.used==0){
-			ncplane_putstr_yx(plane, 4, 2, "No tag found, press 'a' to add new tag to file");
+			ncplane_putstr_yx(plane, 4, 2, "No tag found, press 'n' to create new tag");
 		}else{
 			for(unsigned short i=0; i<search_results.used; i++){
 				ncplane_putstr_yx(plane, 4+i, 2, tag_fullname_from_id(search_results.data[i]));
