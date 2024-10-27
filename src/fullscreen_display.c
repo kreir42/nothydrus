@@ -40,7 +40,7 @@ void fullscreen_display(struct search* search){
 			case 'm':
 				display_file(search->output_ids.data[i], DISPLAY_FILE_MPV, display_plane);
 				break;
-			case 'T':
+			case 't':
 				file_tag_tui(search->output_ids.data[i]);
 				break;
 			default:

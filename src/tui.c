@@ -592,11 +592,13 @@ void file_tag_tui(sqlite3_int64 id){
 				break;
 			case NCKEY_ENTER:
 				if(ui_index==0){
+					case 't':
 					new_tag_id = add_tag_to_file_tui(plane);
 					if(new_tag_id!=-1){
 						tag(id, new_tag_id);
 						search_not_run = 1;
 					}
+					break;
 				}
 				break;
 		}
