@@ -6,14 +6,14 @@ sqlite3* main_db;
 int main(int argc, char** argv){
 	for(unsigned short i=1; i<argc; i++){
 		if(!strcmp(argv[i], "--help") || !strcmp(argv[i], "-h")){
+			puts(PROGRAM_NAME" v"VERSION);
 			puts("Usage: "PROGRAM_NAME" [command] [command option(s)] [argument(s)]");
 			puts("Commands:");
 			puts("     init [target directory]");
 			puts("          Creates a database in \"target directory\"/"INIT_DIRECTORY", or in "INIT_DIRECTORY" at the current path if a target directory is not given.");
 			puts("     add [target file path(s)]");
 			puts("          Adds the target files to the database, if not already there.");
-			puts("          Paths must be absolute or relative to the base path (the target directory in init command).");	//TBD change this
-			puts("          Paths can also be piped through stdin.");
+			puts("          Paths can be piped through stdin.");
 			puts("     sql-search [--filepath/--id] [sql search]");
 			puts("          Returns the result of an SQL query. The query must return a single integer column.");
 			puts("          By default, the result is assumed to be file ids, and converted to filepaths. This can be specified with the --filepath command option.");

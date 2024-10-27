@@ -29,3 +29,4 @@
 - remove file command
 - configurable external player
 - fix gifs being drawn on top of previous image
+- have db keep track of program version

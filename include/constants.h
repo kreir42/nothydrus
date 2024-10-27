@@ -2,6 +2,7 @@
 #define CONSTANTS_H
 
 
+#define VERSION "0.1"
 #define PROGRAM_NAME "nothydrus"
 #define INIT_DIRECTORY "."PROGRAM_NAME
 #define MAIN_DATABASE_NAME "main.db"
@@ -11,7 +12,6 @@
 
 #define NON_CUSTOM_FILE_COLUMNS 6
 #define MIN_UI_ELEMENTS 5
-#define MAX_SEARCH_PLANES 20
 #define SEARCH_MAX_SQL_LEN 4000
 #define MIN_ID_DYNARR_SIZE 100
 #define HASH_SIZE 16
