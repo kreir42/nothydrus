@@ -24,3 +24,8 @@
 - recursive options
 - key hints
 - regex for searches
+- mv command
+- modify file command
+- remove file command
+- configurable external player
+- fix gifs being drawn on top of previous image

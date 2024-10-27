@@ -477,7 +477,12 @@ void start_tui(int_least8_t flags, void* data){
 			ncplane_printf_yx(search_plane, 2+MIN_UI_ELEMENTS+search->include_tags_n+i, 3, "-%s", tag_fullname_from_id(search->exclude_tags[i]));
 		}
 		for(unsigned short i=0; i<search->or_tag_elements_n; i++){
-			//TBD
+			ncplane_cursor_move_yx(search_plane, 2+MIN_UI_ELEMENTS+search->include_tags_n+search->exclude_tags_n+i, 3);
+			ncplane_putstr(search_plane, "One of: ");
+			for(unsigned short j=0; j<search->or_tag_elements[i].or_number; j++){
+				ncplane_putstr(search_plane, tag_fullname_from_id(search->or_tag_elements[i].ids[j]));
+				if(j<search->or_tag_elements[i].or_number-1) ncplane_putstr(search_plane, ", ");
+			}
 		}
 		//SQL query
 		ncplane_printf_yx(search_plane, ui_elements+3, 0, "SQL query: %s", search->sql);
