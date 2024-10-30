@@ -43,6 +43,9 @@ void fullscreen_display(struct search* search){
 			case 't':
 				file_tag_tui(search->output_ids.data[i]);
 				break;
+			case 'o':
+				options_tui();
+				break;
 			default:
 				for(unsigned short j=0; j<tui_options.shortcuts_n; j++){
 					if(c==tui_options.shortcuts[j].key){
