@@ -29,6 +29,8 @@ short save_tui_options(char* name){
 	fprintf(fp, "search_order_by = %s\n", order);
 	fprintf(fp, "search_descending = %s\n", descending);
 	fprintf(fp, "search_limit = %ld\n", tui_options.search_limit);
+	if(tui_options.external_display_command) fprintf(fp, "external_display_command = %s\n", tui_options.external_display_command);
+	else fprintf(fp, "external_display_command = mpv\n");
 
 	fprintf(fp, "\n\nSHORTCUTS\n");
 
@@ -67,7 +69,6 @@ void load_tui_options(char* name){
 	if(access(name, F_OK)!=0){
 		//file doesn't exist
 		save_tui_options(name);
-		return;
 	}
 	FILE* fp = fopen(name, "r");
 	if(fp==NULL){
@@ -105,6 +106,16 @@ void load_tui_options(char* name){
 	current++;
 	skip_whitespace(&current);
 	tui_options.search_limit = strtol(current, NULL, 10);
+	current=str;
+	//external_display_command
+	fgets(str, 1000, fp);
+	remove_trailing_spaces(str);
+	skip_until_char(&current, '=');
+	current++;
+	skip_whitespace(&current);
+	if(tui_options.external_display_command) free(tui_options.external_display_command);
+	tui_options.external_display_command = malloc(sizeof(char)*(strlen(current)+1));
+	strcpy(tui_options.external_display_command, current);
 	current=str;
 	//shortcuts
 	unsigned short shortcuts_n = 0;

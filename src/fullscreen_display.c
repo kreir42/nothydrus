@@ -37,9 +37,6 @@ void fullscreen_display(struct search* search){
 			case 'e':
 				display_file(search->output_ids.data[i], DISPLAY_FILE_EXTERNAL, display_plane);
 				break;
-			case 'm':
-				display_file(search->output_ids.data[i], DISPLAY_FILE_MPV, display_plane);
-				break;
 			case 't':
 				file_tag_tui(search->output_ids.data[i]);
 				break;

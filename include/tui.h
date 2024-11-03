@@ -7,6 +7,7 @@ struct tui_options{
 	enum order_by_enum search_order_by;
 	char search_descending;
 	unsigned long search_limit;
+	char* external_display_command;
 
 	unsigned short shortcuts_n;
 	struct shortcut{
@@ -38,8 +39,7 @@ char* input_reader(struct ncplane* parent_plane, int y, int x, int h, int w);	//
 struct ncplane* display_file(sqlite3_int64 id, int_least8_t flags, struct ncplane* plane);
 struct ncplane* display_file_from_filepath(char* filepath, int_least8_t flags, struct ncplane* plane);
 #define DISPLAY_FILE_FAST	(1<<0)
-#define DISPLAY_FILE_MPV	(1<<1)
-#define DISPLAY_FILE_EXTERNAL	(1<<2)
+#define DISPLAY_FILE_EXTERNAL	(1<<1)
 void reset_display_plane(struct ncplane* plane);
 
 void file_tag_tui(sqlite3_int64 id);

@@ -1,5 +1,4 @@
 ? if link points to a file, file extension is taken from link, not file (what about size, metadata?)
-? use libmpv
 - way to get video duration
 - pre-load prev/next image in list
 - take endianness into account when storing/retrieving hash
@@ -27,8 +26,8 @@
 - mv command
 - modify file command
 - remove file command
-- configurable external player
 - fix gifs being drawn on top of previous image
 - have db keep track of program version
 - sort key shortcuts in options interface
 - (better) NULL rating support
+- multiple configurable external display commands

@@ -1,8 +1,6 @@
 #include "nothydrus.h"
 #include "tui.h"
 
-#define OPTIONS_TUI_MIN_ELEMENTS 3
-
 static uint32_t ask_for_key(struct ncplane* parent_plane){
 	struct ncplane_options plane_options = {
 		.y = NCALIGN_CENTER, .x = NCALIGN_CENTER,
@@ -82,8 +80,15 @@ void options_tui(){
 						}
 						break;
 					case 1:
+						char* limit_reader_result = input_reader(plane, 1, 3+strlen("Default search limit (0 for none): "), 1, screen_cols-(3+strlen("Default search limit (0 for none): ")+2));
+						tui_options.search_limit = strtol(limit_reader_result, NULL, 10);
+						free(limit_reader_result);
 						break;
 					case 2:
+						if(tui_options.external_display_command) free(tui_options.external_display_command);
+						tui_options.external_display_command = input_reader(plane, 2, 3+strlen("External display command: "), 1, screen_cols-(3+strlen("External display command: " )+2));
+						break;
+					case 3:
 						struct shortcut shortcut = {};
 						shortcut.key = ask_for_key(plane);
 						char* shortcut_options[] = {"Tag file", "Untag file", "Tag/untag file", "Increase custom column value", "Decrease custom column value", "Remove custom column value", NULL};
@@ -136,9 +141,10 @@ void options_tui(){
 			else ncplane_putstr(plane, " ascending");
 		}
 		ncplane_printf_yx(plane, 1, 3, "Default search limit (0 for none): %lu", tui_options.search_limit);	//limit
-		ncplane_putstr_yx(plane, 4, 3, "Add new shortcut");
+		ncplane_printf_yx(plane, 2, 3, "External display command: %s", tui_options.external_display_command);
+		ncplane_putstr_yx(plane, 5, 3, "Add new shortcut");
 		for(unsigned short i=0; i<tui_options.shortcuts_n; i++){
-			ncplane_printf_yx(plane, 5+i, 3, "%c --> ", tui_options.shortcuts[i].key);
+			ncplane_printf_yx(plane, 6+i, 3, "%c --> ", tui_options.shortcuts[i].key);
 			switch(tui_options.shortcuts[i].type){
 				case SHORTCUT_TYPE_TAG_FILE:
 					ncplane_putstr(plane, "Add tag to file: ");
