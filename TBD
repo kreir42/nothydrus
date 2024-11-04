@@ -9,7 +9,7 @@
 - add more file info to fullscreen display (resolution, duration)
 - scrolling in planes
 - script to export file tags
-- custom rating(s) and filters
+- filters
 - adding already existing tag to file returns error
 - option to export search tui results
 ? redirect stderr to file for tui

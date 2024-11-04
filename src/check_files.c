@@ -3,6 +3,7 @@
 
 short check_file(sqlite3_int64 id, int_least8_t flags){
 	char* filepath = filepath_from_id(id);
+	if(!filepath){fprintf(stderr, "Error: no filepath found for id %lld\n", id); return -1;}
 	printf("Checking file %s\n", filepath);
 	struct stat st;
 	if(stat(filepath, &st)){
