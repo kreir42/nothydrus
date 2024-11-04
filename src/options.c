@@ -29,14 +29,12 @@ short save_tui_options(char* name){
 	fprintf(fp, "search_order_by = %s\n", order);
 	fprintf(fp, "search_descending = %s\n", descending);
 	fprintf(fp, "search_limit = %ld\n", tui_options.search_limit);
-	if(tui_options.external_display_command) fprintf(fp, "external_display_command = %s\n", tui_options.external_display_command);
-	else fprintf(fp, "external_display_command = mpv\n");
 
 	fprintf(fp, "\n\nSHORTCUTS\n");
 
 	//write shortcuts
 	for(unsigned short i=0; i<tui_options.shortcuts_n; i++){
-		fprintf(fp, "KEY:%ld, TYPE:%d, ID:%lld\n", (long int)tui_options.shortcuts[i].key, (int)tui_options.shortcuts[i].type, tui_options.shortcuts[i].id);
+		fprintf(fp, "KEY:%ld, TYPE:%d, ID:%lld, STRING:%s\n", (long int)tui_options.shortcuts[i].key, (int)tui_options.shortcuts[i].type, tui_options.shortcuts[i].id, tui_options.shortcuts[i].string);
 	}
 
 	fclose(fp);
@@ -107,16 +105,6 @@ void load_tui_options(char* name){
 	skip_whitespace(&current);
 	tui_options.search_limit = strtol(current, NULL, 10);
 	current=str;
-	//external_display_command
-	fgets(str, 1000, fp);
-	remove_trailing_spaces(str);
-	skip_until_char(&current, '=');
-	current++;
-	skip_whitespace(&current);
-	if(tui_options.external_display_command) free(tui_options.external_display_command);
-	tui_options.external_display_command = malloc(sizeof(char)*(strlen(current)+1));
-	strcpy(tui_options.external_display_command, current);
-	current=str;
 	//shortcuts
 	unsigned short shortcuts_n = 0;
 	struct shortcut* shortcuts = malloc(200*sizeof(struct shortcut));	//TBD? remove max shortcuts limit by having a proper dynarr?
@@ -124,14 +112,20 @@ void load_tui_options(char* name){
 		long int key;
 		int type;
 		sqlite3_int64 id;
-		if(sscanf(str, "KEY:%ld, TYPE:%d, ID:%lld", &key, &type, &id)==3){
+		char string[2000]; string[0]='\0';
+		if(sscanf(str, "KEY:%ld, TYPE:%d, ID:%lld, STRING:%s", &key, &type, &id, string)==4){
 			shortcuts[shortcuts_n].key = key;
 			shortcuts[shortcuts_n].type = type;
 			shortcuts[shortcuts_n].id = id;
+			shortcuts[shortcuts_n].string = malloc(sizeof(char)*strlen(string));
+			strcpy(shortcuts[shortcuts_n].string, string);
 			shortcuts_n++;
 		}
 	}
 	shortcuts = realloc(shortcuts, sizeof(struct shortcut)*shortcuts_n);
+	for(unsigned short i=0; i<tui_options.shortcuts_n; i++){
+		if(tui_options.shortcuts[i].string) free(tui_options.shortcuts[i].string);
+	}
 	tui_options.shortcuts_n = shortcuts_n;
 	free(tui_options.shortcuts);
 	tui_options.shortcuts = shortcuts;

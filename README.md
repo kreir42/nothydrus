@@ -66,7 +66,6 @@ Once in the TUI, press:
 
 Once in display mode, use:
 + The left and right arrow keys to navigate the results
-+ 'e' to open the file with a configurable external shell command, mpv by default
 + 't' to modify the file's tags
 + 'q' to quit
 + Configurable key shortcuts from the TUI options menu

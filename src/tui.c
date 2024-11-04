@@ -235,9 +235,7 @@ void start_tui(int_least8_t flags, void* data){
 	load_tui_options(INIT_DIRECTORY"/""tui_options");
 	if(flags & START_TUI_DISPLAY){
 		fullscreen_display((struct search*)data);
-		notcurses_drop_planes(nc);
-		notcurses_stop(nc);
-		return;
+		goto end_label;
 	}
 	new_search_plane(NULL);
 
@@ -490,10 +488,14 @@ void start_tui(int_least8_t flags, void* data){
 		ncpile_render(search_plane);
 		ncpile_rasterize(search_plane);
 	}while((c=notcurses_get(nc, NULL, NULL))!='Q');
-	end_label:
 
+	end_label:
 	free_search(search);
 	free(search);
+	for(unsigned short i=0; i<tui_options.shortcuts_n; i++){
+		if(tui_options.shortcuts[i].string) free(tui_options.shortcuts[i].string);
+	}
+	free(tui_options.shortcuts);
 	ncplane_destroy(search_plane);
 	notcurses_drop_planes(nc);
 	notcurses_stop(nc);

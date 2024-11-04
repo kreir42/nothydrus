@@ -34,9 +34,6 @@ void fullscreen_display(struct search* search){
 				reset_display_plane(display_plane);
 				display_file(search->output_ids.data[i], 0, display_plane);
 				break;
-			case 'e':
-				display_file(search->output_ids.data[i], DISPLAY_FILE_EXTERNAL, display_plane);
-				break;
 			case 't':
 				file_tag_tui(search->output_ids.data[i]);
 				break;
@@ -96,6 +93,9 @@ void fullscreen_display(struct search* search){
 										set_custom_column_value(search->output_ids.data[i], tui_options.shortcuts[j].id, &reset_value);
 										break;}
 								}
+								break;
+							case SHORTCUT_TYPE_EXTERNAL_COMMAND:
+								external_command_on_file(search->output_ids.data[i], tui_options.shortcuts[j].string);
 								break;
 						}
 					}

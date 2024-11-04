@@ -30,4 +30,3 @@
 - have db keep track of program version
 - sort key shortcuts in options interface
 - (better) NULL rating support
-- multiple configurable external display commands

@@ -9,18 +9,6 @@ struct ncplane* display_file(sqlite3_int64 id, int_least8_t flags, struct ncplan
 }
 
 struct ncplane* display_file_from_filepath(char* filepath, int_least8_t flags, struct ncplane* plane){
-	if(flags & DISPLAY_FILE_EXTERNAL){
-		if(tui_options.external_display_command == NULL) return NULL;
-		char* system_string = malloc((strlen(tui_options.external_display_command)+strlen(filepath)+50)*sizeof(char));
-		system_string[0] = '\0';
-		strcat(system_string, tui_options.external_display_command);
-		strcat(system_string, " ");
-		strcat(system_string, filepath);
-		strcat(system_string, " 1>/dev/null 2>&1 0>&1");
-		int status = system(system_string);	//TBD check status
-		free(system_string);
-		return NULL;
-	}
 	struct ncvisual* visual = ncvisual_from_file(filepath);
 	struct ncvisual_options ncvisual_options = {
 		.n = plane,

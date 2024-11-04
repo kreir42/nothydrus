@@ -16,6 +16,22 @@ static uint32_t ask_for_key(struct ncplane* parent_plane){
 	return key;
 }
 
+static char* ask_for_command(struct ncplane* parent_plane, unsigned short parent_cols){
+	unsigned short plane_cols = parent_cols/2;
+	struct ncplane_options plane_options = {
+		.y = NCALIGN_CENTER, .x = NCALIGN_CENTER,
+		.rows = 3, .cols = plane_cols,
+		.flags = NCPLANE_OPTION_HORALIGNED | NCPLANE_OPTION_VERALIGNED,
+	};
+	struct ncplane* plane = ncplane_create(parent_plane, &plane_options);
+	ncplane_putstr_yx(plane, 0, 1, "Write the shell command: ");
+	ncpile_render(plane);
+	ncpile_rasterize(plane);
+	char* string = input_reader(plane, 1, 1, 1, plane_cols-2); //TBD add prompt
+	ncplane_destroy(plane);
+	return string;
+}
+
 static short choose_custom_column(struct ncplane* plane){
 	char** options = malloc(sizeof(char*)*custom_columns_n);
 	for(unsigned short i=0; i<custom_columns_n; i++){
@@ -85,13 +101,9 @@ void options_tui(){
 						free(limit_reader_result);
 						break;
 					case 2:
-						if(tui_options.external_display_command) free(tui_options.external_display_command);
-						tui_options.external_display_command = input_reader(plane, 2, 3+strlen("External display command: "), 1, screen_cols-(3+strlen("External display command: " )+2));
-						break;
-					case 3:
 						struct shortcut shortcut = {};
 						shortcut.key = ask_for_key(plane);
-						char* shortcut_options[] = {"Tag file", "Untag file", "Tag/untag file", "Increase custom column value", "Decrease custom column value", "Remove custom column value", NULL};
+						char* shortcut_options[] = {"Tag file", "Untag file", "Tag/untag file", "Increase custom column value", "Decrease custom column value", "Remove custom column value", "External shell command on file", NULL};
 						short choice = chooser(plane, shortcut_options, -1);
 						if(choice==-1) break;
 						shortcut.type = choice;
@@ -105,6 +117,10 @@ void options_tui(){
 							case SHORTCUT_TYPE_CUSTOM_COLUMN_DECREASE:
 							case SHORTCUT_TYPE_CUSTOM_COLUMN_REMOVE:
 								shortcut.id = choose_custom_column(plane);
+								break;
+							case SHORTCUT_TYPE_EXTERNAL_COMMAND:
+								shortcut.string = ask_for_command(plane, screen_cols);
+								if(shortcut.string==NULL) shortcut.id = -1;
 								break;
 						}
 						if(shortcut.id!=-1){
@@ -141,10 +157,9 @@ void options_tui(){
 			else ncplane_putstr(plane, " ascending");
 		}
 		ncplane_printf_yx(plane, 1, 3, "Default search limit (0 for none): %lu", tui_options.search_limit);	//limit
-		ncplane_printf_yx(plane, 2, 3, "External display command: %s", tui_options.external_display_command);
-		ncplane_putstr_yx(plane, 5, 3, "Add new shortcut");
+		ncplane_putstr_yx(plane, OPTIONS_TUI_MIN_ELEMENTS+1, 3, "Add new shortcut");
 		for(unsigned short i=0; i<tui_options.shortcuts_n; i++){
-			ncplane_printf_yx(plane, 6+i, 3, "%c --> ", tui_options.shortcuts[i].key);
+			ncplane_printf_yx(plane, OPTIONS_TUI_MIN_ELEMENTS+2+i, 3, "%c --> ", tui_options.shortcuts[i].key);
 			switch(tui_options.shortcuts[i].type){
 				case SHORTCUT_TYPE_TAG_FILE:
 					ncplane_putstr(plane, "Add tag to file: ");
@@ -169,6 +184,10 @@ void options_tui(){
 				case SHORTCUT_TYPE_CUSTOM_COLUMN_REMOVE:
 					ncplane_putstr(plane, "Remove value of custom column: ");
 					ncplane_putstr(plane, custom_columns[tui_options.shortcuts[i].id].name);
+					break;
+				case SHORTCUT_TYPE_EXTERNAL_COMMAND:
+					ncplane_putstr(plane, "External command: ");
+					ncplane_putstr(plane, tui_options.shortcuts[i].string);
 					break;
 			}
 		}
