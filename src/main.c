@@ -24,7 +24,7 @@ int main(int argc, char** argv){
 			puts("          Checks the presence of files, given as arguments or piped in through stdin.");
 			puts("          --id option will make the command expect file ids instead of filepaths.");
 			puts("          --hash option will make the command also check the hash of the file. Otherwise, it only checks the file exists and has the correct size.");
-//			puts("          If given no files, will check all files in the database.");TBD
+			puts("          If given no files, will check all files in the database.");
 			puts("     add_tag [tag] [taggroup]");
 			puts("          Adds a single new tag to the database. Can provide a taggroup as a second argument, otherwise the default taggroup is assumed.");
 			puts("     add_taggroup [taggroup]");
@@ -130,12 +130,12 @@ int main(int argc, char** argv){
 		}else if(!strcmp(argv[i], "check")){
 			int_least8_t flags = 0;
 			i++;
-			if(argc==i){
-				if(isatty(fileno(stdin))){
-					fprintf(stderr, "Error: check command requires at least one argument\n");
-					return -1;
-				}
-			}else{
+			if(!isatty(fileno(stdin))){
+				flags |= CHECK_FILES_STDIN;
+			}
+			if(set_main_path()){fprintf(stderr, "Error: could not locate main path\n"); return 1;}
+			start_program(0);
+			if(i<argc){
 				while(argv[i][0]=='-' && argv[i][1]=='-'){
 					if(!strcmp(argv[i], "--id")) flags |= CHECK_FILES_INPUT_IDS;
 					else if(!strcmp(argv[i], "--hash")) flags |= CHECK_FILES_HASH;
@@ -145,13 +145,6 @@ int main(int argc, char** argv){
 					}
 					i++;
 				}
-			}
-			if(!isatty(fileno(stdin))){
-				flags |= CHECK_FILES_STDIN;
-			}
-			if(set_main_path()){fprintf(stderr, "Error: could not locate main path\n"); return 1;}
-			start_program(0);
-			if(i<argc){
 				struct id_dynarr id_dynarr = new_id_dynarr(10);
 				if(flags&CHECK_FILES_INPUT_IDS){ //ids in arguments
 					while(i<argc){

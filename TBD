@@ -2,7 +2,6 @@
 - way to get video duration
 - pre-load prev/next image in list
 - take endianness into account when storing/retrieving hash
-- 'check all' case of check command
 - have 'tag' cli command also work with ids directly
 - decimals in tui filesize (when not bytes, use fixed-point)
 ? command for mass tagging to be used in sidecar script

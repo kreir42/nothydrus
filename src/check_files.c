@@ -34,13 +34,18 @@ short check_file(sqlite3_int64 id, int_least8_t flags){
 	return -1;
 }
 
-//data is struct id_dynarr* unless CHECK_FILES_INPUT_SEARCH is search, in qhich case it's a struct search*
+//data is struct id_dynarr* unless CHECK_FILES_INPUT_SEARCH, in which case it's a struct search*
 //stdin is a list of paths, unless CHECK_FILES_INPUT_IDS, in which case its a list of ids
 void check_files(void* data, int_least8_t flags){
 	unsigned int failed=0, passed=0;
 	if(data==NULL){
 		if(!(flags&CHECK_FILES_STDIN)){
-			//TBD check all files
+			struct search search = {.order_by=none, .limit=0, .min_size=0, .max_size=0};
+			search.output_ids = new_id_dynarr(MIN_ID_DYNARR_SIZE);
+			compose_search_sql(&search);
+			run_search(&search);
+			if(search.output_ids.used>0) check_files(&search.output_ids, flags&~CHECK_FILES_INPUT_SEARCH);
+			free(search.output_ids.data);
 			return;
 		}
 	}else{
