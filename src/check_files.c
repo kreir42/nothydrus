@@ -53,6 +53,7 @@ short check_filepath(char* filepath, int_least8_t flags){
 		check_file(matching_files.data[0], flags);
 		if(flags_from_id(matching_files.data[0])&FILE_MISSING){
 			remove_flag_from_file(matching_files.data[0], FILE_MISSING);
+			set_filepath(matching_files.data[0], filepath);
 			free(matching_files.data);
 			return 1;
 		}else{

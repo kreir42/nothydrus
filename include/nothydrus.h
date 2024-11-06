@@ -101,6 +101,7 @@ void set_file_flags(sqlite3_int64 id, int_least8_t flags);
 void add_flag_to_file(sqlite3_int64 id, int_least8_t flag);
 void remove_flag_from_file(sqlite3_int64 id, int_least8_t flag);
 void search_file_from_hash(char* hash, unsigned long filesize, struct id_dynarr* dynarr);
+void set_filepath(sqlite3_int64 id, char* filepath);
 
 sqlite3_int64 tag_id_from_name(char* name, sqlite3_int64 taggroup);
 char* tag_name_from_id(sqlite3_int64 id, sqlite3_int64* taggroup);

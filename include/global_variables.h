@@ -30,6 +30,7 @@ extern sqlite3_stmt* get_file_tags_statement;
 extern sqlite3_stmt* add_custom_column_statement;
 extern sqlite3_stmt* get_file_columns_statement;
 extern sqlite3_stmt* search_file_from_hash_statement;
+extern sqlite3_stmt* set_filepath_statement;
 
 extern unsigned int custom_columns_n;
 extern struct custom_column* custom_columns;
