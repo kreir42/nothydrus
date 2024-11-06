@@ -22,6 +22,7 @@ sqlite3_stmt* search_tags_statement;
 sqlite3_stmt* get_file_tags_statement;
 sqlite3_stmt* add_custom_column_statement;
 sqlite3_stmt* get_file_columns_statement;
+sqlite3_stmt* search_file_from_hash_statement;
 
 unsigned int custom_columns_n;
 struct custom_column* custom_columns;
@@ -236,6 +237,15 @@ static inline void prepare_get_file_columns(){
 	}
 }
 
+static inline void prepare_search_file_from_hash(){
+	if(sqlite3_prepare_v3(main_db,
+				"SELECT id FROM files "
+				"WHERE size = ? AND hash = ?;"
+				, -1, SQLITE_PREPARE_PERSISTENT, &search_file_from_hash_statement, NULL) != SQLITE_OK){
+		fprintf(stderr, "Error preparing search_file_from_hash_statement: %s\n", sqlite3_errmsg(main_db));
+	}
+}
+
 
 void start_program(int_least8_t flags){
 	chdir(main_path);
@@ -287,6 +297,7 @@ void start_program(int_least8_t flags){
 	prepare_get_file_tags();
 	prepare_add_custom_column();
 	prepare_get_file_columns();
+	prepare_search_file_from_hash();
 }
 
 void end_program(){
@@ -312,6 +323,7 @@ void end_program(){
 	sqlite3_finalize(get_file_tags_statement);
 	sqlite3_finalize(add_custom_column_statement);
 	sqlite3_finalize(get_file_columns_statement);
+	sqlite3_finalize(search_file_from_hash_statement);
 
 	sqlite3_close(main_db);
 }

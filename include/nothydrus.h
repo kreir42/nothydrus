@@ -75,11 +75,14 @@ void init();
 void add_files(char** paths, unsigned int paths_n, int_least8_t flags);
 #define ADD_FILES_STDIN	(1<<0)
 short check_file(sqlite3_int64 id, int_least8_t flags);
-void check_files(void* data, int_least8_t flags);//TBD check all files if no input
+short check_filepath(char* filepath, int_least8_t flags);
+void check_files(int_least8_t flags, int argc, char** argv);
 #define CHECK_FILES_INPUT_IDS		(1<<0)
 #define CHECK_FILES_INPUT_SEARCH	(1<<1)
 #define CHECK_FILES_STDIN		(1<<2)
 #define CHECK_FILES_HASH		(1<<3)
+#define CHECK_FILES_IN_DATABASE		(1<<4)
+#define CHECK_FILES_MISSING		(1<<5)
 void add_tag(char* name, sqlite3_int64 taggroup_id);
 void add_taggroup(char* name);
 void tag(sqlite3_int64 file_id, sqlite3_int64 tag_id);
@@ -97,6 +100,7 @@ sqlite3_int64 id_from_filepath(char* filepath);
 void set_file_flags(sqlite3_int64 id, int_least8_t flags);
 void add_flag_to_file(sqlite3_int64 id, int_least8_t flag);
 void remove_flag_from_file(sqlite3_int64 id, int_least8_t flag);
+void search_file_from_hash(char* hash, unsigned long filesize, struct id_dynarr* dynarr);
 
 sqlite3_int64 tag_id_from_name(char* name, sqlite3_int64 taggroup);
 char* tag_name_from_id(sqlite3_int64 id, sqlite3_int64* taggroup);

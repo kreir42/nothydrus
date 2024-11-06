@@ -29,3 +29,5 @@
 - have db keep track of program version
 - sort key shortcuts in options interface
 - (better) NULL rating support
+- check command options: --missing check only missing files, --in-database check files only if they are in database
+- generally reduce verbosity

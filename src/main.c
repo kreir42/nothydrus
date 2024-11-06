@@ -21,9 +21,11 @@ int main(int argc, char** argv){
 			puts("     display [file id(s)]");
 			puts("          Given a series of file ids as arguments and/or piped in through stdin, displays them fullscreen in a TUI.");
 			puts("     check [options] [file(s)]");
-			puts("          Checks the presence of files, given as arguments or piped in through stdin.");
+			puts("          Checks the presence of files in the database, given as arguments or piped in through stdin.");
 			puts("          --id option will make the command expect file ids instead of filepaths.");
 			puts("          --hash option will make the command also check the hash of the file. Otherwise, it only checks the file exists and has the correct size.");
+//			puts("          --in-database option");
+//			puts("          --missing option");
 			puts("          If given no files, will check all files in the database.");
 			puts("     add_tag [tag] [taggroup]");
 			puts("          Adds a single new tag to the database. Can provide a taggroup as a second argument, otherwise the default taggroup is assumed.");
@@ -139,35 +141,16 @@ int main(int argc, char** argv){
 				while(argv[i][0]=='-' && argv[i][1]=='-'){
 					if(!strcmp(argv[i], "--id")) flags |= CHECK_FILES_INPUT_IDS;
 					else if(!strcmp(argv[i], "--hash")) flags |= CHECK_FILES_HASH;
+					else if(!strcmp(argv[i], "--in-database")) flags |= CHECK_FILES_IN_DATABASE;
+					else if(!strcmp(argv[i], "--missing")) flags |= CHECK_FILES_MISSING;
 					else{
 						fprintf(stderr, "Error: unrecognized check option %s\n", argv[i]);
 						return -1;
 					}
 					i++;
 				}
-				struct id_dynarr id_dynarr = new_id_dynarr(10);
-				if(flags&CHECK_FILES_INPUT_IDS){ //ids in arguments
-					while(i<argc){
-						append_id_dynarr(&id_dynarr, strtoll(argv[i], NULL, 10));
-						i++;
-					}
-				}else{ //paths in arguments
-					sqlite3_int64 id;
-					while(i<argc){
-						char* path = transform_input_path(argv[i]);
-						if(path!=NULL){
-							id = id_from_filepath(path);
-							free(path);
-							if(id!=-1) append_id_dynarr(&id_dynarr, id);
-						}
-						i++;
-					}
-				}
-				check_files(&id_dynarr, flags);
-				free(id_dynarr.data);
-			}else{
-				check_files(NULL, flags);
 			}
+			check_files(flags, argc-i, &argv[i]);
 			end_program();
 			return 0;
 		}else if(!strcmp(argv[i], "add_tag")){
