@@ -37,6 +37,8 @@ int main(int argc, char** argv){
 			puts("          --taggroup option after the tag allows you to specify the tag's taggroup. Otherwise, the default taggroup is assumed.");
 			puts("     add_custom_column [name] [type] [flags] [lower limit] [upper limit]");
 			puts("          Arguments must be (in order): name, type (\"text\", \"integer\" or \"real\"), flags (1 for NOT NULL), lower limit, upper limit");	//TBD? special value MAX for limits
+			puts("     mv [file path(s)] [destination]");
+			puts("          Move one or multiple files to a new path in destination.");
 			return 0;
 		}else if(!strcmp(argv[i], "init")){
 			i++;
@@ -281,6 +283,34 @@ int main(int argc, char** argv){
 			if(set_main_path()){ fprintf(stderr, "Error: could not locate main path\n"); return 1;}
 			start_program(0);
 			add_custom_column(argv[i], new_custom_column_type, strtol(argv[i+2], NULL, 10), strtol(argv[i+3], NULL, 10), strtol(argv[i+4], NULL, 10));
+			end_program();
+			return 0;
+		}else if(!strcmp(argv[i], "mv")){
+			i++;
+			if(argc-i<2){
+				fprintf(stderr, "Error: at least 2 arguments required for mv command\n");
+				return -1;
+			}
+			if(set_main_path()){ fprintf(stderr, "Error: could not locate main path\n"); return 1;}
+			start_program(0);
+			char* destination = transform_input_path(argv[argc-1]);
+			if(destination==NULL){
+				fprintf(stderr, "Error: destination not under main path\n");
+			}else{
+				while(i<argc-1){
+					char* source = transform_input_path(argv[i]);
+					sqlite3_int64 id = id_from_filepath(source);
+					if(id!=-1){
+						char mv_command[2000];
+						snprintf(mv_command, sizeof(char)*2000, "mv %s %s", source, destination);
+						if(system(mv_command)) fprintf(stderr, "Error executing command: %s\n", mv_command);
+						else set_filepath(id, destination);
+					}
+					free(source);
+					i++;
+				}
+				free(destination);
+			}
 			end_program();
 			return 0;
 		}else{

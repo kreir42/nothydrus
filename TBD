@@ -22,7 +22,6 @@
 - recursive options
 - key hints
 - regex for searches
-- mv command
 - modify file command
 - remove file command
 - fix gifs being drawn on top of previous image
@@ -31,3 +30,4 @@
 - (better) NULL rating support
 - check command options: --missing check only missing files, --in-database check files only if they are in database
 - generally reduce verbosity
+- make check_files more efficient (currently it may check a file multiple times)
