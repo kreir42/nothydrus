@@ -51,9 +51,9 @@ struct search{
 	sqlite3_int64* exclude_tags;
 	unsigned short or_tag_elements_n;
 	struct or_tag_element* or_tag_elements;
+	uint_least8_t filetypes;
 	//TBD filepath
 	//TBD file flags
-	//TBD filetype
 	//TBD number of tags in taggroup
 	struct id_dynarr output_ids;
 };

@@ -16,6 +16,7 @@ static void new_search_plane(struct search* search_to_copy){
 		search->order_by = tui_options.search_order_by;
 		search->descending = tui_options.search_descending;
 		search->limit = tui_options.search_limit;
+		search->filetypes = 0;
 	}else{
 		if(search_to_copy->sql[0]!='\0') strcpy(search->sql, search_to_copy->sql);
 		search->output_ids = new_id_dynarr(search_to_copy->output_ids.used);
@@ -345,7 +346,12 @@ void start_tui(int_least8_t flags, void* data){
 						free(reader_result);
 						search_not_run = 1;
 						break;
-					case 4:	//add tag
+					case 4: //filetypes
+						char* filetype_options[] = {"Image", "Video", "Other", NULL};
+						search->filetypes = multiple_chooser(search_plane, filetype_options, search->filetypes);
+						search_not_run = 1;
+						break;
+					case 5:	//add tag
 						add_tag_tui();
 						break;
 					default:
@@ -466,8 +472,17 @@ void start_tui(int_least8_t flags, void* data){
 		//min, max size
 		ncplane_printf_yx(search_plane, 3, 3, "Min size: %llu %s", min_size, min_size_unit_str);
 		ncplane_printf_yx(search_plane, 4, 3, "Max size (0 for none): %llu %s", max_size, max_size_unit_str);
+		//filetypes
+		ncplane_putstr_yx(search_plane, 5, 3, "Filetype: ");
+		if(search->filetypes==0) ncplane_putstr(search_plane, "Any");
+		else{
+			unsigned short matches=0;
+			if(search->filetypes&(FILETYPE_IMAGE)){ncplane_putstr(search_plane, "Image"); matches++;}
+			if(search->filetypes&(FILETYPE_VIDEO)){if(matches)ncplane_putstr(search_plane, " or "); ncplane_putstr(search_plane, "Video"); matches++;}
+			if(search->filetypes&(FILETYPE_OTHER)){if(matches)ncplane_putstr(search_plane, " or "); ncplane_putstr(search_plane, "Other"); matches++;}
+		}
 		//add new tag button
-		ncplane_putstr_yx(search_plane, 6, 3, "Add new tag");
+		ncplane_putstr_yx(search_plane, MIN_UI_ELEMENTS+1, 3, "Add new tag");
 		//tags
 		for(unsigned short i=0; i<search->include_tags_n; i++){
 			ncplane_putstr_yx(search_plane, 2+MIN_UI_ELEMENTS+i, 3, tag_fullname_from_id(search->include_tags[i]));
