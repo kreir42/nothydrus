@@ -10,12 +10,8 @@ sqlite3_stmt* set_file_flags_statement;
 sqlite3_stmt* add_flag_to_file_statement;
 sqlite3_stmt* remove_flag_from_file_statement;
 sqlite3_stmt* add_tag_statement;
-sqlite3_stmt* add_taggroup_statement;
 sqlite3_stmt* tag_id_from_name_statement;
-sqlite3_stmt* taggroup_id_from_name_statement;
 sqlite3_stmt* tag_name_from_id_statement;
-sqlite3_stmt* tag_fullname_from_id_statement;
-sqlite3_stmt* taggroup_name_from_id_statement;
 sqlite3_stmt* tag_statement;
 sqlite3_stmt* untag_statement;
 sqlite3_stmt* search_tags_statement;
@@ -115,27 +111,17 @@ static inline void prepare_remove_flag_from_file(){
 
 static inline void prepare_add_tag(){
 	if(sqlite3_prepare_v3(main_db,
-				"INSERT INTO tags("
-				"name, taggroup) "
-				"VALUES(?, ?);"
+				"INSERT INTO tags(name) "
+				"VALUES(?);"
 				, -1, SQLITE_PREPARE_PERSISTENT, &add_tag_statement, NULL) != SQLITE_OK){
 		fprintf(stderr, "Error preparing add_tag_statement: %s\n", sqlite3_errmsg(main_db));
-	}
-}
-
-static inline void prepare_add_taggroup(){
-	if(sqlite3_prepare_v3(main_db,
-				"INSERT INTO taggroups(name) "
-				"VALUES(?);"
-				, -1, SQLITE_PREPARE_PERSISTENT, &add_taggroup_statement, NULL) != SQLITE_OK){
-		fprintf(stderr, "Error preparing add_taggroup_statement: %s\n", sqlite3_errmsg(main_db));
 	}
 }
 
 static inline void prepare_tag_id_from_name(){
 	if(sqlite3_prepare_v3(main_db,
 				"SELECT id FROM tags "
-				"WHERE name = ? AND taggroup = ?;"
+				"WHERE name = ?;"
 				, -1, SQLITE_PREPARE_PERSISTENT, &tag_id_from_name_statement, NULL) != SQLITE_OK){
 		fprintf(stderr, "Error preparing tag_id_from_name_statement: %s\n", sqlite3_errmsg(main_db));
 	}
@@ -143,42 +129,10 @@ static inline void prepare_tag_id_from_name(){
 
 static inline void prepare_tag_name_from_id(){
 	if(sqlite3_prepare_v3(main_db,
-				"SELECT name, taggroup FROM tags "
+				"SELECT name FROM tags "
 				"WHERE id = ?;"
 				, -1, SQLITE_PREPARE_PERSISTENT, &tag_name_from_id_statement, NULL) != SQLITE_OK){
 		fprintf(stderr, "Error preparing tag_name_from_id_statement: %s\n", sqlite3_errmsg(main_db));
-	}
-}
-
-static inline void prepare_tag_fullname_from_id(){
-	if(sqlite3_prepare_v3(main_db,
-				"SELECT CASE tags.taggroup "
-					"WHEN 1 THEN tags.name "
-					"ELSE taggroups.name||':'||tags.name "
-				"END "
-				"FROM tags "
-				"JOIN taggroups ON tags.taggroup = taggroups.id "
-				"AND tags.id = ?;"
-				, -1, SQLITE_PREPARE_PERSISTENT, &tag_fullname_from_id_statement, NULL) != SQLITE_OK){
-		fprintf(stderr, "Error preparing tag_fullname_from_id_statement: %s\n", sqlite3_errmsg(main_db));
-	}
-}
-
-static inline void prepare_taggroup_name_from_id(){
-	if(sqlite3_prepare_v3(main_db,
-				"SELECT name FROM taggroups "
-				"WHERE id = ?;"
-				, -1, SQLITE_PREPARE_PERSISTENT, &taggroup_name_from_id_statement, NULL) != SQLITE_OK){
-		fprintf(stderr, "Error preparing taggroup_name_from_id_statement: %s\n", sqlite3_errmsg(main_db));
-	}
-}
-
-static inline void prepare_taggroup_id_from_name(){
-	if(sqlite3_prepare_v3(main_db,
-				"SELECT id FROM taggroups "
-				"WHERE name = ?;"
-				, -1, SQLITE_PREPARE_PERSISTENT, &taggroup_id_from_name_statement, NULL) != SQLITE_OK){
-		fprintf(stderr, "Error preparing taggroup_id_from_name_statement: %s\n", sqlite3_errmsg(main_db));
 	}
 }
 
@@ -202,9 +156,9 @@ static inline void prepare_untag(){
 
 static inline void prepare_search_tags(){
 	if(sqlite3_prepare_v3(main_db,
-				"SELECT tags.id FROM tags JOIN taggroups ON taggroups.id=tags.taggroup AND taggroups.name LIKE ? "
-				"WHERE tags.name LIKE ? "
-				"ORDER BY tags.number;"
+				"SELECT id FROM tags "
+				"WHERE name LIKE ? "
+				"ORDER BY number;"
 				, -1, SQLITE_PREPARE_PERSISTENT, &search_tags_statement, NULL) != SQLITE_OK){
 		fprintf(stderr, "Error preparing search_tags_statement: %s\n", sqlite3_errmsg(main_db));
 	}
@@ -280,9 +234,7 @@ void start_program(int_least8_t flags){
 	if(flags & START_PROGRAM_TAG){
 		prepare_id_from_filepath();
 		prepare_add_tag();
-		prepare_add_taggroup();
 		prepare_tag_id_from_name();
-		prepare_taggroup_id_from_name();
 		prepare_tag();
 		return;
 	}
@@ -296,12 +248,8 @@ void start_program(int_least8_t flags){
 	prepare_add_flag_to_file();
 	prepare_remove_flag_from_file();
 	prepare_add_tag();
-	prepare_add_taggroup();
 	prepare_tag_id_from_name();
-	prepare_taggroup_id_from_name();
 	prepare_tag_name_from_id();
-	prepare_tag_fullname_from_id();
-	prepare_taggroup_name_from_id();
 	prepare_tag();
 	prepare_untag();
 	prepare_search_tags();
@@ -323,12 +271,8 @@ void end_program(){
 	sqlite3_finalize(add_flag_to_file_statement);
 	sqlite3_finalize(remove_flag_from_file_statement);
 	sqlite3_finalize(add_tag_statement);
-	sqlite3_finalize(add_taggroup_statement);
 	sqlite3_finalize(tag_id_from_name_statement);
-	sqlite3_finalize(taggroup_id_from_name_statement);
 	sqlite3_finalize(tag_name_from_id_statement);
-	sqlite3_finalize(tag_fullname_from_id_statement);
-	sqlite3_finalize(taggroup_name_from_id_statement);
 	sqlite3_finalize(tag_statement);
 	sqlite3_finalize(untag_statement);
 	sqlite3_finalize(search_tags_statement);

@@ -40,7 +40,7 @@ struct or_tag_element{
 enum order_by_enum {none, size, random_order};
 struct search{
 	char sql[SEARCH_MAX_SQL_LEN];
-	enum order_by_enum order_by;	//order by other, custom numbers(number of tags in taggroup, rating field...)
+	enum order_by_enum order_by;	//TBD order by other, custom numbers(number of tags in expression, rating field...)
 	char descending;
 	unsigned long limit;
 	unsigned long min_size;
@@ -54,7 +54,7 @@ struct search{
 	uint_least8_t filetypes;
 	//TBD filepath
 	//TBD file flags
-	//TBD number of tags in taggroup
+	//TBD number of tags matching expression
 	struct id_dynarr output_ids;
 };
 short run_search(struct search* search);
@@ -83,8 +83,7 @@ void check_files(int_least8_t flags, int argc, char** argv);
 #define CHECK_FILES_HASH		(1<<3)
 #define CHECK_FILES_IN_DATABASE		(1<<4)
 #define CHECK_FILES_MISSING		(1<<5)
-void add_tag(char* name, sqlite3_int64 taggroup_id);
-void add_taggroup(char* name);
+void add_tag(char* name);
 void tag(sqlite3_int64 file_id, sqlite3_int64 tag_id);
 void untag(sqlite3_int64 file_id, sqlite3_int64 tag_id);
 void search_tags(struct id_dynarr* dynarr, char* tag_search);	//TBD? command
@@ -103,11 +102,8 @@ void remove_flag_from_file(sqlite3_int64 id, int_least8_t flag);
 void search_file_from_hash(char* hash, unsigned long filesize, struct id_dynarr* dynarr);
 void set_filepath(sqlite3_int64 id, char* filepath);
 
-sqlite3_int64 tag_id_from_name(char* name, sqlite3_int64 taggroup);
-char* tag_name_from_id(sqlite3_int64 id, sqlite3_int64* taggroup);
-char* tag_fullname_from_id(sqlite3_int64 id);
-sqlite3_int64 taggroup_id_from_name(char* name);
-char* taggroup_name_from_id(sqlite3_int64 id);
+sqlite3_int64 tag_id_from_name(char* name);
+char* tag_name_from_id(sqlite3_int64 id);
 
 void get_file_tags(sqlite3_int64 file_id, struct id_dynarr* dynarr);
 void get_file_columns(sqlite3_int64 file_id);

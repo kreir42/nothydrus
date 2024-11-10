@@ -187,7 +187,7 @@ static void add_tag_tui(){
 		}
 		//print search results
 		for(unsigned short i=0; i<search_results.used && i<TAG_SEARCH_ROWS; i++){
-			ncplane_putstr_yx(plane, i+2, 2, tag_fullname_from_id(search_results.data[i]));
+			ncplane_putstr_yx(plane, i+2, 2, tag_name_from_id(search_results.data[i]));
 		}
 		ncpile_render(plane);
 		ncpile_rasterize(plane);
@@ -196,7 +196,7 @@ static void add_tag_tui(){
 			//TBD box
 			ncplane_putstr_yx(or_plane, 0, 2, "Any of:");
 			for(unsigned short i=0; i<or_tags_n; i++){
-				ncplane_putstr_yx(or_plane, 1+i, 2, tag_fullname_from_id(or_tags[i]));
+				ncplane_putstr_yx(or_plane, 1+i, 2, tag_name_from_id(or_tags[i]));
 			}
 		}
 		ncpile_render(or_plane);
@@ -485,16 +485,16 @@ void start_tui(int_least8_t flags, void* data){
 		ncplane_putstr_yx(search_plane, MIN_UI_ELEMENTS+1, 3, "Add new tag");
 		//tags
 		for(unsigned short i=0; i<search->include_tags_n; i++){
-			ncplane_putstr_yx(search_plane, 2+MIN_UI_ELEMENTS+i, 3, tag_fullname_from_id(search->include_tags[i]));
+			ncplane_putstr_yx(search_plane, 2+MIN_UI_ELEMENTS+i, 3, tag_name_from_id(search->include_tags[i]));
 		}
 		for(unsigned short i=0; i<search->exclude_tags_n; i++){
-			ncplane_printf_yx(search_plane, 2+MIN_UI_ELEMENTS+search->include_tags_n+i, 3, "-%s", tag_fullname_from_id(search->exclude_tags[i]));
+			ncplane_printf_yx(search_plane, 2+MIN_UI_ELEMENTS+search->include_tags_n+i, 3, "-%s", tag_name_from_id(search->exclude_tags[i]));
 		}
 		for(unsigned short i=0; i<search->or_tag_elements_n; i++){
 			ncplane_cursor_move_yx(search_plane, 2+MIN_UI_ELEMENTS+search->include_tags_n+search->exclude_tags_n+i, 3);
 			ncplane_putstr(search_plane, "One of: ");
 			for(unsigned short j=0; j<search->or_tag_elements[i].or_number; j++){
-				ncplane_putstr(search_plane, tag_fullname_from_id(search->or_tag_elements[i].ids[j]));
+				ncplane_putstr(search_plane, tag_name_from_id(search->or_tag_elements[i].ids[j]));
 				if(j<search->or_tag_elements[i].or_number-1) ncplane_putstr(search_plane, ", ");
 			}
 		}
@@ -539,7 +539,7 @@ static sqlite3_int64 add_tag_to_file_tui(struct ncplane* parent_plane){
 				else ui_index = search_results.used;
 				break;
 			case 'n':
-				add_tag(tag_search, 1);	//TBD also be able to add taggroup, get tag_name and taggroup_name from tag_search
+				add_tag(tag_search);
 				search_tags(&search_results, tag_search);
 				break;
 			case NCKEY_ENTER:
@@ -562,7 +562,7 @@ static sqlite3_int64 add_tag_to_file_tui(struct ncplane* parent_plane){
 			ncplane_putstr_yx(plane, 4, 2, "No tag found, press 'n' to create new tag");
 		}else{
 			for(unsigned short i=0; i<search_results.used; i++){
-				ncplane_putstr_yx(plane, 4+i, 2, tag_fullname_from_id(search_results.data[i]));
+				ncplane_putstr_yx(plane, 4+i, 2, tag_name_from_id(search_results.data[i]));
 			}
 		}
 		//mark current index
@@ -626,7 +626,7 @@ void file_tag_tui(sqlite3_int64 id){
 		ncplane_putstr_yx(plane, 0, 2, "Add new tag");
 		ncplane_putstr_yx(plane, 3, 2, "Current tags:");
 		for(unsigned short j=0; j<file_tags.used; j++){
-			ncplane_putstr_yx(plane, 5+j, 2, tag_fullname_from_id(file_tags.data[j]));
+			ncplane_putstr_yx(plane, 5+j, 2, tag_name_from_id(file_tags.data[j]));
 		}
 		//mark current index
 		if(ui_index==0) ncplane_putstr_yx(plane, 0, 0, "->");

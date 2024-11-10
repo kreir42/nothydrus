@@ -18,7 +18,7 @@ void fullscreen_display(struct search* search){
 	ncpile_render(plane);
 	ncpile_rasterize(plane);
 	struct id_dynarr file_tags = new_id_dynarr(10);
-	char* tag_fullname;
+	char* tag_name;
 	uint32_t c = NCKEY_RESIZE;
 	do{
 		switch(c){
@@ -110,8 +110,8 @@ void fullscreen_display(struct search* search){
 		//print file tags
 		get_file_tags(search->output_ids.data[i], &file_tags);
 		for(unsigned short j=0; j<file_tags.used; j++){
-			tag_fullname = tag_fullname_from_id(file_tags.data[j]);
-			ncplane_putstr_yx(plane, 1+j, 0, tag_fullname);
+			tag_name = tag_name_from_id(file_tags.data[j]);
+			ncplane_putstr_yx(plane, 1+j, 0, tag_name);
 		}
 		//print file custom columns
 		for(unsigned short j=0; j<custom_columns_n; j++){

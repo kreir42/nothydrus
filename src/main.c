@@ -27,14 +27,11 @@ int main(int argc, char** argv){
 //			puts("          --in-database option");
 //			puts("          --missing option");
 			puts("          If given no files, will check all files in the database.");
-			puts("     add_tag [tag] [taggroup]");
-			puts("          Adds a single new tag to the database. Can provide a taggroup as a second argument, otherwise the default taggroup is assumed.");
-			puts("     add_taggroup [taggroup]");
-			puts("          Adds a single new taggroup to the database.");	//TBD multiple taggroups in single command
-			puts("     tag [--add] [tag] [--taggroup taggroup] [file path(s)]");
+			puts("     add_tag [tag]");
+			puts("          Adds a single new tag to the database."); //TBD allow multiple tags at the same time
+			puts("     tag [--add] [tag] [file path(s)]");
 			puts("          Tags files whose filepaths are given as arguments or piped in with tag.");
-			puts("          --add option will add the tag and taggroup if they don't already exist.");
-			puts("          --taggroup option after the tag allows you to specify the tag's taggroup. Otherwise, the default taggroup is assumed.");
+			puts("          --add option will add the tag if it doesn't already exist.");
 			puts("     add_custom_column [name] [type] [flags] [lower limit] [upper limit]");
 			puts("          Arguments must be (in order): name, type (\"text\", \"integer\" or \"real\"), flags (1 for NOT NULL), lower limit, upper limit");	//TBD? special value MAX for limits
 			puts("     mv [file path(s)] [destination]");
@@ -166,24 +163,7 @@ int main(int argc, char** argv){
 			}
 			if(set_main_path()){ fprintf(stderr, "Error: could not locate main path\n"); return 1;}
 			start_program(0);
-			sqlite3_int64 taggroup_id;
-			if(i+1<argc) taggroup_id = taggroup_id_from_name(argv[i+1]);
-			else taggroup_id = 1;
-			add_tag(argv[i], taggroup_id);
-			end_program();
-			return 0;
-		}else if(!strcmp(argv[i], "add_taggroup")){
-			i++;
-			if(i==argc){
-				fprintf(stderr, "Error: add_taggroup command requires one argument\n");
-				return -1;
-			}else if(i+1<argc){
-				fprintf(stderr, "Error: too many arguments for taggroup command\n");
-				return -1;
-			}
-			if(set_main_path()){ fprintf(stderr, "Error: could not locate main path\n"); return 1;}
-			start_program(0);
-			add_taggroup(argv[i]);
+			add_tag(argv[i]);
 			end_program();
 			return 0;
 		}else if(!strcmp(argv[i], "tag")){
@@ -200,30 +180,13 @@ int main(int argc, char** argv){
 			char* tag_name = argv[i];
 			if(set_main_path()){ fprintf(stderr, "Error: could not locate main path\n"); return 1;}
 			start_program(START_PROGRAM_TAG);
-			sqlite3_int64 tag_id, taggroup_id;
-			if(i+1<argc && !strcmp(argv[i+1], "--taggroup")){
-				taggroup_id = taggroup_id_from_name(argv[i+2]);
-				if(taggroup_id==-1){
-					if(add_flag){
-						printf("taggroup '%s' not found, adding\n", argv[i+2]);
-						add_taggroup(argv[i+2]);
-						taggroup_id = taggroup_id_from_name(argv[i+2]);
-					}else{
-						fprintf(stderr, "Error: taggroup not found in database\n");
-						return -1;
-					}
-				}
-				i+=3;
-			}else{
-				taggroup_id = 1;
-				i++;
-			}
-			tag_id = tag_id_from_name(tag_name, taggroup_id);
+			sqlite3_int64 tag_id;
+			tag_id = tag_id_from_name(tag_name);
 			if(tag_id==-1){
 				if(add_flag){
 					printf("tag '%s' not found, adding\n", tag_name);
-					add_tag(tag_name, taggroup_id);
-					tag_id = tag_id_from_name(tag_name, taggroup_id);
+					add_tag(tag_name);
+					tag_id = tag_id_from_name(tag_name);
 				}else{
 					fprintf(stderr, "Error: tag not found in database\n");
 					return -1;

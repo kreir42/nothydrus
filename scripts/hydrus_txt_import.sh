@@ -18,7 +18,7 @@ for path in "$@"; do
 done
 "$executable" add < "$temp_file"
 while read -r path; do
-	sed "s/\(.*\)/\"\1\"/;s/\(.*\):\(.*\)/\"\2 --taggroup \1\"/" "$path""$sidecar_extension" |
+	sed 's/\(.*\)/\"\1\"/' "$path""$sidecar_extension" |
 	while read -r line; do
 		echo "$executable" tag --add "$line" "$path" >> "$temp_file"2	#TBD workaround, this can probably be done in a more straightforward way
 	done

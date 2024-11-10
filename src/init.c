@@ -28,34 +28,14 @@ void init(){
 				"CREATE TABLE tags("
 				"id INTEGER PRIMARY KEY NOT NULL, "
 				"name TEXT NOT NULL, "
-				"taggroup INTEGER NOT NULL DEFAULT 1, "
 				"number INTEGER NOT NULL DEFAULT 0)"
 				"STRICT;"
-
-				"CREATE UNIQUE INDEX tagsnametaggroup_index ON tags(name, taggroup);"
 
 				"CREATE TABLE filestags("
 				"file INTEGER NOT NULL, "
 				"tag INTEGER NOT NULL, "
 				"PRIMARY KEY(file, tag))"
 				"STRICT;"
-
-				"CREATE TABLE taggroups("
-				"id INTEGER PRIMARY KEY NOT NULL, "
-				"name TEXT NOT NULL UNIQUE, "
-				"number INTEGER NOT NULL DEFAULT 0)"
-				"STRICT;"
-
-				"CREATE UNIQUE INDEX taggroupsname_index ON taggroups(name);"
-
-				"CREATE TABLE tagstaggroups("
-				"tag INTEGER NOT NULL, "
-				"taggroup INTEGER NOT NULL, "
-				"PRIMARY KEY(tag, taggroup))"
-				"STRICT;"
-
-				"INSERT INTO taggroups(id, name) "
-				"VALUES(1, \""DEFAULT_TAGGROUP_NAME"\");"
 
 				"CREATE TABLE custom_columns("
 				"id INTEGER PRIMARY KEY NOT NULL, "

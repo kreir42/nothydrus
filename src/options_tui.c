@@ -163,15 +163,15 @@ void options_tui(){
 			switch(tui_options.shortcuts[i].type){
 				case SHORTCUT_TYPE_TAG_FILE:
 					ncplane_putstr(plane, "Add tag to file: ");
-					ncplane_putstr(plane, tag_fullname_from_id(tui_options.shortcuts[i].id));
+					ncplane_putstr(plane, tag_name_from_id(tui_options.shortcuts[i].id));
 					break;
 				case SHORTCUT_TYPE_UNTAG_FILE:
 					ncplane_putstr(plane, "Remove tag from file: ");
-					ncplane_putstr(plane, tag_fullname_from_id(tui_options.shortcuts[i].id));
+					ncplane_putstr(plane, tag_name_from_id(tui_options.shortcuts[i].id));
 					break;
 				case SHORTCUT_TYPE_TAG_UNTAG_FILE:
 					ncplane_putstr(plane, "Add or remove tag to file: ");
-					ncplane_putstr(plane, tag_fullname_from_id(tui_options.shortcuts[i].id));
+					ncplane_putstr(plane, tag_name_from_id(tui_options.shortcuts[i].id));
 					break;
 				case SHORTCUT_TYPE_CUSTOM_COLUMN_INCREASE:
 					ncplane_putstr(plane, "Increase value of custom column: ");

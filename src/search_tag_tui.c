@@ -27,7 +27,7 @@ sqlite3_int64 search_tag_tui(){
 				else ui_index = search_results.used;
 				break;
 			case 'a':
-				add_tag(tag_search, 1);	//TBD also be able to add taggroup, get tag_name and taggroup_name from tag_search
+				add_tag(tag_search);
 				search_tags(&search_results, tag_search);
 				break;
 			case NCKEY_ENTER:
@@ -48,7 +48,7 @@ sqlite3_int64 search_tag_tui(){
 		}else{
 			ncplane_putstr_yx(plane, 2, 2, "Search results:");
 			for(unsigned short i=0; i<search_results.used; i++){
-				ncplane_putstr_yx(plane, 3+i, 2, tag_fullname_from_id(search_results.data[i]));
+				ncplane_putstr_yx(plane, 3+i, 2, tag_name_from_id(search_results.data[i]));
 			}
 		}
 		//mark current index

@@ -12,7 +12,7 @@
 - adding already existing tag to file returns error
 - option to export search tui results
 ? redirect stderr to file for tui
-- commands to list all taggroups, tags
+- commands to list all tags
 - special custom columns upper and lower limit values for no limits: max and min int64 in constants
 - change increase and decrease custom column values for real number columns
 ? transform filepaths coming in from stdin differently?
@@ -31,3 +31,4 @@
 - check command options: --missing check only missing files, --in-database check files only if they are in database
 - generally reduce verbosity
 - make check_files more efficient (currently it may check a file multiple times)
+- allow adding multiple tags at the same time
