@@ -19,8 +19,6 @@
 - command to remove custom column
 - not allow adding custom shortcuts for already taken keys
 - recursive options
-- key hints
-- regex for searches
 - modify file command
 - remove file command
 - fix gifs being drawn on top of previous image
@@ -31,3 +29,6 @@
 - generally reduce verbosity
 - make check_files more efficient (currently it may check a file multiple times)
 - allow adding multiple tags at the same time
+? sqlite REGEXP instead of LIKE
+- context-aware key hints and help with '?' key
+- filepath search

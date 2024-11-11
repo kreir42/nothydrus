@@ -8,9 +8,9 @@ void search_tags(struct id_dynarr* dynarr, char* tag_search){
 		else break;
 	}
 
-	//TBD put strlen in variable
-	char* tag_name_search = malloc((strlen(tag_name)+3)*sizeof(char));
-	if(tag_name[0]=='"' && tag_name[strlen(tag_name)-1]=='"'){
+	unsigned int tag_name_len = strlen(tag_name);
+	char* tag_name_search = malloc((tag_name_len+3)*sizeof(char));
+	if(tag_name[0]=='"' && tag_name[tag_name_len-1]=='"'){
 		tag_name++;
 		sprintf(tag_name_search, "%s", tag_name);
 		tag_name_search[strlen(tag_name_search)-1] = '\0';
