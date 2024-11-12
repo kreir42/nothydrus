@@ -27,7 +27,7 @@ static void add_where_clause(char* sql, char* clause){
 
 short compose_search_sql(struct search* search){
 	strcpy(search->sql, "SELECT id FROM files");
-	if(search->min_size || search->max_size || search->filetypes || search->include_tags_n>0 || search->exclude_tags_n>0 || search->or_tag_elements_n>0){
+	if(search->min_size || search->max_size || search->filetypes || search->filepath || search->include_tags_n>0 || search->exclude_tags_n>0 || search->or_tag_elements_n>0){
 		strcat(search->sql, " WHERE");
 		char where_clause[WHERE_CLAUSE_SIZE];
 		if(search->min_size){
@@ -40,6 +40,10 @@ short compose_search_sql(struct search* search){
 		}
 		if(search->filetypes){
 			sprintf(where_clause, " filetype&%u", search->filetypes);
+			add_where_clause(search->sql, where_clause);
+		}
+		if(search->filepath){
+			sprintf(where_clause, " filepath LIKE '%s'", search->filepath); //TBD? add % around pattern
 			add_where_clause(search->sql, where_clause);
 		}
 		if(search->include_tags_n>0 || search->exclude_tags_n>0 || search->or_tag_elements_n>0){

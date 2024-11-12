@@ -45,14 +45,14 @@ struct search{
 	unsigned long limit;
 	unsigned long min_size;
 	unsigned long max_size;
+	uint_least8_t filetypes;
+	char* filepath;
 	unsigned short include_tags_n;
 	sqlite3_int64* include_tags;
 	unsigned short exclude_tags_n;
 	sqlite3_int64* exclude_tags;
 	unsigned short or_tag_elements_n;
 	struct or_tag_element* or_tag_elements;
-	uint_least8_t filetypes;
-	//TBD filepath
 	//TBD file flags
 	//TBD number of tags matching expression
 	struct id_dynarr output_ids;

@@ -17,8 +17,13 @@ static void new_search_plane(struct search* search_to_copy){
 		search->descending = tui_options.search_descending;
 		search->limit = tui_options.search_limit;
 		search->filetypes = 0;
+		search->filepath = NULL;
 	}else{
 		if(search_to_copy->sql[0]!='\0') strcpy(search->sql, search_to_copy->sql);
+		if(search_to_copy->filepath){
+			search->filepath = malloc(sizeof(char)*(1+strlen(search_to_copy->filepath)));
+			strcpy(search->filepath, search_to_copy->sql);
+		}
 		search->output_ids = new_id_dynarr(search_to_copy->output_ids.used);
 		memcpy(search->output_ids.data, search_to_copy->output_ids.data, search_to_copy->output_ids.used*sizeof(sqlite3_int64));
 		search->output_ids.used = search_to_copy->output_ids.used;
@@ -240,6 +245,8 @@ void start_tui(int_least8_t flags, void* data){
 	}
 	new_search_plane(NULL);
 
+	unsigned int screen_rows, screen_cols;
+	notcurses_stddim_yx(nc, &screen_rows, &screen_cols);
 	enum {byte, kilobyte, megabyte, gigabyte} min_size_unit=2, max_size_unit=2;
 	unsigned long long min_size=search->min_size/1000000, max_size=search->max_size/1000000;
 	char min_size_unit_str[3], max_size_unit_str[3];
@@ -351,7 +358,13 @@ void start_tui(int_least8_t flags, void* data){
 						search->filetypes = multiple_chooser(search_plane, filetype_options, search->filetypes);
 						search_not_run = 1;
 						break;
-					case 5:	//add tag
+					case 5:	//filepath
+						free(search->filepath);
+						search->filepath = NULL;
+						search->filepath = input_reader(search_plane, 1+ui_index, 13, 1, screen_cols-15);
+						search_not_run = 1;
+						break;
+					case 6:	//add tag
 						add_tag_tui();
 						break;
 					default:
@@ -481,6 +494,9 @@ void start_tui(int_least8_t flags, void* data){
 			if(search->filetypes&(FILETYPE_VIDEO)){if(matches)ncplane_putstr(search_plane, " or "); ncplane_putstr(search_plane, "Video"); matches++;}
 			if(search->filetypes&(FILETYPE_OTHER)){if(matches)ncplane_putstr(search_plane, " or "); ncplane_putstr(search_plane, "Other"); matches++;}
 		}
+		//filepath
+		ncplane_putstr_yx(search_plane, 6, 3, "Filepath: ");
+		if(search->filepath) ncplane_putstr(search_plane, search->filepath);
 		//add new tag button
 		ncplane_putstr_yx(search_plane, MIN_UI_ELEMENTS+1, 3, "Add new tag");
 		//tags
