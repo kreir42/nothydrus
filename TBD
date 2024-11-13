@@ -10,7 +10,6 @@
 - script to export file tags
 - filters
 - adding already existing tag to file returns error
-- option to export search tui results
 - commands to list all tags
 - special custom columns upper and lower limit values for no limits: max and min int64 in constants
 - change increase and decrease custom column values for real number columns

@@ -253,6 +253,7 @@ void start_tui(int_least8_t flags, void* data){
 	char* reader_result, * size_unit_ptr;
 	unsigned short ui_index = 0, tag_elements = 0;
 	unsigned short ui_elements = MIN_UI_ELEMENTS + tag_elements;
+	short export = -1;
 	uint32_t c = NCKEY_RESIZE;
 	do{
 		switch(c){
@@ -285,6 +286,11 @@ void start_tui(int_least8_t flags, void* data){
 				break;
 			case 'o':
 				options_tui();
+				break;
+			case 'e': //export search
+				char* export_options[] = {"Search result paths", "Search result ids", "SQL query", NULL};
+				export = chooser(search_plane, export_options, 0);
+				if(export!=-1) goto end_label; //TBD ask for confirmation
 				break;
 			case 'd':	//delete tag from search list
 				if(ui_index>(MIN_UI_ELEMENTS-1)){
@@ -521,8 +527,6 @@ void start_tui(int_least8_t flags, void* data){
 	}while((c=notcurses_get(nc, NULL, NULL))!='Q');
 
 	end_label:
-	free_search(search);
-	free(search);
 	for(unsigned short i=0; i<tui_options.shortcuts_n; i++){
 		if(tui_options.shortcuts[i].string) free(tui_options.shortcuts[i].string);
 	}
@@ -530,6 +534,21 @@ void start_tui(int_least8_t flags, void* data){
 	ncplane_destroy(search_plane);
 	notcurses_drop_planes(nc);
 	notcurses_stop(nc);
+	if(export==0){
+		for(unsigned short i=0; i<search->output_ids.used; i++){
+			char* output_path = transform_output_path(filepath_from_id(search->output_ids.data[i]));
+			printf("%s\n", output_path);
+			free(output_path);
+		}
+	}else if(export==1){
+		for(unsigned short i=0; i<search->output_ids.used; i++){
+			printf("%lld\n", search->output_ids.data[i]);
+		}
+	}else if(export==2){
+		printf("%s\n", search->sql);
+	}
+	free_search(search);
+	free(search);
 	fclose(log_fp);
 }
 
