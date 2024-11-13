@@ -31,4 +31,3 @@
 - context-aware key hints and help with '?' key
 - number in tags table
 - filters
-- have all commands also work with stdin

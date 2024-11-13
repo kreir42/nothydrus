@@ -29,11 +29,12 @@ int main(int argc, char** argv){
 			puts("          If given no files, will check all files in the database.");
 			puts("     add_tag [tag]");
 			puts("          Adds a single new tag to the database."); //TBD allow multiple tags at the same time
+			puts("          Tags can also be piped in through stdin.");
 			puts("     tag [--add] [tag] [file path(s)]");
 			puts("          Tags files whose filepaths are given as arguments or piped in with tag.");
 			puts("          --add option will add the tag if it doesn't already exist.");
 			puts("     add_custom_column [name] [type] [flags] [lower limit] [upper limit]");
-			puts("          Arguments must be (in order): name, type (\"text\", \"integer\" or \"real\"), flags (1 for NOT NULL), lower limit, upper limit");	//TBD? special value MAX for limits
+			puts("          Arguments must be (in order): name, type (\"text\", \"integer\" or \"real\"), flags (1 for NOT NULL), lower limit, upper limit.");	//TBD? special value MAX for limits
 			puts("     mv [file path(s)] [destination]");
 			puts("          Move one or multiple files to a new path in destination.");
 			return 0;
@@ -154,7 +155,9 @@ int main(int argc, char** argv){
 			return 0;
 		}else if(!strcmp(argv[i], "add_tag")){
 			i++;
-			if(i==argc){
+			short piped_in = 0;
+			if(!isatty(fileno(stdin))) piped_in = 1;
+			if(i==argc && !piped_in){
 				fprintf(stderr, "Error: add_tag command requires at least one argument\n");
 				return -1;
 			}
@@ -163,6 +166,14 @@ int main(int argc, char** argv){
 			while(i<argc){
 				add_tag(argv[i]);
 				i++;
+			}
+			if(piped_in){
+				size_t linesize = 12;
+				char* line = malloc(linesize*sizeof(char));
+				while(getline(&line, &linesize, stdin)!=-1){
+					add_tag(line);
+				}
+				free(line);
 			}
 			end_program();
 			return 0;
