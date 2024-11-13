@@ -157,13 +157,13 @@ int main(int argc, char** argv){
 			if(i==argc){
 				fprintf(stderr, "Error: add_tag command requires at least one argument\n");
 				return -1;
-			}else if(i+2<argc){
-				fprintf(stderr, "Error: add_tag command has too many arguments\n");
-				return -1;
 			}
 			if(set_main_path()){ fprintf(stderr, "Error: could not locate main path\n"); return 1;}
 			start_program(0);
-			add_tag(argv[i]);
+			while(i<argc){
+				add_tag(argv[i]);
+				i++;
+			}
 			end_program();
 			return 0;
 		}else if(!strcmp(argv[i], "tag")){

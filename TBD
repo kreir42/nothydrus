@@ -8,7 +8,6 @@
 - add more file info to fullscreen display (resolution, duration)
 - scrolling in planes
 - script to export file tags
-- filters
 - adding already existing tag to file returns error
 - commands to list all tags
 - special custom columns upper and lower limit values for no limits: max and min int64 in constants
@@ -25,9 +24,11 @@
 - sort key shortcuts in options interface
 - (better) NULL rating support
 - check command options: --missing check only missing files, --in-database check files only if they are in database
-- generally reduce verbosity
+? generally reduce verbosity
 - make check_files more efficient (currently it may check a file multiple times)
-- allow adding multiple tags at the same time
 - better search_not_run detection
 ? sqlite REGEXP instead of LIKE
 - context-aware key hints and help with '?' key
+- number in tags table
+- filters
+- have all commands also work with stdin
