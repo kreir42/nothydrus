@@ -75,6 +75,13 @@ static void add_tag_to_search(char exclude_flag, sqlite3_int64 tag_id){
 	search_not_run = 1;
 }
 
+static inline char tag_selected(sqlite3_int64 tag, sqlite3_int64* selected_tags, unsigned short selected_tags_n){
+	for(unsigned short i=0; i<selected_tags_n; i++){
+		if(selected_tags[i] == tag) return 1;
+	}
+	return 0;
+}
+
 static void add_tag_to_search_tui(){
 	unsigned int plane_rows, plane_cols;
 	notcurses_stddim_yx(nc, &plane_rows, &plane_cols);
@@ -127,8 +134,7 @@ static void add_tag_to_search_tui(){
 				ui_index = 0;
 				break;
 			case NCKEY_ENTER:
-				if(side_plane_flag){
-				}else{
+				if(!side_plane_flag){
 					if(ui_index==0){
 						if(tag_search!=NULL) free(tag_search);
 						tag_search = input_reader(plane, 0, 2, 1, plane_cols);
@@ -141,14 +147,10 @@ static void add_tag_to_search_tui(){
 				}
 				break;
 			case ' ':
-				if(side_plane_flag){
-				}else{
-					if(ui_index>0){
-						//TBD check for doubles
-						selected_tags_n++;
-						selected_tags = realloc(selected_tags, sizeof(sqlite3_int64)*selected_tags_n);
-						selected_tags[selected_tags_n-1] = search_results.data[ui_index-1];
-					}
+				if(!side_plane_flag && ui_index>0 && !tag_selected(search_results.data[ui_index-1], selected_tags, selected_tags_n)){
+					selected_tags_n++;
+					selected_tags = realloc(selected_tags, sizeof(sqlite3_int64)*selected_tags_n);
+					selected_tags[selected_tags_n-1] = search_results.data[ui_index-1];
 				}
 				break;
 			case 'a': //AND
@@ -176,11 +178,13 @@ static void add_tag_to_search_tui(){
 				break;
 			case 'A': //add all tags to selected
 				if(search_results.used>0){
+					unsigned short previous_size = selected_tags_n;
 					selected_tags = realloc(selected_tags, sizeof(sqlite3_int64)*(selected_tags_n+search_results.used));
 					for(unsigned short i=0; i<search_results.used; i++){
-						//TBD check for doubles
-						selected_tags[selected_tags_n] = search_results.data[i];
-						selected_tags_n++;
+						if(!tag_selected(search_results.data[i], selected_tags, previous_size)){
+							selected_tags[selected_tags_n] = search_results.data[i];
+							selected_tags_n++;
+						}
 					}
 				}
 				break;

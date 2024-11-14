@@ -31,7 +31,6 @@
 - context-aware key hints and help with '?' key
 - number in tags table
 - filters
-- detect tag search repeated tags
 - write and execute shell command on file from display
 - add path patterns to search
-- exclude option for OR tag element
+- delete tags from selection in add_tag_to_search_tui
