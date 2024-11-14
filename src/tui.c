@@ -294,7 +294,7 @@ void start_tui(int_least8_t flags, void* data){
 				break;
 			case 'd':	//delete tag from search list
 				if(ui_index>(MIN_UI_ELEMENTS-1)){
-					unsigned short tag_n = ui_index-5;
+					unsigned short tag_n = ui_index-MIN_UI_ELEMENTS;
 					if(tag_n<search->include_tags_n){
 						while(tag_n<search->include_tags_n){
 							search->include_tags[tag_n] = search->include_tags[tag_n+1];
