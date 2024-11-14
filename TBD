@@ -33,4 +33,3 @@
 - filters
 - write and execute shell command on file from display
 - add path patterns to search
-- delete tags from selection in add_tag_to_search_tui

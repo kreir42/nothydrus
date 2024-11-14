@@ -153,6 +153,16 @@ static void add_tag_to_search_tui(){
 					selected_tags[selected_tags_n-1] = search_results.data[ui_index-1];
 				}
 				break;
+			case 'd': //delete tag from selected
+				if(side_plane_flag){
+					for(unsigned short i=side_ui_index+1; i<selected_tags_n; i++){
+						selected_tags[i-1] = selected_tags[i];
+					}
+					selected_tags_n--;
+					if(selected_tags_n==0) side_plane_flag=0;
+					else if(side_ui_index>=selected_tags_n) side_ui_index--;
+				}
+				break;
 			case 'a': //AND
 				if(selected_tags_n>0){
 					for(unsigned short i=0; i<selected_tags_n; i++){
