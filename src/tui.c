@@ -75,7 +75,7 @@ static void add_tag_to_search(char exclude_flag, sqlite3_int64 tag_id){
 	search_not_run = 1;
 }
 
-static void add_tag_tui(){
+static void add_tag_to_search_tui(){
 	struct ncplane_options plane_options = {
 		.y = NCALIGN_CENTER, .x = NCALIGN_CENTER,
 		.rows = TAG_SEARCH_ROWS+2, .cols = TAG_SEARCH_COLS,	//TBD take max size into account
@@ -83,30 +83,30 @@ static void add_tag_tui(){
 	};
 	struct ncplane* plane = ncplane_create(search_plane, &plane_options);
 	plane_options.x = NCALIGN_RIGHT;
-	struct ncplane* or_plane = ncplane_create(search_plane, &plane_options);
+	struct ncplane* side_plane = ncplane_create(search_plane, &plane_options);
 
 	char* tag_search = NULL, *tag_search_ptr;
 	struct id_dynarr search_results = new_id_dynarr(10);
-	char exclude_flag=0, or_plane_flag=0;
-	sqlite3_int64* or_tags = NULL;
-	unsigned short or_tags_n = 0;
-	unsigned short ui_index=0, ui_elements=1, or_ui_index=0;
+	char exclude_flag=0, side_plane_flag=0;
+	sqlite3_int64* selected_tags = NULL;
+	unsigned short selected_tags_n = 0;
+	unsigned short ui_index=0, ui_elements=1, side_ui_index=0;
 	uint32_t c = NCKEY_RESIZE;
 	do{
 		switch(c){
 			case NCKEY_DOWN:
-				if(or_plane_flag){
-					if(or_ui_index<or_tags_n-1) or_ui_index++;
-					else or_ui_index = 0;
+				if(side_plane_flag){
+					if(side_ui_index<selected_tags_n-1) side_ui_index++;
+					else side_ui_index = 0;
 				}else{
 					if(ui_index<ui_elements-1) ui_index++;
 					else ui_index = 0;
 				}
 				break;
 			case NCKEY_UP:
-				if(or_plane_flag){
-					if(or_ui_index>0) or_ui_index--;
-					else or_ui_index = or_tags_n-1;
+				if(side_plane_flag){
+					if(side_ui_index>0) side_ui_index--;
+					else side_ui_index = selected_tags_n-1;
 				}else{
 					if(ui_index>0) ui_index--;
 					else ui_index = ui_elements-1;
@@ -114,16 +114,16 @@ static void add_tag_tui(){
 				break;
 			case NCKEY_RIGHT:
 			case NCKEY_LEFT:
-				if(or_tags_n>0){
-					if(or_plane_flag) or_plane_flag=0;
-					else or_plane_flag=1;
+				if(selected_tags_n>0){
+					if(side_plane_flag) side_plane_flag=0;
+					else side_plane_flag=1;
 				}
 				break;
 			case 'g':
 				ui_index = 0;
 				break;
 			case NCKEY_ENTER:
-				if(or_plane_flag){
+				if(side_plane_flag){
 				}else{
 					if(ui_index==0){
 						if(tag_search!=NULL) free(tag_search);
@@ -143,49 +143,59 @@ static void add_tag_tui(){
 				}
 				break;
 			case ' ':
-				if(or_plane_flag){
+				if(side_plane_flag){
 				}else{
 					if(ui_index>0){
 						//TBD check for doubles
-						or_tags_n++;
-						or_tags = realloc(or_tags, sizeof(sqlite3_int64)*or_tags_n);
-						or_tags[or_tags_n-1] = search_results.data[ui_index-1];
+						selected_tags_n++;
+						selected_tags = realloc(selected_tags, sizeof(sqlite3_int64)*selected_tags_n);
+						selected_tags[selected_tags_n-1] = search_results.data[ui_index-1];
 					}
 				}
 				break;
-			case 'a':
-				if(or_tags_n>0){
-					if(or_tags_n==1){
-						add_tag_to_search(exclude_flag, or_tags[0]);
+			case 'a': //AND
+				if(selected_tags_n>0){
+					for(unsigned short i=0; i<selected_tags_n; i++){
+						add_tag_to_search(exclude_flag, selected_tags[i]);
+					}
+					goto end_label;
+				}
+				break;
+			case 'o': //OR
+				if(selected_tags_n>0){
+					if(selected_tags_n==1){
+						add_tag_to_search(exclude_flag, selected_tags[0]);
 					}else{
 						search->or_tag_elements_n++;
 						search->or_tag_elements = realloc(search->or_tag_elements, sizeof(struct or_tag_element)*search->or_tag_elements_n);
-						search->or_tag_elements[search->or_tag_elements_n-1].or_number = or_tags_n;
-						search->or_tag_elements[search->or_tag_elements_n-1].ids = malloc(or_tags_n*sizeof(sqlite3_int64));
-						memcpy(search->or_tag_elements[search->or_tag_elements_n-1].ids, or_tags, or_tags_n*sizeof(sqlite3_int64));
+						search->or_tag_elements[search->or_tag_elements_n-1].or_number = selected_tags_n;
+						search->or_tag_elements[search->or_tag_elements_n-1].ids = malloc(selected_tags_n*sizeof(sqlite3_int64));
+						memcpy(search->or_tag_elements[search->or_tag_elements_n-1].ids, selected_tags, selected_tags_n*sizeof(sqlite3_int64));
 						search_not_run=1;
 					}
 					goto end_label;
 				}
 				break;
-			case 'A':	//TBD change to OR
+			case 'A': //add all tags to selected
 				if(search_results.used>0){
+					selected_tags = realloc(selected_tags, sizeof(sqlite3_int64)*(selected_tags_n+search_results.used));
 					for(unsigned short i=0; i<search_results.used; i++){
-						add_tag_to_search(exclude_flag, search_results.data[i]);
+						//TBD check for doubles
+						selected_tags[selected_tags_n] = search_results.data[i];
+						selected_tags_n++;
 					}
-					goto end_label;
 				}
 				break;
 		}
 		ncplane_erase(plane);
-		ncplane_erase(or_plane);
+		ncplane_erase(side_plane);
 		ui_elements = 1 + search_results.used;
 		if(ui_elements>1+TAG_SEARCH_ROWS) ui_elements = 1+TAG_SEARCH_ROWS;
 		if(tag_search==NULL) ncplane_putstr_yx(plane, 0, 2, "Search here");
 		else ncplane_putstr_yx(plane, 0, 2, tag_search);
 		//mark cursor position
-		if(or_plane_flag){
-			ncplane_putstr_yx(or_plane, 1+or_ui_index, 0, "->");
+		if(side_plane_flag){
+			ncplane_putstr_yx(side_plane, 1+side_ui_index, 0, "->");
 		}else{
 			if(ui_index==0) ncplane_putstr_yx(plane, 0, 0, "->");
 			else ncplane_putstr_yx(plane, 1+ui_index, 0, "->");
@@ -196,24 +206,24 @@ static void add_tag_tui(){
 		}
 		ncpile_render(plane);
 		ncpile_rasterize(plane);
-		//OR plane
-		if(or_tags_n>0){
-			//TBD box
-			ncplane_putstr_yx(or_plane, 0, 2, "Any of:");
-			for(unsigned short i=0; i<or_tags_n; i++){
-				ncplane_putstr_yx(or_plane, 1+i, 2, tag_name_from_id(or_tags[i]));
+		//side plane
+		//TBD box
+		ncplane_putstr_yx(side_plane, 0, 2, "Selected tags:");
+		if(selected_tags_n>0){
+			for(unsigned short i=0; i<selected_tags_n; i++){
+				ncplane_putstr_yx(side_plane, 1+i, 2, tag_name_from_id(selected_tags[i]));
 			}
 		}
-		ncpile_render(or_plane);
-		ncpile_rasterize(or_plane);
+		ncpile_render(side_plane);
+		ncpile_rasterize(side_plane);
 		c = notcurses_get(nc, NULL, NULL);
 	}while(c!='q' && c!='Q');
 	end_label:
 	ncplane_destroy(plane);
-	ncplane_destroy(or_plane);
-	if(tag_search!=NULL) free(tag_search);
-	if(search_results.data!=NULL) free(search_results.data);
-	if(or_tags!=NULL) free(or_tags);
+	ncplane_destroy(side_plane);
+	if(tag_search) free(tag_search);
+	if(search_results.data) free(search_results.data);
+	if(selected_tags) free(selected_tags);
 }
 
 static unsigned short size_unit_from_ptr(char* ptr, unsigned short init_value){
@@ -282,7 +292,7 @@ void start_tui(int_least8_t flags, void* data){
 				ui_index = ui_elements-1;
 				break;
 			case 't':
-				add_tag_tui();
+				add_tag_to_search_tui();
 				break;
 			case 'o':
 				options_tui();
@@ -371,7 +381,7 @@ void start_tui(int_least8_t flags, void* data){
 						search_not_run = 1;
 						break;
 					case 6:	//add tag
-						add_tag_tui();
+						add_tag_to_search_tui();
 						break;
 					default:
 						break;
@@ -466,7 +476,7 @@ void start_tui(int_least8_t flags, void* data){
 		ncplane_printf_yx(search_plane, 0, 0, "Results: %ld", search->output_ids.used);
 		if(search_not_run){
 			ncplane_putstr(search_plane, " (search not run)");
-			ncplane_cursor_move_rel(search_plane, 0, -strlen("(search not run)"));
+			ncplane_cursor_move_rel(search_plane, 0, -(int)strlen("(search not run)"));
 			ncplane_format(search_plane, 0, -1, 1, 0, NCSTYLE_ITALIC);
 		}
 		//order by

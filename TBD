@@ -31,4 +31,6 @@
 - context-aware key hints and help with '?' key
 - number in tags table
 - filters
-- OR tag search repeated tags
+- detect tag search repeated tags
+- write and execute shell command on file from display
+- add path patterns to search
