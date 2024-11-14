@@ -34,3 +34,4 @@
 - detect tag search repeated tags
 - write and execute shell command on file from display
 - add path patterns to search
+- exclude option for OR tag element

@@ -78,14 +78,14 @@ static void add_tag_to_search(char exclude_flag, sqlite3_int64 tag_id){
 static void add_tag_to_search_tui(){
 	struct ncplane_options plane_options = {
 		.y = NCALIGN_CENTER, .x = NCALIGN_CENTER,
-		.rows = TAG_SEARCH_ROWS+2, .cols = TAG_SEARCH_COLS,	//TBD take max size into account
+		.rows = TAG_SEARCH_ROWS+4, .cols = TAG_SEARCH_COLS,	//TBD take max size into account
 		.flags = NCPLANE_OPTION_HORALIGNED | NCPLANE_OPTION_VERALIGNED
 	};
 	struct ncplane* plane = ncplane_create(search_plane, &plane_options);
 	plane_options.x = NCALIGN_RIGHT;
 	struct ncplane* side_plane = ncplane_create(search_plane, &plane_options);
 
-	char* tag_search = NULL, *tag_search_ptr;
+	char* tag_search = NULL;
 	struct id_dynarr search_results = new_id_dynarr(10);
 	char exclude_flag=0, side_plane_flag=0;
 	sqlite3_int64* selected_tags = NULL;
@@ -128,13 +128,7 @@ static void add_tag_to_search_tui(){
 					if(ui_index==0){
 						if(tag_search!=NULL) free(tag_search);
 						tag_search = input_reader(plane, 0, 2, 1, TAG_SEARCH_COLS);
-						tag_search_ptr = tag_search;
-						while(*tag_search_ptr==' ') tag_search_ptr++;	//skip begginning whitespace
-						if(tag_search_ptr[0]=='-'){
-							tag_search_ptr++;
-							exclude_flag = 1;
-						}else exclude_flag = 0;
-						search_tags(&search_results, tag_search_ptr);
+						search_tags(&search_results, tag_search);
 						ncplane_putstr_yx(plane, 0, 2, tag_search);
 					}else{
 						add_tag_to_search(exclude_flag, search_results.data[ui_index-1]);
@@ -186,6 +180,10 @@ static void add_tag_to_search_tui(){
 					}
 				}
 				break;
+			case 'e': //flip exclude flag
+				if(exclude_flag) exclude_flag=0;
+				else exclude_flag=1;
+				break;
 		}
 		ncplane_erase(plane);
 		ncplane_erase(side_plane);
@@ -203,6 +201,11 @@ static void add_tag_to_search_tui(){
 		//print search results
 		for(unsigned short i=0; i<search_results.used && i<TAG_SEARCH_ROWS; i++){
 			ncplane_putstr_yx(plane, i+2, 2, tag_name_from_id(search_results.data[i]));
+		}
+		//exclude flag
+		if(exclude_flag){
+			ncplane_putstr_yx(plane, TAG_SEARCH_ROWS+3, 0, "Excluding");
+			ncplane_format(plane, -1, 0, 1, 0, NCSTYLE_ITALIC);
 		}
 		ncpile_render(plane);
 		ncpile_rasterize(plane);
