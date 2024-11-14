@@ -76,9 +76,13 @@ static void add_tag_to_search(char exclude_flag, sqlite3_int64 tag_id){
 }
 
 static void add_tag_to_search_tui(){
+	unsigned int plane_rows, plane_cols;
+	notcurses_stddim_yx(nc, &plane_rows, &plane_cols);
+	if(plane_rows>=TAG_SEARCH_ROWS+4) plane_rows = TAG_SEARCH_ROWS+4;
+	if(plane_cols>=TAG_SEARCH_COLS) plane_cols = TAG_SEARCH_COLS;
 	struct ncplane_options plane_options = {
 		.y = NCALIGN_CENTER, .x = NCALIGN_CENTER,
-		.rows = TAG_SEARCH_ROWS+4, .cols = TAG_SEARCH_COLS,	//TBD take max size into account
+		.rows = plane_rows, .cols = plane_cols,
 		.flags = NCPLANE_OPTION_HORALIGNED | NCPLANE_OPTION_VERALIGNED
 	};
 	struct ncplane* plane = ncplane_create(search_plane, &plane_options);
@@ -127,7 +131,7 @@ static void add_tag_to_search_tui(){
 				}else{
 					if(ui_index==0){
 						if(tag_search!=NULL) free(tag_search);
-						tag_search = input_reader(plane, 0, 2, 1, TAG_SEARCH_COLS);
+						tag_search = input_reader(plane, 0, 2, 1, plane_cols);
 						search_tags(&search_results, tag_search);
 						ncplane_putstr_yx(plane, 0, 2, tag_search);
 					}else{
@@ -188,7 +192,7 @@ static void add_tag_to_search_tui(){
 		ncplane_erase(plane);
 		ncplane_erase(side_plane);
 		ui_elements = 1 + search_results.used;
-		if(ui_elements>1+TAG_SEARCH_ROWS) ui_elements = 1+TAG_SEARCH_ROWS;
+		if(ui_elements>1+(plane_rows-4)) ui_elements = 1+(plane_rows-4);
 		if(tag_search==NULL) ncplane_putstr_yx(plane, 0, 2, "Search here");
 		else ncplane_putstr_yx(plane, 0, 2, tag_search);
 		//mark cursor position
@@ -199,12 +203,12 @@ static void add_tag_to_search_tui(){
 			else ncplane_putstr_yx(plane, 1+ui_index, 0, "->");
 		}
 		//print search results
-		for(unsigned short i=0; i<search_results.used && i<TAG_SEARCH_ROWS; i++){
+		for(unsigned short i=0; i<search_results.used && i<(plane_rows-4); i++){
 			ncplane_putstr_yx(plane, i+2, 2, tag_name_from_id(search_results.data[i]));
 		}
 		//exclude flag
 		if(exclude_flag){
-			ncplane_putstr_yx(plane, TAG_SEARCH_ROWS+3, 0, "Excluding");
+			ncplane_putstr_yx(plane, plane_rows-1, 0, "Excluding");
 			ncplane_format(plane, -1, 0, 1, 0, NCSTYLE_ITALIC);
 		}
 		ncpile_render(plane);
@@ -566,9 +570,13 @@ void start_tui(int_least8_t flags, void* data){
 }
 
 static sqlite3_int64 add_tag_to_file_tui(struct ncplane* parent_plane){
+	unsigned int plane_rows, plane_cols;
+	notcurses_stddim_yx(nc, &plane_rows, &plane_cols);
+	if(plane_rows>=TAG_SEARCH_ROWS+4) plane_rows = TAG_SEARCH_ROWS+4;
+	if(plane_cols>=TAG_SEARCH_COLS) plane_cols = TAG_SEARCH_COLS;
 	struct ncplane_options plane_options = {
 		.y = NCALIGN_CENTER, .x = NCALIGN_CENTER,
-		.rows = TAG_SEARCH_ROWS+4, .cols = TAG_SEARCH_COLS,	//TBD take max size into account
+		.rows = plane_rows, .cols = plane_cols,
 		.flags = NCPLANE_OPTION_HORALIGNED | NCPLANE_OPTION_VERALIGNED
 	};
 	struct ncplane* plane = ncplane_create(parent_plane, &plane_options);
@@ -595,7 +603,7 @@ static sqlite3_int64 add_tag_to_file_tui(struct ncplane* parent_plane){
 				if(ui_index==0){
 					if(tag_search!=NULL) free(tag_search);
 					ncplane_putstr_yx(plane, 0, 2, "Type to search:");
-					tag_search = input_reader(plane, 1, 2, 1, TAG_SEARCH_COLS-2);
+					tag_search = input_reader(plane, 1, 2, 1, plane_cols-2);
 					search_tags(&search_results, tag_search);
 				}else{
 					tag_id = search_results.data[ui_index-1];
