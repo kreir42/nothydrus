@@ -31,5 +31,5 @@
 - context-aware key hints and help with '?' key
 - number in tags table
 - filters
-- write and execute shell command on file from display
-- add path patterns to search
+- add tag patterns to search
+- add propmt to input_reader

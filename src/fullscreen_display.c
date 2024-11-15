@@ -40,6 +40,11 @@ void fullscreen_display(struct search* search){
 			case 'o':
 				options_tui();
 				break;
+			case ':':
+				char* command = input_reader(plane, screen_rows-1, 1, 1, screen_cols-2);
+				external_command_on_file(search->output_ids.data[i], command);
+				free(command);
+				break;
 			default:
 				for(unsigned short j=0; j<tui_options.shortcuts_n; j++){
 					if(c==tui_options.shortcuts[j].key){
