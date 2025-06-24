@@ -107,4 +107,15 @@ char* tag_name_from_id(sqlite3_int64 id);
 
 void get_file_tags(sqlite3_int64 file_id, struct id_dynarr* dynarr);
 void get_file_columns(sqlite3_int64 file_id);
+
+#ifdef DEBUG
+    #define log_debug(fmt, ...) \
+        do { \
+            fprintf(stderr, "[DEBUG] %s:%d:%s(): " fmt, __FILE__, \
+                    __LINE__, __func__, ##__VA_ARGS__); \
+        } while (0)
+#else
+    #define log_debug(fmt, ...) //empty statement
+#endif
+
 #endif

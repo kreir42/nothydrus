@@ -27,7 +27,7 @@ Do not delete your hydrus database to migrate to this program!
 
 To build from source, run:
 ```
-make
+make release
 ```
 To install, then run:
 ```

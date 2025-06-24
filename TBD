@@ -33,3 +33,6 @@
 - filters
 - add tag patterns to search
 - add propmt to input_reader
+- check permissions on database
+- join/split databases
+- command to list custom columns

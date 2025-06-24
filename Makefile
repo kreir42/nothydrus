@@ -1,24 +1,28 @@
 NAME := nothydrus
 CC := gcc
 LIB := $(shell pkg-config --libs sqlite3) $(shell pkg-config --libs libxxhash) $(shell pkg-config --libs notcurses)
-CFLAGS := -Wall -Wextra $(shell pkg-config --cflags notcurses)
+CFLAGS_BASE := -Wall -Wextra $(shell pkg-config --cflags notcurses)
 SOURCES := $(shell find src/ -type f -name *.c)
 HEADERS := $(shell find include/ -type f -name *.h)
 OBJECTS := $(patsubst src/%.c, build/%.o, $(SOURCES))
 DEPS := $(patsubst src/%.c, build/%.d, $(SOURCES))
 
+CFLAGS := $(CFLAGS_BASE) -g -DDEBUG
 
 all: $(NAME)
 
 $(NAME): $(OBJECTS)
 	@mkdir -p build/util
-	$(CC) $(OBJECTS) -o $@ $(LIB)
+	$(CC) $(CFLAGS) $(OBJECTS) -o $@ $(LIB)
 
 -include $(DEPS)
 
 build/%.o: src/%.c
 	@mkdir -p build/util
 	$(CC) -MMD -I include -I src $(CFLAGS) -c $< -o $@
+
+release: CFLAGS := $(CFLAGS_BASE) -O2 -DNDEBUG
+release: clean $(NAME)
 
 clean:
 	rm -rd build/
@@ -30,4 +34,4 @@ install: all
 uninstall:
 	rm -f $(DESTDIR)$(PREFIX)/bin/$(NAME)
 
-.PHONY: clean all install uninstall
+.PHONY: clean all install uninstall release
