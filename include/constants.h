@@ -27,7 +27,7 @@
 #define FILETYPE_NONE 0
 #define FILETYPE_IMAGE 1
 #define FILETYPE_VIDEO 2
-#define FILETYPE_OTHER 3
+#define FILETYPE_OTHER 4
 
 //file flags
 #define FILE_MISSING	1

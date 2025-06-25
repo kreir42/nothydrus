@@ -524,7 +524,7 @@ void start_tui(int_least8_t flags, void* data){
 		ncplane_printf_yx(search_plane, 4, 3, "Max size (0 for none): %llu %s", max_size, max_size_unit_str);
 		//filetypes
 		ncplane_putstr_yx(search_plane, 5, 3, "Filetype: ");
-		if(search->filetypes==0) ncplane_putstr(search_plane, "Any");
+		if(search->filetypes==0 || search->filetypes==(FILETYPE_IMAGE|FILETYPE_VIDEO|FILETYPE_OTHER)) ncplane_putstr(search_plane, "Any");
 		else{
 			unsigned short matches=0;
 			if(search->filetypes&(FILETYPE_IMAGE)){ncplane_putstr(search_plane, "Image"); matches++;}
