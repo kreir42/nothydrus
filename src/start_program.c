@@ -176,8 +176,8 @@ static inline void prepare_get_file_tags(){
 void prepare_add_custom_column(){
 	if(sqlite3_prepare_v3(main_db,
 				"INSERT INTO custom_columns("
-				"name, type, flags, lower_limit, upper_limit) "
-				"VALUES(?, ?, ?, ?, ?);"
+				"name, flags, lower_limit, upper_limit) "
+				"VALUES(?, ?, ?, ?);"
 				, -1, SQLITE_PREPARE_PERSISTENT, &add_custom_column_statement, NULL) != SQLITE_OK){
 		fprintf(stderr, "Error preparing add_custom_column_statement: %s\n", sqlite3_errmsg(main_db));
 	}

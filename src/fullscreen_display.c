@@ -64,65 +64,22 @@ void fullscreen_display(struct search* search){
 								break;
 							case SHORTCUT_TYPE_CUSTOM_COLUMN_INCREASE:{
 								log_debug("Corresponds to SHORTCUT_TYPE_CUSTOM_COLUMN_INCREASE\n");
-								short custom_column_type = custom_columns[tui_options.shortcuts[j].id].type;
-								switch(custom_column_type){
-									case COLUMN_TYPE_TEXT:
-										log_debug("Custom column is text type");
-										break;
-									case COLUMN_TYPE_INTEGER:{
-										log_debug("Custom column is integer type");
-										get_file_columns(search->output_ids.data[i]);
-										int value = sqlite3_column_int(get_file_columns_statement, NON_CUSTOM_FILE_COLUMNS+tui_options.shortcuts[j].id);
-										if(value<custom_columns[tui_options.shortcuts[j].id].upper_limit) value++;
-										set_custom_column_value(search->output_ids.data[i], tui_options.shortcuts[j].id, &value);
-										break;}
-									case COLUMN_TYPE_REAL:{
-										log_debug("Custom column is real type");
-										get_file_columns(search->output_ids.data[i]);
-										float value = sqlite3_column_double(get_file_columns_statement, NON_CUSTOM_FILE_COLUMNS+tui_options.shortcuts[j].id);
-										if(value<custom_columns[tui_options.shortcuts[j].id].upper_limit) value++;
-										set_custom_column_value(search->output_ids.data[i], tui_options.shortcuts[j].id, &value);
-										break;}
-								}
+								get_file_columns(search->output_ids.data[i]);
+								int value = sqlite3_column_int(get_file_columns_statement, NON_CUSTOM_FILE_COLUMNS+tui_options.shortcuts[j].id);
+								if(value<custom_columns[tui_options.shortcuts[j].id].upper_limit) value++;
+								set_custom_column_value(search->output_ids.data[i], tui_options.shortcuts[j].id, &value);
 								break;}
 							case SHORTCUT_TYPE_CUSTOM_COLUMN_DECREASE:{
 								log_debug("Corresponds to SHORTCUT_TYPE_CUSTOM_COLUMN_DECREASE\n");
-								short custom_column_type = custom_columns[tui_options.shortcuts[j].id].type;
-								switch(custom_column_type){
-									case COLUMN_TYPE_TEXT:
-										log_debug("Custom column is text type");
-										break;
-									case COLUMN_TYPE_INTEGER:{
-										log_debug("Custom column is integer type");
-										get_file_columns(search->output_ids.data[i]);
-										int value = sqlite3_column_int(get_file_columns_statement, NON_CUSTOM_FILE_COLUMNS+tui_options.shortcuts[j].id);
-										if(value>custom_columns[tui_options.shortcuts[j].id].lower_limit) value--;
-										set_custom_column_value(search->output_ids.data[i], tui_options.shortcuts[j].id, &value);
-										break;}
-									case COLUMN_TYPE_REAL:{
-										log_debug("Custom column is real type");
-										get_file_columns(search->output_ids.data[i]);
-										float value = sqlite3_column_double(get_file_columns_statement, NON_CUSTOM_FILE_COLUMNS+tui_options.shortcuts[j].id);
-										if(value>custom_columns[tui_options.shortcuts[j].id].lower_limit) value--;
-										set_custom_column_value(search->output_ids.data[i], tui_options.shortcuts[j].id, &value);
-										break;}
-								}
+								get_file_columns(search->output_ids.data[i]);
+								int value = sqlite3_column_int(get_file_columns_statement, NON_CUSTOM_FILE_COLUMNS+tui_options.shortcuts[j].id);
+								if(value>custom_columns[tui_options.shortcuts[j].id].lower_limit) value--;
+								set_custom_column_value(search->output_ids.data[i], tui_options.shortcuts[j].id, &value);
 								break;}
 							case SHORTCUT_TYPE_CUSTOM_COLUMN_REMOVE:
 								log_debug("Corresponds to SHORTCUT_TYPE_CUSTOM_COLUMN_REMOVE\n");
-								switch(custom_columns[tui_options.shortcuts[j].id].type){
-									case COLUMN_TYPE_TEXT:
-										set_custom_column_value(search->output_ids.data[i], tui_options.shortcuts[j].id, "");
-										break;
-									case COLUMN_TYPE_INTEGER:{
-										int reset_value = 0;
-										set_custom_column_value(search->output_ids.data[i], tui_options.shortcuts[j].id, &reset_value);
-										break;}
-									case COLUMN_TYPE_REAL:{
-										float reset_value = 0;
-										set_custom_column_value(search->output_ids.data[i], tui_options.shortcuts[j].id, &reset_value);
-										break;}
-								}
+								int reset_value = 0;
+								set_custom_column_value(search->output_ids.data[i], tui_options.shortcuts[j].id, &reset_value);
 								break;
 							case SHORTCUT_TYPE_EXTERNAL_COMMAND:
 								log_debug("Corresponds to SHORTCUT_TYPE_EXTERNAL_COMMAND\n");
@@ -147,17 +104,7 @@ void fullscreen_display(struct search* search){
 		//print file custom columns
 		for(unsigned short j=0; j<custom_columns_n; j++){
 			get_file_columns(search->output_ids.data[i]);
-			switch(custom_columns[j].type){
-				case COLUMN_TYPE_TEXT:
-					ncplane_printf_aligned(plane, 1+j, NCALIGN_RIGHT, "%s: %s", custom_columns[j].name, sqlite3_column_text(get_file_columns_statement, j+NON_CUSTOM_FILE_COLUMNS));
-					break;
-				case COLUMN_TYPE_INTEGER:
-					ncplane_printf_aligned(plane, 1+j, NCALIGN_RIGHT, "%s: %d", custom_columns[j].name, sqlite3_column_int(get_file_columns_statement, j+NON_CUSTOM_FILE_COLUMNS));
-					break;
-				case COLUMN_TYPE_REAL:
-					ncplane_printf_aligned(plane, 1+j, NCALIGN_RIGHT, "%s: %f", custom_columns[j].name, sqlite3_column_double(get_file_columns_statement, j+NON_CUSTOM_FILE_COLUMNS));
-					break;
-			}
+			ncplane_printf_aligned(plane, 1+j, NCALIGN_RIGHT, "%s: %d", custom_columns[j].name, sqlite3_column_int(get_file_columns_statement, j+NON_CUSTOM_FILE_COLUMNS));
 		}
 		ncpile_render(plane);
 		ncpile_rasterize(plane);

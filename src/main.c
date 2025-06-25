@@ -35,8 +35,8 @@ int main(int argc, char** argv){
 			puts("          --add option will add the tag if it doesn't already exist.");
 			puts("     custom_columns");
 			puts("          Print a list of all custom columns in the database.");
-			puts("     add_custom_column [name] [type] [flags] [lower limit] [upper limit]");
-			puts("          Arguments must be (in order): name, type (\"text\", \"integer\" or \"real\"), flags (1 for NOT NULL), lower limit, upper limit.");	//TBD? special value MAX for limits
+			puts("     add_custom_column [name] [flags] [lower limit] [upper limit]");
+			puts("          Arguments must be (in order): name, flags (1 for NOT NULL), lower limit, upper limit.");	//TBD? special value MAX for limits
 			puts("     mv [file path(s)] [destination]");
 			puts("          Move one or multiple files to a new path in destination.");
 			return 0;
@@ -240,52 +240,33 @@ int main(int argc, char** argv){
 			end_program();
 			return 0;
 		}else if(!strcmp(argv[i], "custom_columns")){
-			if (argc>2) fprintf(stderr, "Info: extra arguments ignored\n");
+			if(argc>2) fprintf(stderr, "Info: extra arguments ignored\n");
+			if(set_main_path()){ fprintf(stderr, "Error: could not locate main path\n"); return 1;}
 			start_program(0);
 			get_custom_columns();
 			end_program();
-			for(unsigned int j=0; j<custom_columns_n; j++){
-				printf("%s: type ", custom_columns[j].name);
-				switch (custom_columns[j].type){
-					case COLUMN_TYPE_TEXT:
-						printf("text\n");
-						break;
-					case COLUMN_TYPE_INTEGER:
-						printf("integer, ");
-						if (custom_columns[j].flags & COLUMN_NO_LOWER_LIMIT) printf("no lower limit, ");
-						else printf("lower limit %d, ", custom_columns[j].lower_limit);
-						if (custom_columns[j].flags & COLUMN_NO_UPPER_LIMIT) printf("no upper limit");
-						else printf("upper limit %d", custom_columns[j].upper_limit);
-						break;
-					case COLUMN_TYPE_REAL:
-						printf("real, ");
-						//TBD
-						break;
+			if(custom_columns_n==0) puts("No custom columns");
+			else{
+				for(unsigned int j=0; j<custom_columns_n; j++){
+					printf("%s: ", custom_columns[j].name);
+					if (custom_columns[j].flags & COLUMN_NO_LOWER_LIMIT) printf("no lower limit, ");
+					else printf("lower limit %d, ", custom_columns[j].lower_limit);
+					if (custom_columns[j].flags & COLUMN_NO_UPPER_LIMIT) printf("no upper limit");
+					else printf("upper limit %d", custom_columns[j].upper_limit);
+					if (custom_columns[j].flags & COLUMN_NOT_NULL) printf(" not null");
+					printf("\n");
 				}
-				if (custom_columns[j].flags & COLUMN_NOT_NULL) printf(" not null");
-				printf("\n");
 			}
 			return 0;
 		}else if(!strcmp(argv[i], "add_custom_column")){
 			i++;
-			if(argc-i!=5){
+			if(argc-i!=4){
 				fprintf(stderr, "Error: wrong number of arguments for add_custom_column\n");
-				return -1;
-			}
-			short new_custom_column_type;
-			if(!strcmp(argv[i+1], "text")){
-				new_custom_column_type = COLUMN_TYPE_TEXT;
-			}else if(!strcmp(argv[i+1], "integer")){
-				new_custom_column_type = COLUMN_TYPE_INTEGER;
-			}else if(!strcmp(argv[i+1], "real")){
-				new_custom_column_type = COLUMN_TYPE_REAL;
-			}else{
-				fprintf(stderr, "Error: unrecognized \"type\" argument %s for add_custom_column. See --help\n", argv[i+1]);
 				return -1;
 			}
 			if(set_main_path()){ fprintf(stderr, "Error: could not locate main path\n"); return 1;}
 			start_program(0);
-			add_custom_column(argv[i], new_custom_column_type, strtol(argv[i+2], NULL, 10), strtol(argv[i+3], NULL, 10), strtol(argv[i+4], NULL, 10));
+			add_custom_column(argv[i], strtol(argv[i+1], NULL, 10), strtol(argv[i+2], NULL, 10), strtol(argv[i+3], NULL, 10));
 			end_program();
 			return 0;
 		}else if(!strcmp(argv[i], "mv")){

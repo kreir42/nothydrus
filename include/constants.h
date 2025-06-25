@@ -25,21 +25,16 @@
 
 //filetypes
 #define FILETYPE_NONE 0
-#define FILETYPE_IMAGE (1<<0)
-#define FILETYPE_VIDEO (1<<1)
-#define FILETYPE_OTHER (1<<2)
+#define FILETYPE_IMAGE 1
+#define FILETYPE_VIDEO 2
+#define FILETYPE_OTHER 3
 
 //file flags
 #define FILE_MISSING	1
 
-//custom columns
-#define COLUMN_NOT_NULL 1
-#define COLUMN_NO_LOWER_LIMIT 2
-#define COLUMN_NO_UPPER_LIMIT 4
-
-//custom column types
-#define COLUMN_TYPE_TEXT 0
-#define COLUMN_TYPE_INTEGER 1
-#define COLUMN_TYPE_REAL 2
+//custom column flags
+#define COLUMN_NOT_NULL (1<<0)
+#define COLUMN_NO_LOWER_LIMIT (1<<1)
+#define COLUMN_NO_UPPER_LIMIT (1<<2)
 
 #endif

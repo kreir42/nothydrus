@@ -1,19 +1,8 @@
 #include "nothydrus.h"
 
-void add_custom_column(char* name, short type, uint_least8_t flags, int lower_limit, int upper_limit){
-	char sql_statement[2000], type_name[20];
-	switch(type){
-		case COLUMN_TYPE_TEXT:
-			strcpy(type_name, "TEXT");
-			break;
-		case COLUMN_TYPE_INTEGER:
-			strcpy(type_name, "INTEGER");
-			break;
-		case COLUMN_TYPE_REAL:
-			strcpy(type_name, "REAL");
-			break;
-	}
-	sprintf(sql_statement, "ALTER TABLE files ADD COLUMN \"%s\" %s", name, type_name);
+void add_custom_column(char* name, uint_least8_t flags, int lower_limit, int upper_limit){
+	char sql_statement[2000];
+	sprintf(sql_statement, "ALTER TABLE files ADD COLUMN \"%s\" INTEGER", name);
 	if(flags & COLUMN_NOT_NULL) strcat(sql_statement, " NOT NULL");
 	strcat(sql_statement, ";");
 	char* sqlite3_error_message;
@@ -23,10 +12,9 @@ void add_custom_column(char* name, short type, uint_least8_t flags, int lower_li
 	}
 
 	sqlite3_bind_text(add_custom_column_statement, 1, name, -1, SQLITE_STATIC);
-	sqlite3_bind_int(add_custom_column_statement, 2, type);
-	sqlite3_bind_int(add_custom_column_statement, 3, flags);
-	sqlite3_bind_int(add_custom_column_statement, 4, lower_limit);
-	sqlite3_bind_int(add_custom_column_statement, 5, upper_limit);
+	sqlite3_bind_int(add_custom_column_statement, 2, flags);
+	sqlite3_bind_int(add_custom_column_statement, 3, lower_limit);
+	sqlite3_bind_int(add_custom_column_statement, 4, upper_limit);
 	if(sqlite3_step(add_custom_column_statement) != SQLITE_DONE){
 		fprintf(stderr, "sqlite3_step(add_custom_column_statement) returned an error: %s\n", sqlite3_errmsg(main_db));
 	}
@@ -63,10 +51,9 @@ void get_custom_columns(){
 	unsigned int row_n = 0;
 	while((error_code=sqlite3_step(statement)) == SQLITE_ROW){
 		strcpy(custom_columns[row_n].name, (char* )sqlite3_column_text(statement, 1));
-		custom_columns[row_n].type = sqlite3_column_int(statement, 2);
-		custom_columns[row_n].flags = sqlite3_column_int(statement, 3);
-		custom_columns[row_n].lower_limit = sqlite3_column_int(statement, 4);
-		custom_columns[row_n].upper_limit = sqlite3_column_int(statement, 5);
+		custom_columns[row_n].flags = sqlite3_column_int(statement, 2);
+		custom_columns[row_n].lower_limit = sqlite3_column_int(statement, 3);
+		custom_columns[row_n].upper_limit = sqlite3_column_int(statement, 4);
 		row_n++;
 	}
 	if(error_code != SQLITE_DONE){
@@ -86,18 +73,7 @@ void set_custom_column_value(sqlite3_int64 file_id, unsigned short custom_column
 				, -1, 0, &statement, NULL) != SQLITE_OK){
 		fprintf(stderr, "Error preparing statement in set_custom_column_value: %s\n", sqlite3_errmsg(main_db));
 	}
-	switch(custom_columns[custom_column_id].type){
-		case COLUMN_TYPE_TEXT:
-			//TBD
-			return;
-			break;
-		case COLUMN_TYPE_INTEGER:
-			sqlite3_bind_int(statement, 1, *(int*)value);
-			break;
-		case COLUMN_TYPE_REAL:
-			sqlite3_bind_double(statement, 1, *(float*)value);
-			break;
-	}
+	sqlite3_bind_int(statement, 1, *(int*)value);
 	sqlite3_bind_int64(statement, 2, file_id);
 	if(sqlite3_step(statement) != SQLITE_DONE){
 		fprintf(stderr, "Error executing statement in set_custom_column_value: %s\n", sqlite3_errmsg(main_db));

@@ -40,7 +40,6 @@ void init(){
 				"CREATE TABLE custom_columns("
 				"id INTEGER PRIMARY KEY NOT NULL, "
 				"name TEXT NOT NULL UNIQUE, "
-				"type INTEGER NOT NULL, "
 				"flags INTEGER NOT NULL DEFAULT 0, "	//bitfield
 				"lower_limit INTEGER, "
 				"upper_limit INTEGER)"
