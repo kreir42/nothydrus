@@ -33,6 +33,8 @@ int main(int argc, char** argv){
 			puts("     tag [--add] [tag] [file path(s)]");
 			puts("          Tags files whose filepaths are given as arguments or piped in with tag.");
 			puts("          --add option will add the tag if it doesn't already exist.");
+			puts("     custom_columns");
+			puts("          Print a list of all custom columns in the database.");
 			puts("     add_custom_column [name] [type] [flags] [lower limit] [upper limit]");
 			puts("          Arguments must be (in order): name, type (\"text\", \"integer\" or \"real\"), flags (1 for NOT NULL), lower limit, upper limit.");	//TBD? special value MAX for limits
 			puts("     mv [file path(s)] [destination]");
@@ -236,6 +238,33 @@ int main(int argc, char** argv){
 				free(line);
 			};
 			end_program();
+			return 0;
+		}else if(!strcmp(argv[i], "custom_columns")){
+			if (argc>2) fprintf(stderr, "Info: extra arguments ignored\n");
+			start_program(0);
+			get_custom_columns();
+			end_program();
+			for(unsigned int j=0; j<custom_columns_n; j++){
+				printf("%s: type ", custom_columns[j].name);
+				switch (custom_columns[j].type){
+					case COLUMN_TYPE_TEXT:
+						printf("text\n");
+						break;
+					case COLUMN_TYPE_INTEGER:
+						printf("integer, ");
+						if (custom_columns[j].flags & COLUMN_NO_LOWER_LIMIT) printf("no lower limit, ");
+						else printf("lower limit %d, ", custom_columns[j].lower_limit);
+						if (custom_columns[j].flags & COLUMN_NO_UPPER_LIMIT) printf("no upper limit");
+						else printf("upper limit %d", custom_columns[j].upper_limit);
+						break;
+					case COLUMN_TYPE_REAL:
+						printf("real, ");
+						//TBD
+						break;
+				}
+				if (custom_columns[j].flags & COLUMN_NOT_NULL) printf(" not null");
+				printf("\n");
+			}
 			return 0;
 		}else if(!strcmp(argv[i], "add_custom_column")){
 			i++;
