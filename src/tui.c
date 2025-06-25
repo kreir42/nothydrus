@@ -320,7 +320,7 @@ void start_tui(int_least8_t flags, void* data){
 				break;
 			case 'e': //export search
 				char* export_options[] = {"Search result paths", "Search result ids", "SQL query", NULL};
-				export = chooser(search_plane, export_options, 0);
+				export = chooser(search_plane, export_options, -1);
 				if(export!=-1) goto end_label; //TBD ask for confirmation
 				break;
 			case 'd':	//delete tag from search list
