@@ -41,6 +41,7 @@ void fullscreen_display(struct search* search){
 				options_tui();
 				break;
 			case ':':
+				ncplane_putchar_yx(plane, screen_rows-1, 0, ':');
 				char* command = input_reader(plane, screen_rows-1, 1, 1, screen_cols-2);
 				external_command_on_file(search->output_ids.data[i], command);
 				free(command);

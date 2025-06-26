@@ -30,8 +30,11 @@
 ? sqlite REGEXP instead of LIKE
 - context-aware key hints and help with '?' key
 - number in tags table
-- filters
 - add tag patterns to search
-- add propmt to input_reader
 - check permissions on database
 - join/split databases
+- hydrus-like filters with yes/no/skip/undo options
+- multiple path filters
+- default path filter when launching from non-base path
+? multiple search tabs
+? save searches
