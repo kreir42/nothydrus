@@ -37,6 +37,8 @@ int main(int argc, char** argv){
 			puts("          Print a list of all custom columns in the database.");
 			puts("     add_custom_column [name] [flags] [lower limit] [upper limit]");
 			puts("          Arguments must be (in order): name, flags (1 for NOT NULL), lower limit, upper limit.");	//TBD? special value MAX for limits
+			puts("     remove_custom_column [name]");
+			puts("          Removes a custom column from the database.");
 			puts("     mv [file path(s)] [destination]");
 			puts("          Move one or multiple files to a new path in destination.");
 			return 0;
@@ -267,6 +269,43 @@ int main(int argc, char** argv){
 			if(set_main_path()){ fprintf(stderr, "Error: could not locate main path\n"); return 1;}
 			start_program(0);
 			add_custom_column(argv[i], strtol(argv[i+1], NULL, 10), strtol(argv[i+2], NULL, 10), strtol(argv[i+3], NULL, 10));
+			end_program();
+			return 0;
+		}else if(!strcmp(argv[i], "remove_custom_column")){
+			i++;
+			if(argc-i!=1){
+				fprintf(stderr, "Error: wrong number of arguments for remove_custom_column\n");
+				return -1;
+			}
+			if(set_main_path()){ fprintf(stderr, "Error: could not locate main path\n"); return 1;}
+			start_program(0);
+			get_custom_columns();
+			bool found = false;
+			for(unsigned int j=0; j<custom_columns_n; j++){
+				if(!strcmp(custom_columns[j].name, argv[i])){
+					found = true;
+					break;
+				}
+			}
+			if(!found){
+				fprintf(stderr, "Error: Custom column '%s' does not exist.\n", argv[i]);
+				end_program();
+				return -1;
+			}
+			printf("Are you sure you want to remove the custom column '%s'? This action cannot be undone. (yes/no): ", argv[i]);
+			char confirmation[10];
+			if(fgets(confirmation, sizeof(confirmation), stdin) == NULL){
+				fprintf(stderr, "Error reading input.\n");
+				end_program();
+				return -1;
+			}
+			confirmation[strcspn(confirmation, "\n")] = 0;
+			if(strcmp(confirmation, "yes") != 0){
+				printf("Aborted.\n");
+				end_program();
+				return 0;
+			}
+			remove_custom_column(argv[i]);
 			end_program();
 			return 0;
 		}else if(!strcmp(argv[i], "mv")){

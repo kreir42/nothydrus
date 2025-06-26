@@ -11,7 +11,7 @@ void init(){
 	//TBD: configs, other files, etc
 	chdir("..");
 
-	char* sqlite3_error_message;
+	char* sqlite3_error_message = NULL;
 	if(sqlite3_exec(main_db,"CREATE TABLE files("
 				"id INTEGER PRIMARY KEY NOT NULL, "
 				"hash BLOB, "
@@ -47,9 +47,8 @@ void init(){
 
 				,NULL, NULL, &sqlite3_error_message)){
 		fprintf(stderr, "Error when creating tables and indexes:%s\n", sqlite3_error_message);
+		sqlite3_free(sqlite3_error_message);
 	}
 	prepare_add_custom_column();
-
-	sqlite3_free(sqlite3_error_message);
 	end_program();
 }

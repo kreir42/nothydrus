@@ -5,10 +5,11 @@ void add_custom_column(char* name, uint_least8_t flags, int lower_limit, int upp
 	sprintf(sql_statement, "ALTER TABLE files ADD COLUMN \"%s\" INTEGER", name);
 	if(flags & COLUMN_NOT_NULL) strcat(sql_statement, " NOT NULL");
 	strcat(sql_statement, ";");
-	char* sqlite3_error_message;
+	char* sqlite3_error_message = NULL;
 	if(sqlite3_exec(main_db, sql_statement, NULL, NULL, &sqlite3_error_message)){
 		fprintf(stderr, "sqlite3_exec(%s) in add_custom_column returned an error:%s\n", sql_statement, sqlite3_error_message);
-		goto end_flag;
+		sqlite3_free(sqlite3_error_message);
+		return;
 	}
 
 	sqlite3_bind_text(add_custom_column_statement, 1, name, -1, SQLITE_STATIC);
@@ -22,9 +23,6 @@ void add_custom_column(char* name, uint_least8_t flags, int lower_limit, int upp
 	if(sqlite3_reset(add_custom_column_statement)!=SQLITE_OK){
 		fprintf(stderr, "sqlite3_reset(add_custom_column_statement) returned an error: %s\n", sqlite3_errmsg(main_db));
 	}
-
-	end_flag:
-	sqlite3_free(sqlite3_error_message);
 }
 
 //get all custom columns data from the custom_columns SQL table into the custom_columns global variable
@@ -79,4 +77,30 @@ void set_custom_column_value(sqlite3_int64 file_id, unsigned short custom_column
 		fprintf(stderr, "Error executing statement in set_custom_column_value: %s\n", sqlite3_errmsg(main_db));
 	}
 	sqlite3_finalize(statement);
+}
+
+void remove_custom_column(char* name){
+	//remove column from files table
+	char sql_statement[50+CUSTOM_COLUMN_NAME_SIZE];
+	sprintf(sql_statement, "ALTER TABLE files DROP COLUMN \"%s\";", name);
+	char* sqlite3_error_message = NULL;
+	if(sqlite3_exec(main_db, sql_statement, NULL, NULL, &sqlite3_error_message)){
+		fprintf(stderr, "sqlite3_exec(%s) in remove_custom_column returned an error:%s\n", sql_statement, sqlite3_error_message);
+		sqlite3_free(sqlite3_error_message);
+		return;
+	}
+	//remove entry from custom_columns table
+	sqlite3_stmt* statement;
+	if(sqlite3_prepare_v3(main_db, "DELETE FROM custom_columns WHERE name = ?;", -1, 0, &statement, NULL) != SQLITE_OK){
+		fprintf(stderr, "Error preparing statement in remove_custom_column: %s\n", sqlite3_errmsg(main_db));
+		return;
+	}
+	sqlite3_bind_text(statement, 1, name, -1, SQLITE_STATIC);
+	if(sqlite3_step(statement) != SQLITE_DONE){
+		fprintf(stderr, "Error executing statement in remove_custom_column: %s\n", sqlite3_errmsg(main_db));
+		sqlite3_finalize(statement);
+		return;
+	}
+	sqlite3_finalize(statement);
+	printf("Custom column '%s' removed successfully.\n", name);
 }
