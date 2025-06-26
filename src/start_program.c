@@ -214,6 +214,14 @@ static inline void prepare_set_filepath(){
 
 void start_program(int_least8_t flags){
 	chdir(main_path);
+	if(access(INIT_DIRECTORY, R_OK|W_OK)){
+		fprintf(stderr, "Error: could not read/write to "INIT_DIRECTORY"\n");
+		exit(1);
+	}
+	if(access(INIT_DIRECTORY"/"MAIN_DATABASE_NAME, R_OK|W_OK)){
+		fprintf(stderr, "Error: could not read/write to main database\n");
+		exit(1);
+	}
 	if(sqlite3_open(INIT_DIRECTORY"/"MAIN_DATABASE_NAME, &main_db)){
 		fprintf(stderr, "Error opening main database: %s\n", sqlite3_errmsg(main_db));
 		return;
