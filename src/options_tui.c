@@ -1,14 +1,22 @@
 #include "nothydrus.h"
 #include "tui.h"
 
-static uint32_t ask_for_key(struct ncplane* parent_plane){
+static bool key_in_use(uint32_t key) {
+	for(unsigned short i=0; i<tui_options.shortcuts_n; i++){
+		if(tui_options.shortcuts[i].key == key) return true;
+	}
+	return false;
+}
+
+static uint32_t ask_for_key(struct ncplane* parent_plane, bool repeat){
 	struct ncplane_options plane_options = {
 		.y = NCALIGN_CENTER, .x = NCALIGN_CENTER,
-		.rows = 3, .cols = 30,
+		.rows = 3, .cols = 40,
 		.flags = NCPLANE_OPTION_HORALIGNED | NCPLANE_OPTION_VERALIGNED,
 	};
 	struct ncplane* plane = ncplane_create(parent_plane, &plane_options);
-	ncplane_putstr_yx(plane, 1, 1, "Press a key: ");
+	ncplane_putstr_yx(plane, 1, 1, "Press any key, or q to cancel: ");
+	if(repeat) ncplane_putstr_yx(plane, 2, 1, "Key already in use, try another");
 	ncpile_render(plane);
 	ncpile_rasterize(plane);
 	uint32_t key = notcurses_get(nc, NULL, NULL);
@@ -102,7 +110,14 @@ void options_tui(){
 						break;
 					case 2:
 						struct shortcut shortcut = {};
-						shortcut.key = ask_for_key(plane);
+						bool ask_for_key_repeat = false;
+						ask_for_key:
+						shortcut.key = ask_for_key(plane, ask_for_key_repeat);
+						if(shortcut.key=='q') break;
+						if(key_in_use(shortcut.key)){
+							ask_for_key_repeat = true;
+							goto ask_for_key;
+						}
 						char* shortcut_options[] = {"Tag file", "Untag file", "Tag/untag file", "Increase custom column value", "Decrease custom column value", "Remove custom column value", "External shell command on file", NULL};
 						short choice = chooser(plane, shortcut_options, -1);
 						if(choice==-1) break;

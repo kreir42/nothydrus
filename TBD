@@ -15,7 +15,6 @@
 ? transform filepaths coming in from stdin differently?
 - order tags (display mode, search mode?)
 - command to remove custom column
-- not allow adding custom shortcuts for already taken keys
 - recursive options
 - modify file command
 - remove file command
@@ -38,3 +37,6 @@
 - default path filter when launching from non-base path
 ? multiple search tabs
 ? save searches
+- make all keys configurable
+- different shortcut modes
+? support shortcuts with multiple actions
