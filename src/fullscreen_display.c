@@ -114,9 +114,10 @@ void fullscreen_display(struct search* search){
 			ncplane_putstr_yx(plane, 1+j, 0, tag_name);
 		}
 		//print file custom columns
+		get_file_columns(search->output_ids.data[i]);
 		for(unsigned short j=0; j<custom_columns_n; j++){
-			get_file_columns(search->output_ids.data[i]);
-			ncplane_printf_aligned(plane, 1+j, NCALIGN_RIGHT, "%s: %d", custom_columns[j].name, sqlite3_column_int(get_file_columns_statement, j+NON_CUSTOM_FILE_COLUMNS));
+			if(sqlite3_column_type(get_file_columns_statement, j+NON_CUSTOM_FILE_COLUMNS)==SQLITE_NULL) ncplane_printf_aligned(plane, 1+j, NCALIGN_RIGHT, "%s: NULL", custom_columns[j].name);
+			else ncplane_printf_aligned(plane, 1+j, NCALIGN_RIGHT, "%s: %d", custom_columns[j].name, sqlite3_column_int(get_file_columns_statement, j+NON_CUSTOM_FILE_COLUMNS));
 		}
 		ncpile_render(plane);
 		ncpile_rasterize(plane);

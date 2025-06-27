@@ -37,4 +37,3 @@
 - different shortcut modes
 ? support shortcuts with multiple actions
 - implement custom_column NO_LOWER_LIMIT and NO_UPPER_LIMIT options
-- show custom columns NULL values
