@@ -79,6 +79,31 @@ void set_custom_column_value(sqlite3_int64 file_id, unsigned short custom_column
 	sqlite3_finalize(statement);
 }
 
+void reset_custom_column_value(sqlite3_int64 file_id, unsigned short custom_column_id){
+	if(custom_columns[custom_column_id].flags&COLUMN_NOT_NULL){
+		//set to 0 or lower_limit
+		int value = custom_columns[custom_column_id].lower_limit;
+		set_custom_column_value(file_id, custom_column_id, value);
+	}else{
+		//set to NULL
+		char statement_string[100+CUSTOM_COLUMN_NAME_SIZE];
+		strcpy(statement_string, "UPDATE files SET ");
+		strcat(statement_string, custom_columns[custom_column_id].name);
+		strcat(statement_string, " = NULL WHERE id = ?");
+		sqlite3_stmt* statement;
+		if(sqlite3_prepare_v3(main_db,
+					statement_string
+					, -1, 0, &statement, NULL) != SQLITE_OK){
+			fprintf(stderr, "Error preparing statement in reset_custom_column_value: %s\n", sqlite3_errmsg(main_db));
+		}
+		sqlite3_bind_int64(statement, 1, file_id);
+		if(sqlite3_step(statement) != SQLITE_DONE){
+			fprintf(stderr, "Error executing statement in reset_custom_column_value: %s\n", sqlite3_errmsg(main_db));
+		}
+		sqlite3_finalize(statement);
+	}
+}
+
 void remove_custom_column(char* name){
 	//remove column from files table
 	char sql_statement[50+CUSTOM_COLUMN_NAME_SIZE];

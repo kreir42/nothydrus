@@ -118,7 +118,7 @@ void options_tui(){
 							ask_for_key_repeat = true;
 							goto ask_for_key;
 						}
-						char* shortcut_options[] = {"Tag file", "Untag file", "Tag/untag file", "Increase custom column value", "Decrease custom column value", "Remove custom column value", "External shell command on file", NULL};
+						char* shortcut_options[] = {"Tag file", "Untag file", "Tag/untag file", "Increase custom column value", "Decrease custom column value", "Reset custom column value", "External shell command on file", NULL};
 						short choice = chooser(plane, shortcut_options, -1);
 						if(choice==-1) break;
 						shortcut.type = choice;
@@ -130,7 +130,7 @@ void options_tui(){
 								break;
 							case SHORTCUT_TYPE_CUSTOM_COLUMN_INCREASE:
 							case SHORTCUT_TYPE_CUSTOM_COLUMN_DECREASE:
-							case SHORTCUT_TYPE_CUSTOM_COLUMN_REMOVE:
+							case SHORTCUT_TYPE_CUSTOM_COLUMN_RESET:
 								shortcut.id = choose_custom_column(plane);
 								break;
 							case SHORTCUT_TYPE_EXTERNAL_COMMAND:
@@ -142,7 +142,6 @@ void options_tui(){
 							tui_options.shortcuts_n++;
 							tui_options.shortcuts = realloc(tui_options.shortcuts, sizeof(struct shortcut)*tui_options.shortcuts_n);
 							tui_options.shortcuts[tui_options.shortcuts_n-1] = shortcut;
-							//TBD check for conflicts
 						}
 						break;
 				}
@@ -196,8 +195,8 @@ void options_tui(){
 					ncplane_putstr(plane, "Decrease value of custom column: ");
 					ncplane_putstr(plane, custom_columns[tui_options.shortcuts[i].id].name);
 					break;
-				case SHORTCUT_TYPE_CUSTOM_COLUMN_REMOVE:
-					ncplane_putstr(plane, "Remove value of custom column: ");
+				case SHORTCUT_TYPE_CUSTOM_COLUMN_RESET:
+					ncplane_putstr(plane, "Reset value of custom column: ");
 					ncplane_putstr(plane, custom_columns[tui_options.shortcuts[i].id].name);
 					break;
 				case SHORTCUT_TYPE_EXTERNAL_COMMAND:

@@ -21,7 +21,7 @@ sqlite3_stmt* get_file_columns_statement;
 sqlite3_stmt* search_file_from_hash_statement;
 sqlite3_stmt* set_filepath_statement;
 
-unsigned int custom_columns_n;
+unsigned short custom_columns_n;
 struct custom_column* custom_columns;
 
 static inline void prepare_add_file(){

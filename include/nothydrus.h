@@ -91,6 +91,7 @@ void search_tags(struct id_dynarr* dynarr, char* tag_search);	//TBD? command
 void add_custom_column(char* name, uint_least8_t flags, int lower_limit, int upper_limit);
 void remove_custom_column(char* name);
 void set_custom_column_value(sqlite3_int64 file_id, unsigned short custom_column_id, int value);
+void reset_custom_column_value(sqlite3_int64 file_id, unsigned short custom_column_id);
 
 //util functions
 char* filepath_from_id(sqlite3_int64 id);

@@ -19,7 +19,6 @@
 - fix gifs being drawn on top of previous image
 - have db keep track of program version
 - sort key shortcuts in options interface
-- (better) NULL rating support
 - check command options: --missing check only missing files, --in-database check files only if they are in database
 ? generally reduce verbosity
 - make check_files more efficient (currently it may check a file multiple times)
@@ -37,3 +36,5 @@
 - make all keys configurable
 - different shortcut modes
 ? support shortcuts with multiple actions
+- implement custom_column NO_LOWER_LIMIT and NO_UPPER_LIMIT options
+- show custom columns NULL values

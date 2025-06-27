@@ -249,7 +249,7 @@ int main(int argc, char** argv){
 			end_program();
 			if(custom_columns_n==0) puts("No custom columns");
 			else{
-				for(unsigned int j=0; j<custom_columns_n; j++){
+				for(unsigned short j=0; j<custom_columns_n; j++){
 					printf("%s: ", custom_columns[j].name);
 					if (custom_columns[j].flags & COLUMN_NO_LOWER_LIMIT) printf("no lower limit, ");
 					else printf("lower limit %d, ", custom_columns[j].lower_limit);
@@ -281,7 +281,7 @@ int main(int argc, char** argv){
 			start_program(PROGRAM_START_DEFAULT);
 			get_custom_columns();
 			bool found = false;
-			for(unsigned int j=0; j<custom_columns_n; j++){
+			for(unsigned short j=0; j<custom_columns_n; j++){
 				if(!strcmp(custom_columns[j].name, argv[i])){
 					found = true;
 					break;
