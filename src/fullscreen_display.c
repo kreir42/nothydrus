@@ -94,8 +94,20 @@ void fullscreen_display(struct search* search){
 		ncplane_erase(plane);
 		//print file position
 		ncplane_printf_yx(plane, 0, 0, "%ld/%ld", i+1, search->output_ids.used);
-		//print filepath
-		ncplane_printf_aligned(plane, 0, NCALIGN_CENTER, "%s %f MB", filepath_from_id(search->output_ids.data[i]), (double)filesize_from_id(search->output_ids.data[i])/1000000);
+		//print filepath, filesize and resolution
+		struct ncplane* child_plane = ncplane_userptr(display_plane);
+		if(child_plane){
+			struct ncvisual* visual = ncplane_userptr(child_plane);
+			if(visual){
+				ncvgeom geom;
+				ncvisual_geom(nc, visual, NULL, &geom);
+				ncplane_printf_aligned(plane, 0, NCALIGN_CENTER, "%s %f MB %dx%d", filepath_from_id(search->output_ids.data[i]), (double)filesize_from_id(search->output_ids.data[i])/1000000, geom.pixx, geom.pixy);
+			} else {
+				ncplane_printf_aligned(plane, 0, NCALIGN_CENTER, "%s %f MB", filepath_from_id(search->output_ids.data[i]), (double)filesize_from_id(search->output_ids.data[i])/1000000);
+			}
+		} else {
+			ncplane_printf_aligned(plane, 0, NCALIGN_CENTER, "%s %f MB", filepath_from_id(search->output_ids.data[i]), (double)filesize_from_id(search->output_ids.data[i])/1000000);
+		}
 		//print file tags
 		get_file_tags(search->output_ids.data[i], &file_tags);
 		for(unsigned short j=0; j<file_tags.used; j++){

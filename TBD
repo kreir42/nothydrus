@@ -1,11 +1,10 @@
 ? if link points to a file, file extension is taken from link, not file (what about size, metadata?)
-- way to get video duration
 - pre-load prev/next image in list
 - take endianness into account when storing/retrieving hash
 - have 'tag' cli command also work with ids directly
 - decimals in tui filesize (when not bytes, use fixed-point)
 ? command for mass tagging to be used in sidecar script
-- add more file info to fullscreen display (resolution, duration)
+- add more file info to fullscreen display (duration)
 - scrolling in planes
 - script to export file tags
 - adding already existing tag to file returns error
