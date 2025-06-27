@@ -212,7 +212,7 @@ static inline void prepare_set_filepath(){
 }
 
 
-void start_program(int_least8_t flags){
+void start_program(enum program_start_mode mode){
 	chdir(main_path);
 	if(access(INIT_DIRECTORY, R_OK|W_OK)){
 		fprintf(stderr, "Error: could not read/write to "INIT_DIRECTORY"\n");
@@ -226,26 +226,27 @@ void start_program(int_least8_t flags){
 		fprintf(stderr, "Error opening main database: %s\n", sqlite3_errmsg(main_db));
 		return;
 	}
-	if(flags & START_PROGRAM_INIT){
+	if(mode == PROGRAM_START_INIT){
 		return;
 	}
 	get_custom_columns();
-	if(flags & START_PROGRAM_ADD_FILES){
+	if(mode == PROGRAM_START_ADD_FILES){
 		prepare_add_file();
 		return;
 	}
-	if(flags & START_PROGRAM_SQL_SEARCH){
+	if(mode == PROGRAM_START_SQL_SEARCH){
 		prepare_filepath_from_id();
 		prepare_flags_from_id();
 		return;
 	}
-	if(flags & START_PROGRAM_TAG){
+	if(mode == PROGRAM_START_TAG){
 		prepare_id_from_filepath();
 		prepare_add_tag();
 		prepare_tag_id_from_name();
 		prepare_tag();
 		return;
 	}
+
 	prepare_add_file();
 	prepare_filepath_from_id();
 	prepare_flags_from_id();

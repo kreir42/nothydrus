@@ -60,7 +60,7 @@ int main(int argc, char** argv){
 			break;
 		}else if(!strcmp(argv[i], "add")){
 			if(set_main_path()){ fprintf(stderr, "Error: could not locate main path\n"); return 1;}
-			start_program(START_PROGRAM_ADD_FILES);
+			start_program(PROGRAM_START_ADD_FILES);
 			i++;
 			int_least8_t add_flags = 0;
 			if(!isatty(fileno(stdin))) add_flags |= ADD_FILES_STDIN;
@@ -91,7 +91,7 @@ int main(int argc, char** argv){
 			}
 			strcpy(search.sql, argv[i]);
 			if(set_main_path()){ fprintf(stderr, "Error: could not locate main path\n"); return 1;}
-			start_program(START_PROGRAM_SQL_SEARCH);
+			start_program(PROGRAM_START_SQL_SEARCH);
 			run_search(&search);
 			if(output_id){
 				for(unsigned long i=0; i<search.output_ids.used; i++){
@@ -128,7 +128,7 @@ int main(int argc, char** argv){
 				return -1;
 			}
 			if(set_main_path()){ fprintf(stderr, "Error: could not locate main path\n"); return 1;}
-			start_program(0);
+			start_program(PROGRAM_START_DEFAULT);
 			start_tui(START_TUI_DISPLAY, &search);
 			free_search(&search);
 			end_program();
@@ -140,7 +140,7 @@ int main(int argc, char** argv){
 				flags |= CHECK_FILES_STDIN;
 			}
 			if(set_main_path()){fprintf(stderr, "Error: could not locate main path\n"); return 1;}
-			start_program(0);
+			start_program(PROGRAM_START_DEFAULT);
 			if(i<argc){
 				while(argv[i][0]=='-' && argv[i][1]=='-'){
 					if(!strcmp(argv[i], "--id")) flags |= CHECK_FILES_INPUT_IDS;
@@ -166,7 +166,7 @@ int main(int argc, char** argv){
 				return -1;
 			}
 			if(set_main_path()){ fprintf(stderr, "Error: could not locate main path\n"); return 1;}
-			start_program(0);
+			start_program(PROGRAM_START_DEFAULT);
 			while(i<argc){
 				add_tag(argv[i]);
 				i++;
@@ -194,7 +194,7 @@ int main(int argc, char** argv){
 			}
 			char* tag_name = argv[i];
 			if(set_main_path()){ fprintf(stderr, "Error: could not locate main path\n"); return 1;}
-			start_program(START_PROGRAM_TAG);
+			start_program(PROGRAM_START_TAG);
 			sqlite3_int64 tag_id;
 			tag_id = tag_id_from_name(tag_name);
 			if(tag_id==-1){
@@ -244,7 +244,7 @@ int main(int argc, char** argv){
 		}else if(!strcmp(argv[i], "custom_columns")){
 			if(argc>2) fprintf(stderr, "Info: extra arguments ignored\n");
 			if(set_main_path()){ fprintf(stderr, "Error: could not locate main path\n"); return 1;}
-			start_program(0);
+			start_program(PROGRAM_START_DEFAULT);
 			get_custom_columns();
 			end_program();
 			if(custom_columns_n==0) puts("No custom columns");
@@ -267,7 +267,7 @@ int main(int argc, char** argv){
 				return -1;
 			}
 			if(set_main_path()){ fprintf(stderr, "Error: could not locate main path\n"); return 1;}
-			start_program(0);
+			start_program(PROGRAM_START_DEFAULT);
 			add_custom_column(argv[i], strtol(argv[i+1], NULL, 10), strtol(argv[i+2], NULL, 10), strtol(argv[i+3], NULL, 10));
 			end_program();
 			return 0;
@@ -278,7 +278,7 @@ int main(int argc, char** argv){
 				return -1;
 			}
 			if(set_main_path()){ fprintf(stderr, "Error: could not locate main path\n"); return 1;}
-			start_program(0);
+			start_program(PROGRAM_START_DEFAULT);
 			get_custom_columns();
 			bool found = false;
 			for(unsigned int j=0; j<custom_columns_n; j++){
@@ -315,7 +315,7 @@ int main(int argc, char** argv){
 				return -1;
 			}
 			if(set_main_path()){ fprintf(stderr, "Error: could not locate main path\n"); return 1;}
-			start_program(0);
+			start_program(PROGRAM_START_DEFAULT);
 			char* destination = transform_input_path(argv[argc-1]);
 			if(destination==NULL){
 				fprintf(stderr, "Error: destination not under main path\n");
@@ -344,7 +344,7 @@ int main(int argc, char** argv){
 	}
 	if(argc==1){	//TBD change to allow config using parameters
 		if(set_main_path()){ fprintf(stderr, "Error: could not locate main path\n"); return 1;}
-		start_program(START_PROGRAM_TUI);
+		start_program(PROGRAM_START_TUI);
 		start_tui(0, NULL);
 		end_program();
 	}

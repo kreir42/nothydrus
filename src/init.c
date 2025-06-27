@@ -5,7 +5,7 @@ void init(){
 		perror("Error when trying to create init directory");
 		return;
 	}
-	start_program(START_PROGRAM_INIT);
+	start_program(PROGRAM_START_INIT);
 
 	chdir(INIT_DIRECTORY);
 	//TBD: configs, other files, etc
