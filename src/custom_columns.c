@@ -60,7 +60,7 @@ void get_custom_columns(){
 	sqlite3_finalize(statement);
 }
 
-void set_custom_column_value(sqlite3_int64 file_id, unsigned short custom_column_id, void* value){
+void set_custom_column_value(sqlite3_int64 file_id, unsigned short custom_column_id, int value){
 	char statement_string[100+CUSTOM_COLUMN_NAME_SIZE];
 	strcpy(statement_string, "UPDATE files SET ");
 	strcat(statement_string, custom_columns[custom_column_id].name);
@@ -71,7 +71,7 @@ void set_custom_column_value(sqlite3_int64 file_id, unsigned short custom_column
 				, -1, 0, &statement, NULL) != SQLITE_OK){
 		fprintf(stderr, "Error preparing statement in set_custom_column_value: %s\n", sqlite3_errmsg(main_db));
 	}
-	sqlite3_bind_int(statement, 1, *(int*)value);
+	sqlite3_bind_int(statement, 1, value);
 	sqlite3_bind_int64(statement, 2, file_id);
 	if(sqlite3_step(statement) != SQLITE_DONE){
 		fprintf(stderr, "Error executing statement in set_custom_column_value: %s\n", sqlite3_errmsg(main_db));

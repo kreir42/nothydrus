@@ -68,19 +68,19 @@ void fullscreen_display(struct search* search){
 								get_file_columns(search->output_ids.data[i]);
 								int value = sqlite3_column_int(get_file_columns_statement, NON_CUSTOM_FILE_COLUMNS+tui_options.shortcuts[j].id);
 								if(value<custom_columns[tui_options.shortcuts[j].id].upper_limit) value++;
-								set_custom_column_value(search->output_ids.data[i], tui_options.shortcuts[j].id, &value);
+								set_custom_column_value(search->output_ids.data[i], tui_options.shortcuts[j].id, value);
 								break;}
 							case SHORTCUT_TYPE_CUSTOM_COLUMN_DECREASE:{
 								log_debug("Corresponds to SHORTCUT_TYPE_CUSTOM_COLUMN_DECREASE\n");
 								get_file_columns(search->output_ids.data[i]);
 								int value = sqlite3_column_int(get_file_columns_statement, NON_CUSTOM_FILE_COLUMNS+tui_options.shortcuts[j].id);
 								if(value>custom_columns[tui_options.shortcuts[j].id].lower_limit) value--;
-								set_custom_column_value(search->output_ids.data[i], tui_options.shortcuts[j].id, &value);
+								set_custom_column_value(search->output_ids.data[i], tui_options.shortcuts[j].id, value);
 								break;}
 							case SHORTCUT_TYPE_CUSTOM_COLUMN_REMOVE:
 								log_debug("Corresponds to SHORTCUT_TYPE_CUSTOM_COLUMN_REMOVE\n");
-								int reset_value = 0;
-								set_custom_column_value(search->output_ids.data[i], tui_options.shortcuts[j].id, &reset_value);
+								int reset_value = 0; //TBD should be NULL if possible, or min_value if it has
+								set_custom_column_value(search->output_ids.data[i], tui_options.shortcuts[j].id, reset_value);
 								break;
 							case SHORTCUT_TYPE_EXTERNAL_COMMAND:
 								log_debug("Corresponds to SHORTCUT_TYPE_EXTERNAL_COMMAND\n");
