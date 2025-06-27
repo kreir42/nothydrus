@@ -62,7 +62,6 @@ void free_search(struct search* search);
 
 enum program_start_mode {
        PROGRAM_START_DEFAULT,
-       PROGRAM_START_INIT,
        PROGRAM_START_ADD_FILES,
        PROGRAM_START_TUI,
        PROGRAM_START_SQL_SEARCH,

@@ -226,9 +226,6 @@ void start_program(enum program_start_mode mode){
 		fprintf(stderr, "Error opening main database: %s\n", sqlite3_errmsg(main_db));
 		return;
 	}
-	if(mode == PROGRAM_START_INIT){
-		return;
-	}
 	get_custom_columns();
 	if(mode == PROGRAM_START_ADD_FILES){
 		prepare_add_file();
