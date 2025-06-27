@@ -255,7 +255,7 @@ int main(int argc, char** argv){
 					else printf("lower limit %d, ", custom_columns[j].lower_limit);
 					if (custom_columns[j].flags & COLUMN_NO_UPPER_LIMIT) printf("no upper limit");
 					else printf("upper limit %d", custom_columns[j].upper_limit);
-					if (custom_columns[j].flags & COLUMN_NOT_NULL) printf(" not null");
+					if (custom_columns[j].flags & COLUMN_NOT_NULL) printf(", not null");
 					printf("\n");
 				}
 			}

@@ -3,7 +3,12 @@
 void add_custom_column(char* name, uint_least8_t flags, int lower_limit, int upper_limit){
 	char sql_statement[2000];
 	sprintf(sql_statement, "ALTER TABLE files ADD COLUMN \"%s\" INTEGER", name);
-	if(flags & COLUMN_NOT_NULL) strcat(sql_statement, " NOT NULL");
+	if(flags & COLUMN_NOT_NULL){
+		strcat(sql_statement, " NOT NULL");
+		char default_clause[200];
+		sprintf(default_clause, " DEFAULT %d", lower_limit);
+		strcat(sql_statement, default_clause);
+	}
 	strcat(sql_statement, ";");
 	char* sqlite3_error_message = NULL;
 	if(sqlite3_exec(main_db, sql_statement, NULL, NULL, &sqlite3_error_message)){
