@@ -9,6 +9,7 @@ struct ncplane* display_file(sqlite3_int64 id, int_least8_t flags, struct ncplan
 }
 
 struct ncplane* display_file_from_filepath(char* filepath, int_least8_t flags, struct ncplane* plane){
+	log_debug("Creating ncvisual for %s\n", filepath);
 	struct ncvisual* visual = ncvisual_from_file(filepath);
 	struct ncvisual_options ncvisual_options = {
 		.n = plane,
@@ -23,6 +24,7 @@ struct ncplane* display_file_from_filepath(char* filepath, int_least8_t flags, s
 		ncvisual_options.scaling = NCSCALE_SCALE_HIRES;
 		ncvisual_options.blitter = NCBLIT_PIXEL;
 	}
+	log_debug("Calling ncvisual_blit for %s\n", filepath);
 	struct ncplane* resultplane = ncvisual_blit(nc, visual, &ncvisual_options);
 	ncplane_set_userptr(plane, resultplane);
 	ncplane_set_userptr(resultplane, visual);
