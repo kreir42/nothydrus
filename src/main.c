@@ -37,8 +37,9 @@ int main(int argc, char** argv){
 			puts("          Print a list of all custom columns in the database.");
 			puts("     add_custom_column [name] [flags] [lower limit] [upper limit]");
 			puts("          Arguments must be (in order): name, flags (1 for NOT NULL), lower limit, upper limit.");	//TBD? special value MAX for limits
-			puts("     remove_custom_column [name]");
+			puts("     remove_custom_column [--noconfirm] [name]");
 			puts("          Removes a custom column from the database.");
+			puts("          --noconfirm skips the confirmation.");
 			puts("     mv [file path(s)] [destination]");
 			puts("          Move one or multiple files to a new path in destination.");
 			return 0;
@@ -273,6 +274,11 @@ int main(int argc, char** argv){
 			return 0;
 		}else if(!strcmp(argv[i], "remove_custom_column")){
 			i++;
+			bool noconfirm = false;
+			if(i < argc && !strcmp(argv[i], "--noconfirm")){
+				noconfirm = true;
+				i++;
+			}
 			if(argc-i!=1){
 				fprintf(stderr, "Error: wrong number of arguments for remove_custom_column\n");
 				return -1;
@@ -292,18 +298,20 @@ int main(int argc, char** argv){
 				end_program();
 				return -1;
 			}
-			printf("Are you sure you want to remove the custom column '%s'? This action cannot be undone. (yes/no): ", argv[i]);
-			char confirmation[10];
-			if(fgets(confirmation, sizeof(confirmation), stdin) == NULL){
-				fprintf(stderr, "Error reading input.\n");
-				end_program();
-				return -1;
-			}
-			confirmation[strcspn(confirmation, "\n")] = 0;
-			if(strcmp(confirmation, "yes")!=0 && strcmp(confirmation, "Yes")!=0 && strcmp(confirmation, "YES")!=0 && strcmp(confirmation, "y")!=0 && strcmp(confirmation, "Y")!=0){
-				printf("Aborted.\n");
-				end_program();
-				return 0;
+			if(!noconfirm){
+				printf("Are you sure you want to remove the custom column '%s'? This action cannot be undone. (yes/no): ", argv[i]);
+				char confirmation[10];
+				if(fgets(confirmation, sizeof(confirmation), stdin) == NULL){
+					fprintf(stderr, "Error reading input.\n");
+					end_program();
+					return -1;
+				}
+				confirmation[strcspn(confirmation, "\n")] = 0;
+				if(strcmp(confirmation, "yes")!=0 && strcmp(confirmation, "Yes")!=0 && strcmp(confirmation, "YES")!=0 && strcmp(confirmation, "y")!=0 && strcmp(confirmation, "Y")!=0){
+					printf("Aborted.\n");
+					end_program();
+					return 0;
+				}
 			}
 			remove_custom_column(argv[i]);
 			end_program();

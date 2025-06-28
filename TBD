@@ -38,4 +38,3 @@
 ? support shortcuts with multiple actions
 - implement custom_column NO_LOWER_LIMIT and NO_UPPER_LIMIT options
 - when removing custom columns, modify shortcuts to avoid errors
-- --noconfirm option for remove_custom_column
