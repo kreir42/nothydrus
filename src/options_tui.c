@@ -41,13 +41,24 @@ static char* ask_for_command(struct ncplane* parent_plane, unsigned short parent
 }
 
 static short choose_custom_column(struct ncplane* plane){
+	log_debug("Asking user to choose a custom column\n");
 	char** options = malloc(sizeof(char*)*custom_columns_n);
 	for(unsigned short i=0; i<custom_columns_n; i++){
 		options[i] = custom_columns[i].name;
 	}
+	options[custom_columns_n] = NULL;
 	short choice = chooser(plane, options, -1);
 	free(options);
 	return choice;
+}
+
+void delete_shortcut(unsigned short index){
+	log_debug("Deleting shortcut with index %d\n", index);
+	tui_options.shortcuts_n--;
+	for(unsigned short i=index; i<tui_options.shortcuts_n; i++){
+		tui_options.shortcuts[i] = tui_options.shortcuts[i+1];
+	}
+	tui_options.shortcuts = realloc(tui_options.shortcuts, sizeof(struct shortcut)*tui_options.shortcuts_n);
 }
 
 void options_tui(){
@@ -73,11 +84,7 @@ void options_tui(){
 				break;
 			case 'd':
 				if(ui_index>=OPTIONS_TUI_MIN_ELEMENTS){
-					tui_options.shortcuts_n--;
-					for(unsigned short i=ui_index-OPTIONS_TUI_MIN_ELEMENTS; i<tui_options.shortcuts_n; i++){
-						tui_options.shortcuts[i] = tui_options.shortcuts[i+1];
-					}
-					tui_options.shortcuts = realloc(tui_options.shortcuts, sizeof(struct shortcut)*tui_options.shortcuts_n);
+					delete_shortcut(ui_index-OPTIONS_TUI_MIN_ELEMENTS);
 					if(tui_options.shortcuts_n==0 || ui_index==OPTIONS_TUI_MIN_ELEMENTS+tui_options.shortcuts_n) ui_index--;
 				}
 				break;
@@ -109,6 +116,7 @@ void options_tui(){
 						free(limit_reader_result);
 						break;
 					case 2:
+						log_debug("Adding new shortcut\n");
 						struct shortcut shortcut = {};
 						bool ask_for_key_repeat = false;
 						ask_for_key:
@@ -116,11 +124,13 @@ void options_tui(){
 						if(shortcut.key=='q') break;
 						if(key_in_use(shortcut.key)){
 							ask_for_key_repeat = true;
+							log_debug("Got key '%c', already in use. Asking again:\n", shortcut.key);
 							goto ask_for_key;
 						}
 						char* shortcut_options[] = {"Tag file", "Untag file", "Tag/untag file", "Increase custom column value", "Decrease custom column value", "Reset custom column value", "External shell command on file", NULL};
 						short choice = chooser(plane, shortcut_options, -1);
 						if(choice==-1) break;
+						log_debug("User chose action: '%s'\n", shortcut_options[choice]);
 						shortcut.type = choice;
 						switch(shortcut.type){
 							case SHORTCUT_TYPE_TAG_FILE:
@@ -132,6 +142,7 @@ void options_tui(){
 							case SHORTCUT_TYPE_CUSTOM_COLUMN_DECREASE:
 							case SHORTCUT_TYPE_CUSTOM_COLUMN_RESET:
 								shortcut.id = choose_custom_column(plane);
+								log_debug("User chose custom column %d with name '%s'\n", (int)shortcut.id, custom_columns[shortcut.id].name);
 								break;
 							case SHORTCUT_TYPE_EXTERNAL_COMMAND:
 								shortcut.string = ask_for_command(plane, screen_cols);

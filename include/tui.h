@@ -26,6 +26,7 @@ struct tui_options{
 void options_tui();
 short save_tui_options(char* name);
 void load_tui_options(char* name);
+void delete_shortcut(unsigned short index);
 
 extern struct notcurses* nc;
 extern struct tui_options tui_options;

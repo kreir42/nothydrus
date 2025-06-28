@@ -300,7 +300,7 @@ int main(int argc, char** argv){
 				return -1;
 			}
 			confirmation[strcspn(confirmation, "\n")] = 0;
-			if(strcmp(confirmation, "yes") != 0){
+			if(strcmp(confirmation, "yes")!=0 && strcmp(confirmation, "Yes")!=0 && strcmp(confirmation, "YES")!=0 && strcmp(confirmation, "y")!=0 && strcmp(confirmation, "Y")!=0){
 				printf("Aborted.\n");
 				end_program();
 				return 0;

@@ -1,4 +1,5 @@
 #include "nothydrus.h"
+#include "tui.h"
 
 void add_custom_column(char* name, uint_least8_t flags, int lower_limit, int upper_limit){
 	char sql_statement[2000];
@@ -132,5 +133,24 @@ void remove_custom_column(char* name){
 		return;
 	}
 	sqlite3_finalize(statement);
-	printf("Custom column '%s' removed successfully.\n", name);
+	log_debug("Custom column '%s' removed successfully from table.\n", name);
+	load_tui_options(INIT_DIRECTORY"/""tui_options");
+	//modify shortcuts
+	for(unsigned short i=0; i<custom_columns_n; i++){
+		if(strcmp(custom_columns[i].name, name)==0){
+			unsigned int j=0;
+			while(j<tui_options.shortcuts_n){
+				if(tui_options.shortcuts[j].type==SHORTCUT_TYPE_CUSTOM_COLUMN_INCREASE || tui_options.shortcuts[j].type==SHORTCUT_TYPE_CUSTOM_COLUMN_DECREASE || tui_options.shortcuts[j].type==SHORTCUT_TYPE_CUSTOM_COLUMN_RESET){
+					if(tui_options.shortcuts[j].id>i){
+						tui_options.shortcuts[j].id--;
+						j++;
+					}else if(tui_options.shortcuts[j].id==i) delete_shortcut(j);
+					else j++;
+				}else j++;
+			}
+			break;
+		}
+	}
+	save_tui_options(INIT_DIRECTORY"/""tui_options");
+	get_custom_columns();
 }
