@@ -61,7 +61,19 @@ void fullscreen_display(struct search* search){
 								break;
 							case SHORTCUT_TYPE_TAG_UNTAG_FILE:
 								log_debug("Corresponds to SHORTCUT_TYPE_TAG_UNTAG_FILE\n");
-								//TBD
+								get_file_tags(search->output_ids.data[i], &file_tags);
+								bool has_tag = false;
+								for(unsigned short k=0; k<file_tags.used; k++){
+									if(file_tags.data[k] == tui_options.shortcuts[j].id){
+										has_tag = true;
+										break;
+									}
+								}
+								if(has_tag){
+									untag(search->output_ids.data[i], tui_options.shortcuts[j].id);
+								} else {
+									tag(search->output_ids.data[i], tui_options.shortcuts[j].id);
+								}
 								break;
 							case SHORTCUT_TYPE_CUSTOM_COLUMN_INCREASE:{
 								log_debug("Corresponds to SHORTCUT_TYPE_CUSTOM_COLUMN_INCREASE\n");
