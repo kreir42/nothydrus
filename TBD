@@ -12,7 +12,6 @@
 - special custom columns upper and lower limit values for no limits: max and min int64 in constants
 ? transform filepaths coming in from stdin differently?
 - order tags (display mode, search mode?)
-- command to remove custom column
 - recursive options
 - modify file command
 - remove file command
@@ -33,8 +32,7 @@
 - default path filter when launching from non-base path
 ? multiple search tabs
 ? save searches
-- make all keys configurable
 - different shortcut modes
-? support shortcuts with multiple actions
 - implement custom_column NO_LOWER_LIMIT and NO_UPPER_LIMIT options
 - arrow keys being displayed as { and }
+- fix custom_column selector when no custom columns

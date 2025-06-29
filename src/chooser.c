@@ -28,6 +28,7 @@ short chooser(struct ncplane* parent_plane, char** options, short initial_value)
 		switch(c){
 			case 'q':
 			case 'Q':
+			case NCKEY_ESC:
 				option = initial_value;
 				//FALLTHROUGH
 			case NCKEY_ENTER:
@@ -78,6 +79,7 @@ uint_least8_t multiple_chooser(struct ncplane* parent_plane, char** options, uin
 		switch(c){
 			case 'q':
 			case 'Q':
+			case NCKEY_ESC:
 				goto end_label;
 			case NCKEY_ENTER:
 			case ' ':

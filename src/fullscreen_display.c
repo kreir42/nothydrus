@@ -22,10 +22,9 @@ void fullscreen_display(struct search* search){
 	bool quit = false;
 	do{
 		if(c != NCKEY_RESIZE){
-			bool key_found = false;
+			log_debug("Registered key %c\n", c);
 			for(unsigned short j=0; j<tui_options.shortcuts_n; j++){
 				if(c==tui_options.shortcuts[j].key){
-					key_found = true;
 					switch(tui_options.shortcuts[j].type){
 						case SHORTCUT_TYPE_TAG_FILE:
 							log_debug("Corresponds to SHORTCUT_TYPE_TAG_FILE\n");
@@ -104,10 +103,8 @@ void fullscreen_display(struct search* search){
 							quit = true;
 							break;
 					}
-					break;
 				}
 			}
-			if(!key_found) log_debug("Unbound key: %d\n", c);
 		}
 		ncplane_erase(plane);
 		//print file position

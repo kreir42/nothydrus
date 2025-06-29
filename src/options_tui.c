@@ -1,14 +1,7 @@
 #include "nothydrus.h"
 #include "tui.h"
 
-static bool key_in_use(uint32_t key) {
-	for(unsigned short i=0; i<tui_options.shortcuts_n; i++){
-		if(tui_options.shortcuts[i].key == key) return true;
-	}
-	return false;
-}
-
-static uint32_t ask_for_key(struct ncplane* parent_plane, bool repeat){
+static uint32_t ask_for_key(struct ncplane* parent_plane){
 	struct ncplane_options plane_options = {
 		.y = NCALIGN_CENTER, .x = NCALIGN_CENTER,
 		.rows = 3, .cols = 40,
@@ -16,7 +9,6 @@ static uint32_t ask_for_key(struct ncplane* parent_plane, bool repeat){
 	};
 	struct ncplane* plane = ncplane_create(parent_plane, &plane_options);
 	ncplane_putstr_yx(plane, 1, 1, "Press any key, or ESC to cancel:");
-	if(repeat) ncplane_putstr_yx(plane, 2, 1, "Key already in use, try another");
 	ncpile_render(plane);
 	ncpile_rasterize(plane);
 	uint32_t key = notcurses_get(nc, NULL, NULL);
@@ -133,15 +125,8 @@ void options_tui(){
 					case 2:
 						log_debug("Adding new shortcut\n");
 						struct shortcut shortcut = {};
-						bool ask_for_key_repeat = false;
-						ask_for_key:
-						shortcut.key = ask_for_key(plane, ask_for_key_repeat);
+						shortcut.key = ask_for_key(plane);
 						if(shortcut.key==NCKEY_ESC) break;
-						if(key_in_use(shortcut.key)){
-							ask_for_key_repeat = true;
-							log_debug("Got key '%c', already in use. Asking again:\n", shortcut.key);
-							goto ask_for_key;
-						}
 						char* shortcut_options[] = {"Tag file", "Untag file", "Tag/untag file", "Increase custom column value", "Decrease custom column value", "Reset custom column value", "External shell command on file", "Fullscreen: Next file", "Fullscreen: Previous file", "Fullscreen: Tag file", "Fullscreen: Options", "Fullscreen: External command", "Fullscreen: Quit", NULL};
 						short choice = chooser(plane, shortcut_options, -1);
 						if(choice==-1) break;
