@@ -15,7 +15,7 @@ static uint32_t ask_for_key(struct ncplane* parent_plane, bool repeat){
 		.flags = NCPLANE_OPTION_HORALIGNED | NCPLANE_OPTION_VERALIGNED,
 	};
 	struct ncplane* plane = ncplane_create(parent_plane, &plane_options);
-	ncplane_putstr_yx(plane, 1, 1, "Press any key, or q to cancel: ");
+	ncplane_putstr_yx(plane, 1, 1, "Press any key, or ESC to cancel:");
 	if(repeat) ncplane_putstr_yx(plane, 2, 1, "Key already in use, try another");
 	ncpile_render(plane);
 	ncpile_rasterize(plane);
@@ -136,7 +136,7 @@ void options_tui(){
 						bool ask_for_key_repeat = false;
 						ask_for_key:
 						shortcut.key = ask_for_key(plane, ask_for_key_repeat);
-						if(shortcut.key=='q') break;
+						if(shortcut.key==NCKEY_ESC) break;
 						if(key_in_use(shortcut.key)){
 							ask_for_key_repeat = true;
 							log_debug("Got key '%c', already in use. Asking again:\n", shortcut.key);
