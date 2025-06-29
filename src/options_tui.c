@@ -84,8 +84,23 @@ void options_tui(){
 				break;
 			case 'd':
 				if(ui_index>=OPTIONS_TUI_MIN_ELEMENTS){
-					delete_shortcut(ui_index-OPTIONS_TUI_MIN_ELEMENTS);
-					if(tui_options.shortcuts_n==0 || ui_index==OPTIONS_TUI_MIN_ELEMENTS+tui_options.shortcuts_n) ui_index--;
+					unsigned short shortcut_index_to_delete = ui_index-OPTIONS_TUI_MIN_ELEMENTS;
+					if(tui_options.shortcuts[shortcut_index_to_delete].type == SHORTCUT_TYPE_FULLSCREEN_QUIT){
+						//make sure there's always at least one quit shortcut
+						int quit_shortcuts_count = 0;
+						for(unsigned short i=0; i<tui_options.shortcuts_n; i++){
+							if(tui_options.shortcuts[i].type == SHORTCUT_TYPE_FULLSCREEN_QUIT){
+								quit_shortcuts_count++;
+							}
+						}
+						if(quit_shortcuts_count > 1){
+							delete_shortcut(shortcut_index_to_delete);
+							if(tui_options.shortcuts_n==0 || ui_index==OPTIONS_TUI_MIN_ELEMENTS+tui_options.shortcuts_n) ui_index--;
+						}
+					} else {
+						delete_shortcut(shortcut_index_to_delete);
+						if(tui_options.shortcuts_n==0 || ui_index==OPTIONS_TUI_MIN_ELEMENTS+tui_options.shortcuts_n) ui_index--;
+					}
 				}
 				break;
 			case '+':
