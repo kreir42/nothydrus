@@ -127,7 +127,7 @@ void options_tui(){
 							log_debug("Got key '%c', already in use. Asking again:\n", shortcut.key);
 							goto ask_for_key;
 						}
-						char* shortcut_options[] = {"Tag file", "Untag file", "Tag/untag file", "Increase custom column value", "Decrease custom column value", "Reset custom column value", "External shell command on file", NULL};
+						char* shortcut_options[] = {"Tag file", "Untag file", "Tag/untag file", "Increase custom column value", "Decrease custom column value", "Reset custom column value", "External shell command on file", "Fullscreen: Next file", "Fullscreen: Previous file", "Fullscreen: Tag file", "Fullscreen: Options", "Fullscreen: External command", "Fullscreen: Quit", NULL};
 						short choice = chooser(plane, shortcut_options, -1);
 						if(choice==-1) break;
 						log_debug("User chose action: '%s'\n", shortcut_options[choice]);
@@ -144,10 +144,17 @@ void options_tui(){
 								shortcut.id = choose_custom_column(plane);
 								log_debug("User chose custom column %d with name '%s'\n", (int)shortcut.id, custom_columns[shortcut.id].name);
 								break;
-							case SHORTCUT_TYPE_EXTERNAL_COMMAND:
-								shortcut.string = ask_for_command(plane, screen_cols);
-								if(shortcut.string==NULL) shortcut.id = -1;
-								break;
+												case SHORTCUT_TYPE_EXTERNAL_COMMAND:
+						shortcut.string = ask_for_command(plane, screen_cols);
+						if(shortcut.string==NULL) shortcut.id = -1;
+						break;
+					case SHORTCUT_TYPE_FULLSCREEN_NEXT:
+					case SHORTCUT_TYPE_FULLSCREEN_PREV:
+					case SHORTCUT_TYPE_FULLSCREEN_TAG:
+					case SHORTCUT_TYPE_FULLSCREEN_OPTIONS:
+					case SHORTCUT_TYPE_FULLSCREEN_COMMAND:
+					case SHORTCUT_TYPE_FULLSCREEN_QUIT:
+						break;
 						}
 						if(shortcut.id!=-1){
 							tui_options.shortcuts_n++;
@@ -210,10 +217,28 @@ void options_tui(){
 					ncplane_putstr(plane, "Reset value of custom column: ");
 					ncplane_putstr(plane, custom_columns[tui_options.shortcuts[i].id].name);
 					break;
-				case SHORTCUT_TYPE_EXTERNAL_COMMAND:
-					ncplane_putstr(plane, "External command: ");
-					ncplane_putstr(plane, tui_options.shortcuts[i].string);
-					break;
+									case SHORTCUT_TYPE_EXTERNAL_COMMAND:
+						ncplane_putstr(plane, "External command: ");
+						ncplane_putstr(plane, tui_options.shortcuts[i].string);
+						break;
+					case SHORTCUT_TYPE_FULLSCREEN_NEXT:
+						ncplane_putstr(plane, "Fullscreen: Next file");
+						break;
+					case SHORTCUT_TYPE_FULLSCREEN_PREV:
+						ncplane_putstr(plane, "Fullscreen: Previous file");
+						break;
+					case SHORTCUT_TYPE_FULLSCREEN_TAG:
+						ncplane_putstr(plane, "Fullscreen: Tag file");
+						break;
+					case SHORTCUT_TYPE_FULLSCREEN_OPTIONS:
+						ncplane_putstr(plane, "Fullscreen: Options");
+						break;
+					case SHORTCUT_TYPE_FULLSCREEN_COMMAND:
+						ncplane_putstr(plane, "Fullscreen: External command");
+						break;
+					case SHORTCUT_TYPE_FULLSCREEN_QUIT:
+						ncplane_putstr(plane, "Fullscreen: Quit");
+						break;
 			}
 		}
 		ncpile_render(plane);

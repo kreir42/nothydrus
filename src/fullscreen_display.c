@@ -18,89 +18,96 @@ void fullscreen_display(struct search* search){
 	ncpile_render(plane);
 	ncpile_rasterize(plane);
 	struct id_dynarr file_tags = new_id_dynarr(10);
-	char* tag_name;
 	uint32_t c = NCKEY_RESIZE;
+	bool quit = false;
 	do{
-		switch(c){
-			case NCKEY_RIGHT:
-				i++;
-				if(i>=search->output_ids.used) i=0;
-				reset_display_plane(display_plane);
-				display_file(search->output_ids.data[i], 0, display_plane);
-				break;
-			case NCKEY_LEFT:
-				if(i==0) i = search->output_ids.used-1;
-				else i--;
-				reset_display_plane(display_plane);
-				display_file(search->output_ids.data[i], 0, display_plane);
-				break;
-			case 't':
-				file_tag_tui(search->output_ids.data[i]);
-				break;
-			case 'o':
-				options_tui();
-				break;
-			case ':':
-				ncplane_putchar_yx(plane, screen_rows-1, 0, ':');
-				char* command = input_reader(plane, screen_rows-1, 1, 1, screen_cols-2);
-				external_command_on_file(search->output_ids.data[i], command);
-				free(command);
-				break;
-			default:
-				log_debug("Other input '%c'\n", c);
-				for(unsigned short j=0; j<tui_options.shortcuts_n; j++){
-					if(c==tui_options.shortcuts[j].key){
-						switch(tui_options.shortcuts[j].type){
-							case SHORTCUT_TYPE_TAG_FILE:
-								log_debug("Corresponds to SHORTCUT_TYPE_TAG_FILE\n");
-								tag(search->output_ids.data[i], tui_options.shortcuts[j].id);
-								break;
-							case SHORTCUT_TYPE_UNTAG_FILE:
-								log_debug("Corresponds to SHORTCUT_TYPE_UNTAG_FILE\n");
-								untag(search->output_ids.data[i], tui_options.shortcuts[j].id);
-								break;
-							case SHORTCUT_TYPE_TAG_UNTAG_FILE:
-								log_debug("Corresponds to SHORTCUT_TYPE_TAG_UNTAG_FILE\n");
-								get_file_tags(search->output_ids.data[i], &file_tags);
-								bool has_tag = false;
-								for(unsigned short k=0; k<file_tags.used; k++){
-									if(file_tags.data[k] == tui_options.shortcuts[j].id){
-										has_tag = true;
-										break;
-									}
+		if(c != NCKEY_RESIZE){
+			bool key_found = false;
+			for(unsigned short j=0; j<tui_options.shortcuts_n; j++){
+				if(c==tui_options.shortcuts[j].key){
+					key_found = true;
+					switch(tui_options.shortcuts[j].type){
+						case SHORTCUT_TYPE_TAG_FILE:
+							log_debug("Corresponds to SHORTCUT_TYPE_TAG_FILE\n");
+							tag(search->output_ids.data[i], tui_options.shortcuts[j].id);
+							break;
+						case SHORTCUT_TYPE_UNTAG_FILE:
+							log_debug("Corresponds to SHORTCUT_TYPE_UNTAG_FILE\n");
+							untag(search->output_ids.data[i], tui_options.shortcuts[j].id);
+							break;
+						case SHORTCUT_TYPE_TAG_UNTAG_FILE:{
+							log_debug("Corresponds to SHORTCUT_TYPE_TAG_UNTAG_FILE\n");
+							get_file_tags(search->output_ids.data[i], &file_tags);
+							bool has_tag = false;
+							for(unsigned short k=0; k<file_tags.used; k++){
+								if(file_tags.data[k] == tui_options.shortcuts[j].id){
+									has_tag = true;
+									break;
 								}
-								if(has_tag){
-									untag(search->output_ids.data[i], tui_options.shortcuts[j].id);
-								} else {
-									tag(search->output_ids.data[i], tui_options.shortcuts[j].id);
-								}
-								break;
-							case SHORTCUT_TYPE_CUSTOM_COLUMN_INCREASE:{
-								log_debug("Corresponds to SHORTCUT_TYPE_CUSTOM_COLUMN_INCREASE\n");
-								get_file_columns(search->output_ids.data[i]);
-								int value = sqlite3_column_int(get_file_columns_statement, NON_CUSTOM_FILE_COLUMNS+tui_options.shortcuts[j].id);
-								if(value<custom_columns[tui_options.shortcuts[j].id].upper_limit) value++;
-								set_custom_column_value(search->output_ids.data[i], tui_options.shortcuts[j].id, value);
-								break;}
-							case SHORTCUT_TYPE_CUSTOM_COLUMN_DECREASE:{
-								log_debug("Corresponds to SHORTCUT_TYPE_CUSTOM_COLUMN_DECREASE\n");
-								get_file_columns(search->output_ids.data[i]);
-								int value = sqlite3_column_int(get_file_columns_statement, NON_CUSTOM_FILE_COLUMNS+tui_options.shortcuts[j].id);
-								if(value>custom_columns[tui_options.shortcuts[j].id].lower_limit) value--;
-								set_custom_column_value(search->output_ids.data[i], tui_options.shortcuts[j].id, value);
-								break;}
-							case SHORTCUT_TYPE_CUSTOM_COLUMN_RESET:
-								log_debug("Corresponds to SHORTCUT_TYPE_CUSTOM_COLUMN_RESET\n");
-								reset_custom_column_value(search->output_ids.data[i], tui_options.shortcuts[j].id);
-								break;
-							case SHORTCUT_TYPE_EXTERNAL_COMMAND:
-								log_debug("Corresponds to SHORTCUT_TYPE_EXTERNAL_COMMAND\n");
-								external_command_on_file(search->output_ids.data[i], tui_options.shortcuts[j].string);
-								break;
-						}
+							}
+							if(has_tag) untag(search->output_ids.data[i], tui_options.shortcuts[j].id);
+							else tag(search->output_ids.data[i], tui_options.shortcuts[j].id);
+							break;}
+						case SHORTCUT_TYPE_CUSTOM_COLUMN_INCREASE:{
+							log_debug("Corresponds to SHORTCUT_TYPE_CUSTOM_COLUMN_INCREASE\n");
+							get_file_columns(search->output_ids.data[i]);
+							int value = sqlite3_column_int(get_file_columns_statement, NON_CUSTOM_FILE_COLUMNS+tui_options.shortcuts[j].id);
+							if(value<custom_columns[tui_options.shortcuts[j].id].upper_limit) value++;
+							set_custom_column_value(search->output_ids.data[i], tui_options.shortcuts[j].id, value);
+							break;}
+						case SHORTCUT_TYPE_CUSTOM_COLUMN_DECREASE:{
+							log_debug("Corresponds to SHORTCUT_TYPE_CUSTOM_COLUMN_DECREASE\n");
+							get_file_columns(search->output_ids.data[i]);
+							int value = sqlite3_column_int(get_file_columns_statement, NON_CUSTOM_FILE_COLUMNS+tui_options.shortcuts[j].id);
+							if(value>custom_columns[tui_options.shortcuts[j].id].lower_limit) value--;
+							set_custom_column_value(search->output_ids.data[i], tui_options.shortcuts[j].id, value);
+							break;}
+						case SHORTCUT_TYPE_CUSTOM_COLUMN_RESET:
+							log_debug("Corresponds to SHORTCUT_TYPE_CUSTOM_COLUMN_RESET\n");
+							reset_custom_column_value(search->output_ids.data[i], tui_options.shortcuts[j].id);
+							break;
+						case SHORTCUT_TYPE_EXTERNAL_COMMAND:
+							log_debug("Corresponds to SHORTCUT_TYPE_EXTERNAL_COMMAND\n");
+							external_command_on_file(search->output_ids.data[i], tui_options.shortcuts[j].string);
+							break;
+						case SHORTCUT_TYPE_FULLSCREEN_NEXT:
+							log_debug("Corresponds to SHORTCUT_TYPE_FULLSCREEN_NEXT\n");
+							i++;
+							if(i>=search->output_ids.used) i=0;
+							reset_display_plane(display_plane);
+							display_file(search->output_ids.data[i], 0, display_plane);
+							break;
+						case SHORTCUT_TYPE_FULLSCREEN_PREV:
+							log_debug("Corresponds to SHORTCUT_TYPE_FULLSCREEN_PREV\n");
+							if(i==0) i = search->output_ids.used-1;
+							else i--;
+							reset_display_plane(display_plane);
+							display_file(search->output_ids.data[i], 0, display_plane);
+							break;
+						case SHORTCUT_TYPE_FULLSCREEN_TAG:
+							log_debug("Corresponds to SHORTCUT_TYPE_FULLSCREEN_TAG\n");
+							file_tag_tui(search->output_ids.data[i]);
+							break;
+						case SHORTCUT_TYPE_FULLSCREEN_OPTIONS:
+							log_debug("Corresponds to SHORTCUT_TYPE_FULLSCREEN_OPTIONS\n");
+							options_tui();
+							break;
+						case SHORTCUT_TYPE_FULLSCREEN_COMMAND:{
+							log_debug("Corresponds to SHORTCUT_TYPE_FULLSCREEN_COMMAND\n");
+							ncplane_putchar_yx(plane, screen_rows-1, 0, ':');
+							char* command = input_reader(plane, screen_rows-1, 1, 1, screen_cols-2);
+							external_command_on_file(search->output_ids.data[i], command);
+							free(command);
+							break;}
+						case SHORTCUT_TYPE_FULLSCREEN_QUIT:
+							log_debug("Corresponds to SHORTCUT_TYPE_FULLSCREEN_QUIT\n");
+							quit = true;
+							break;
 					}
+					break;
 				}
-				break;
+			}
+			if(!key_found) log_debug("Unbound key: %d\n", c);
 		}
 		ncplane_erase(plane);
 		//print file position
@@ -122,7 +129,7 @@ void fullscreen_display(struct search* search){
 		//print file tags
 		get_file_tags(search->output_ids.data[i], &file_tags);
 		for(unsigned short j=0; j<file_tags.used; j++){
-			tag_name = tag_name_from_id(file_tags.data[j]);
+			char* tag_name = tag_name_from_id(file_tags.data[j]);
 			ncplane_putstr_yx(plane, 1+j, 0, tag_name);
 		}
 		//print file custom columns
@@ -133,7 +140,8 @@ void fullscreen_display(struct search* search){
 		}
 		ncpile_render(plane);
 		ncpile_rasterize(plane);
-	}while((c=notcurses_get(nc, NULL, NULL))!='q');
+	}while(!quit && (c=notcurses_get(nc, NULL, NULL))!=0);
+	log_debug("Exiting fullscreen_display mode\n");
 	free(file_tags.data);
 	reset_display_plane(display_plane);
 	ncpile_render(plane);		//to clear the screen TBD? way to do this without another render, rasterize?

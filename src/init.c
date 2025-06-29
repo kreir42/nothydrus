@@ -1,4 +1,5 @@
 #include "nothydrus.h"
+#include "tui.h"
 
 void init(){
 	if(mkdir(INIT_DIRECTORY, DEFAULT_DIRECTORY_MODE)){
@@ -10,7 +11,23 @@ void init(){
 		fprintf(stderr, "Error creating main database: %s\n", sqlite3_errmsg(main_db));
 		return;
 	}
-	//TBD: configs, other files, etc
+
+	//add default config file
+	struct tui_options default_tui_options = {
+		.search_order_by = none,
+		.search_descending = 0,
+		.search_limit = 0,
+		.shortcuts_n = 6,
+		.shortcuts = malloc(sizeof(struct shortcut)*6)
+	};
+	default_tui_options.shortcuts[0] = (struct shortcut){.key = NCKEY_RIGHT, .type = SHORTCUT_TYPE_FULLSCREEN_NEXT};
+	default_tui_options.shortcuts[1] = (struct shortcut){.key = NCKEY_LEFT, .type = SHORTCUT_TYPE_FULLSCREEN_PREV};
+	default_tui_options.shortcuts[2] = (struct shortcut){.key = 't', .type = SHORTCUT_TYPE_FULLSCREEN_TAG};
+	default_tui_options.shortcuts[3] = (struct shortcut){.key = 'o', .type = SHORTCUT_TYPE_FULLSCREEN_OPTIONS};
+	default_tui_options.shortcuts[4] = (struct shortcut){.key = ':', .type = SHORTCUT_TYPE_FULLSCREEN_COMMAND};
+	default_tui_options.shortcuts[5] = (struct shortcut){.key = 'q', .type = SHORTCUT_TYPE_FULLSCREEN_QUIT};
+	tui_options = default_tui_options;
+	save_tui_options("tui_options");
 	chdir("..");
 
 	char* sqlite3_error_message = NULL;
@@ -51,6 +68,5 @@ void init(){
 		fprintf(stderr, "Error when creating tables and indexes:%s\n", sqlite3_error_message);
 		sqlite3_free(sqlite3_error_message);
 	}
-	prepare_add_custom_column();
 	end_program();
 }
