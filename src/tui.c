@@ -399,6 +399,7 @@ void start_tui(int_least8_t flags, void* data){
 						free(search->filepath);
 						search->filepath = NULL;
 						search->filepath = input_reader(search_plane, 1+ui_index, 13, 1, screen_cols-15);
+						if(!strcmp(search->filepath, "")){free(search->filepath);search->filepath = NULL;}
 						search_not_run = 1;
 						break;
 					case 6:	//add tag
