@@ -17,15 +17,19 @@ void init(){
 		.search_order_by = none,
 		.search_descending = 0,
 		.search_limit = 0,
-		.shortcuts_n = 6,
-		.shortcuts = malloc(sizeof(struct shortcut)*6)
+		.modes_n = 0,
+		.modes = malloc(sizeof(char*)),
+		.shortcuts_n = 7,
+		.shortcuts = malloc(sizeof(struct shortcut)*7)
 	};
-	default_tui_options.shortcuts[0] = (struct shortcut){.key = NCKEY_RIGHT, .type = SHORTCUT_TYPE_FULLSCREEN_NEXT};
-	default_tui_options.shortcuts[1] = (struct shortcut){.key = NCKEY_LEFT, .type = SHORTCUT_TYPE_FULLSCREEN_PREV};
-	default_tui_options.shortcuts[2] = (struct shortcut){.key = 't', .type = SHORTCUT_TYPE_FULLSCREEN_TAG};
-	default_tui_options.shortcuts[3] = (struct shortcut){.key = 'o', .type = SHORTCUT_TYPE_FULLSCREEN_OPTIONS};
-	default_tui_options.shortcuts[4] = (struct shortcut){.key = ':', .type = SHORTCUT_TYPE_FULLSCREEN_COMMAND};
-	default_tui_options.shortcuts[5] = (struct shortcut){.key = 'q', .type = SHORTCUT_TYPE_FULLSCREEN_QUIT};
+	default_tui_options.modes[0] = NULL;
+	default_tui_options.shortcuts[0] = (struct shortcut){.key = NCKEY_RIGHT, .type = SHORTCUT_TYPE_FULLSCREEN_NEXT, .mode = 0};
+	default_tui_options.shortcuts[1] = (struct shortcut){.key = NCKEY_LEFT, .type = SHORTCUT_TYPE_FULLSCREEN_PREV, .mode = 0};
+	default_tui_options.shortcuts[2] = (struct shortcut){.key = 't', .type = SHORTCUT_TYPE_FULLSCREEN_TAG, .mode = 0};
+	default_tui_options.shortcuts[3] = (struct shortcut){.key = 'o', .type = SHORTCUT_TYPE_FULLSCREEN_OPTIONS, .mode = 0};
+	default_tui_options.shortcuts[4] = (struct shortcut){.key = ':', .type = SHORTCUT_TYPE_FULLSCREEN_COMMAND, .mode = 0};
+	default_tui_options.shortcuts[5] = (struct shortcut){.key = 'q', .type = SHORTCUT_TYPE_FULLSCREEN_QUIT, .mode = 0};
+	default_tui_options.shortcuts[6] = (struct shortcut){.key = 'M', .type = SHORTCUT_TYPE_FULLSCREEN_CHOOSE_MODE, .mode = 0};
 	tui_options = default_tui_options;
 	save_tui_options("tui_options");
 	chdir("..");

@@ -8,10 +8,14 @@ struct tui_options{
 	char search_descending;
 	unsigned long search_limit;
 
+	unsigned short modes_n; //other than the default mode
+	char** modes; //NULL-terminated array
+
 	unsigned short shortcuts_n;
 	struct shortcut{
 		uint32_t key;
 		unsigned char type;
+		unsigned short mode;
 		sqlite3_int64 id;
 		char* string;
 	}* shortcuts;
@@ -29,6 +33,7 @@ struct tui_options{
 #define SHORTCUT_TYPE_FULLSCREEN_OPTIONS 10
 #define SHORTCUT_TYPE_FULLSCREEN_COMMAND 11
 #define SHORTCUT_TYPE_FULLSCREEN_QUIT 12
+#define SHORTCUT_TYPE_FULLSCREEN_CHOOSE_MODE 13
 void options_tui();
 short save_tui_options(char* name);
 void load_tui_options(char* name);

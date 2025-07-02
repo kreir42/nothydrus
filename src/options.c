@@ -2,6 +2,7 @@
 #include "tui.h"
 
 short save_tui_options(char* name){
+	log_debug("Saving tui options\n");
 	FILE* fp = fopen(name, "w");
 	if(fp==NULL){
 		fprintf(stderr, "save_tui_options:'%s' file could not be opened.\n", name);
@@ -30,11 +31,18 @@ short save_tui_options(char* name){
 	fprintf(fp, "search_descending = %s\n", descending);
 	fprintf(fp, "search_limit = %ld\n", tui_options.search_limit);
 
+	fprintf(fp, "\n\nMODES\n");
+
+	//write modes
+	for(unsigned short i=0; i<tui_options.modes_n; i++){
+		fprintf(fp, "%s\n", tui_options.modes[i]);
+	}
+
 	fprintf(fp, "\n\nSHORTCUTS\n");
 
 	//write shortcuts
 	for(unsigned short i=0; i<tui_options.shortcuts_n; i++){
-		fprintf(fp, "KEY:%ld, TYPE:%d, ID:%lld, STRING:%s\n", (long int)tui_options.shortcuts[i].key, (int)tui_options.shortcuts[i].type, tui_options.shortcuts[i].id, tui_options.shortcuts[i].string);
+		fprintf(fp, "KEY:%ld, TYPE:%d, MODE:%d, ID:%lld, STRING:%s\n", (long int)tui_options.shortcuts[i].key, (int)tui_options.shortcuts[i].type, (int)tui_options.shortcuts[i].mode, tui_options.shortcuts[i].id, tui_options.shortcuts[i].string);
 	}
 
 	fclose(fp);
@@ -64,7 +72,9 @@ static void remove_trailing_spaces(char* str){
 }
 
 void load_tui_options(char* name){
+	log_debug("Loading tui options\n");
 	if(access(name, F_OK)!=0){
+		log_debug("Tried to load_tui_options but file doesn't exist\n");
 		//file doesn't exist
 		save_tui_options(name);
 	}
@@ -105,17 +115,37 @@ void load_tui_options(char* name){
 	skip_whitespace(&current);
 	tui_options.search_limit = strtol(current, NULL, 10);
 	current=str;
+
+	//modes
+	fgets(str, 1000, fp); //empty line
+	fgets(str, 1000, fp); //empty line
+	fgets(str, 1000, fp); //MODES
+	unsigned short modes_n = 0;
+	char** modes = malloc(200*sizeof(char*)); //TBD? remove max modes limit by having a proper dynarr?
+	while(fgets(str, 1000, fp)!=NULL && str[0]!='\n'){
+		remove_trailing_spaces(str);
+		modes[modes_n] = malloc(sizeof(char)*strlen(str));
+		strcpy(modes[modes_n], str);
+		modes_n++;
+	}
+	modes = realloc(modes, sizeof(char*)*(modes_n+1));
+	modes[modes_n] = NULL;
+	tui_options.modes_n = modes_n;
+	tui_options.modes = modes;
+
 	//shortcuts
 	unsigned short shortcuts_n = 0;
-	struct shortcut* shortcuts = malloc(200*sizeof(struct shortcut));	//TBD? remove max shortcuts limit by having a proper dynarr?
+	struct shortcut* shortcuts = malloc(200*sizeof(struct shortcut)); //TBD? remove max shortcuts limit by having a proper dynarr?
 	while(fgets(str, 1000, fp)!=NULL){
 		long int key;
 		int type;
+		int mode;
 		sqlite3_int64 id;
 		char string[2000]; string[0]='\0';
-		if(sscanf(str, "KEY:%ld, TYPE:%d, ID:%lld, STRING:%s", &key, &type, &id, string)==4){
+		if(sscanf(str, "KEY:%ld, TYPE:%d, MODE:%d, ID:%lld, STRING:%s", &key, &type, &mode, &id, string)==5){
 			shortcuts[shortcuts_n].key = key;
 			shortcuts[shortcuts_n].type = type;
+			shortcuts[shortcuts_n].mode = mode;
 			shortcuts[shortcuts_n].id = id;
 			shortcuts[shortcuts_n].string = malloc(sizeof(char)*strlen(string));
 			strcpy(shortcuts[shortcuts_n].string, string);

@@ -32,7 +32,5 @@
 - default path filter when launching from non-base path
 ? multiple search tabs
 ? save searches
-- different shortcut modes
 - implement custom_column NO_LOWER_LIMIT and NO_UPPER_LIMIT options
 - arrow keys being displayed as { and }
-- fix custom_column selector when no custom columns

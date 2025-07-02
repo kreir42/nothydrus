@@ -20,11 +20,15 @@ void fullscreen_display(struct search* search){
 	struct id_dynarr file_tags = new_id_dynarr(10);
 	uint32_t c = NCKEY_RESIZE;
 	bool quit = false;
+
+	bool* active_modes = malloc(sizeof(bool)*(tui_options.modes_n));
+	for(unsigned short j=0; j<tui_options.modes_n; j++) active_modes[j] = false;
+
 	do{
 		if(c != NCKEY_RESIZE){
 			log_debug("Registered key %c\n", c);
 			for(unsigned short j=0; j<tui_options.shortcuts_n; j++){
-				if(c==tui_options.shortcuts[j].key){
+				if(c==tui_options.shortcuts[j].key && (tui_options.shortcuts[j].mode==0 || active_modes[tui_options.shortcuts[j].mode-1])){
 					switch(tui_options.shortcuts[j].type){
 						case SHORTCUT_TYPE_TAG_FILE:
 							log_debug("Corresponds to SHORTCUT_TYPE_TAG_FILE\n");
@@ -102,6 +106,20 @@ void fullscreen_display(struct search* search){
 							log_debug("Corresponds to SHORTCUT_TYPE_FULLSCREEN_QUIT\n");
 							quit = true;
 							break;
+						case SHORTCUT_TYPE_FULLSCREEN_CHOOSE_MODE:{
+							log_debug("Corresponds to SHORTCUT_TYPE_FULLSCREEN_CHOOSE_MODE\n");
+							if(tui_options.modes_n>0){
+								uint_least8_t initial_value = 0;
+								for(unsigned short k=0; k<tui_options.modes_n; k++){
+									if(active_modes[k]) initial_value |= (1<<k);
+								}
+								uint_least8_t result = multiple_chooser(plane, tui_options.modes, initial_value);
+								for(unsigned short k=0; k<tui_options.modes_n-1; k++){
+									if(result & (1<<k)) active_modes[k] = true;
+									else active_modes[k] = false;
+								}
+							}
+							break;}
 					}
 				}
 			}
@@ -139,6 +157,7 @@ void fullscreen_display(struct search* search){
 		ncpile_rasterize(plane);
 	}while(!quit && (c=notcurses_get(nc, NULL, NULL))!=0);
 	log_debug("Exiting fullscreen_display mode\n");
+	free(active_modes);
 	free(file_tags.data);
 	reset_display_plane(display_plane);
 	ncpile_render(plane);		//to clear the screen TBD? way to do this without another render, rasterize?
