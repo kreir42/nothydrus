@@ -75,6 +75,7 @@ void end_program();
 void init();
 void add_files(char** paths, unsigned int paths_n, int_least8_t flags);
 #define ADD_FILES_STDIN	(1<<0)
+#define ADD_FILES_RECURSIVE	(1<<1)
 short check_file(sqlite3_int64 id, int_least8_t flags);
 short check_filepath(char* filepath, int_least8_t flags);
 void check_files(int_least8_t flags, int argc, char** argv);

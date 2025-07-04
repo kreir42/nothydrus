@@ -12,7 +12,6 @@
 - special custom columns upper and lower limit values for no limits: max and min int64 in constants
 ? transform filepaths coming in from stdin differently?
 - order tags (display mode, search mode?)
-- recursive options
 - modify file command
 - remove file command
 - fix gifs being drawn on top of previous image

@@ -1,5 +1,5 @@
+#include <dirent.h>
 #include "hash.h"
-
 #include "nothydrus.h"
 
 static struct {
@@ -78,13 +78,65 @@ static short add_file(char* filepath, int_least8_t flags){
 	return 0;
 }
 
+static void add_directory(char* dir_path, int_least8_t flags, unsigned int* added, unsigned int* failed){
+	DIR* dir = opendir(dir_path);
+	if(dir == NULL){
+		perror("Error opening directory");
+		(*failed)++;
+		return;
+	}
+
+	struct dirent* entry;
+	while((entry = readdir(dir)) != NULL){
+		if(strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) continue;
+
+		char* new_path = malloc(strlen(dir_path) + strlen(entry->d_name) + 2);
+		sprintf(new_path, "%s/%s", dir_path, entry->d_name);
+
+		struct stat st;
+		if(stat(new_path, &st)){
+			perror("Error in add_directory stat");
+			(*failed)++;
+			free(new_path);
+			continue;
+		}
+
+		if(S_ISDIR(st.st_mode)){
+			add_directory(new_path, flags, added, failed);
+		} else if(S_ISREG(st.st_mode)){
+			if(add_file(new_path, flags)) (*failed)++;
+			else (*added)++;
+		}
+		free(new_path);
+	}
+	closedir(dir);
+}
+
 void add_files(char** paths, unsigned int paths_n, int_least8_t flags){
 	unsigned int added=0, failed=0;
 	for(unsigned int i=0; i<paths_n; i++){
 		char* path = transform_input_path(paths[i]);
 		if(path==NULL){failed++; continue;}
-		else if(add_file(path, flags)) failed++;
-		else added++;
+
+		struct stat st;
+		if(stat(path, &st)){
+			perror("Error in add_files stat");
+			failed++;
+			free(path);
+			continue;
+		}
+
+		if(S_ISDIR(st.st_mode)){
+			if(flags & ADD_FILES_RECURSIVE){
+				add_directory(path, flags, &added, &failed);
+			} else {
+				fprintf(stderr, "Error: %s is a directory, but --recursive flag not specified\n", path);
+				failed++;
+			}
+		} else if(S_ISREG(st.st_mode)){
+			if(add_file(path, flags)) failed++;
+			else added++;
+		}
 		free(path);
 	}
 	if(flags & ADD_FILES_STDIN){
@@ -96,8 +148,26 @@ void add_files(char** paths, unsigned int paths_n, int_least8_t flags){
 			line[strlen(line)-1] = '\0';	//remove newline
 			char* path = transform_input_path(line);
 			if(path==NULL){failed++; continue;}
-			else if(add_file(path, flags)) failed++;
-			else added++;
+
+			struct stat st;
+			if(stat(path, &st)){
+				perror("Error in add_files stat");
+				failed++;
+				free(path);
+				continue;
+			}
+
+			if(S_ISDIR(st.st_mode)){
+				if(flags & ADD_FILES_RECURSIVE){
+					add_directory(path, flags, &added, &failed);
+				} else {
+					fprintf(stderr, "Error: %s is a directory, but --recursive flag not specified\n", path);
+					failed++;
+				}
+			} else if(S_ISREG(st.st_mode)){
+				if(add_file(path, flags)) failed++;
+				else added++;
+			}
 			counter++;
 			free(path);
 		}

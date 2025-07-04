@@ -11,9 +11,10 @@ int main(int argc, char** argv){
 			puts("Commands:");
 			puts("     init [target directory]");
 			puts("          Creates a database in \"target directory\"/"INIT_DIRECTORY", or in "INIT_DIRECTORY" at the current path if a target directory is not given.");
-			puts("     add [target file path(s)]");
+			puts("     add [-R/--recursive] [target file path(s)]");
 			puts("          Adds the target files to the database, if not already there.");
 			puts("          Paths can be piped through stdin.");
+			puts("          --recursive or -R will recursively traverse directories and add all files inside.");
 			puts("     sql-search [--filepath/--id] [sql search]");
 			puts("          Returns the result of an SQL query. The query must return a single integer column.");
 			puts("          By default, the result is assumed to be file ids, and converted to filepaths. This can be specified with the --filepath command option.");
@@ -62,9 +63,18 @@ int main(int argc, char** argv){
 		}else if(!strcmp(argv[i], "add")){
 			if(set_main_path()){ fprintf(stderr, "Error: could not locate main path\n"); return 1;}
 			start_program(PROGRAM_START_ADD_FILES);
+	i++;
+	int_least8_t add_flags = 0;
+	while(i < argc && argv[i][0] == '-'){
+		if(!strcmp(argv[i], "--recursive") || !strcmp(argv[i], "-R")){
+			add_flags |= ADD_FILES_RECURSIVE;
 			i++;
-			int_least8_t add_flags = 0;
-			if(!isatty(fileno(stdin))) add_flags |= ADD_FILES_STDIN;
+		}else{
+			fprintf(stderr, "Error: unrecognized add option %s\n", argv[i]);
+			return -1;
+		}
+	}
+	if(!isatty(fileno(stdin))) add_flags |= ADD_FILES_STDIN;
 			if(i==argc){
 				if(!add_flags&ADD_FILES_STDIN){
 					fprintf(stderr, "Error: add requires one or more paths, passed as arguments and/or piped through stdin\n");
