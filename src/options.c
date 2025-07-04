@@ -42,7 +42,7 @@ short save_tui_options(char* name){
 
 	//write shortcuts
 	for(unsigned short i=0; i<tui_options.shortcuts_n; i++){
-		fprintf(fp, "KEY:%ld, TYPE:%d, MODE:%d, ID:%lld, STRING:%s\n", (long int)tui_options.shortcuts[i].key, (int)tui_options.shortcuts[i].type, (int)tui_options.shortcuts[i].mode, tui_options.shortcuts[i].id, tui_options.shortcuts[i].string);
+		fprintf(fp, "KEY:%ld, TYPE:%d, MODE:%d, ID:%lld, VALUE:%d, STRING:%s\n", (long int)tui_options.shortcuts[i].key, (int)tui_options.shortcuts[i].type, (int)tui_options.shortcuts[i].mode, tui_options.shortcuts[i].id, tui_options.shortcuts[i].value, tui_options.shortcuts[i].string);
 	}
 
 	fclose(fp);
@@ -141,12 +141,14 @@ void load_tui_options(char* name){
 		int type;
 		int mode;
 		sqlite3_int64 id;
+		int value;
 		char string[2000]; string[0]='\0';
-		if(sscanf(str, "KEY:%ld, TYPE:%d, MODE:%d, ID:%lld, STRING:%s", &key, &type, &mode, &id, string)==5){
+		if(sscanf(str, "KEY:%ld, TYPE:%d, MODE:%d, ID:%lld, VALUE:%d, STRING:%s", &key, &type, &mode, &id, &value, string)==6){
 			shortcuts[shortcuts_n].key = key;
 			shortcuts[shortcuts_n].type = type;
 			shortcuts[shortcuts_n].mode = mode;
 			shortcuts[shortcuts_n].id = id;
+			shortcuts[shortcuts_n].value = value;
 			shortcuts[shortcuts_n].string = malloc(sizeof(char)*strlen(string));
 			strcpy(shortcuts[shortcuts_n].string, string);
 			shortcuts_n++;

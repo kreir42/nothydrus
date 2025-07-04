@@ -69,6 +69,10 @@ void fullscreen_display(struct search* search){
 							log_debug("Corresponds to SHORTCUT_TYPE_CUSTOM_COLUMN_RESET\n");
 							reset_custom_column_value(search->output_ids.data[i], tui_options.shortcuts[j].id);
 							break;
+						case SHORTCUT_TYPE_CUSTOM_COLUMN_SET:
+							log_debug("Corresponds to SHORTCUT_TYPE_CUSTOM_COLUMN_SET\n");
+							set_custom_column_value(search->output_ids.data[i], tui_options.shortcuts[j].id, tui_options.shortcuts[j].value);
+							break;
 						case SHORTCUT_TYPE_EXTERNAL_COMMAND:
 							log_debug("Corresponds to SHORTCUT_TYPE_EXTERNAL_COMMAND\n");
 							external_command_on_file(search->output_ids.data[i], tui_options.shortcuts[j].string);
