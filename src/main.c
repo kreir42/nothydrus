@@ -11,10 +11,11 @@ int main(int argc, char** argv){
 			puts("Commands:");
 			puts("     init [target directory]");
 			puts("          Creates a database in \"target directory\"/"INIT_DIRECTORY", or in "INIT_DIRECTORY" at the current path if a target directory is not given.");
-			puts("     add [-R/--recursive] [target file path(s)]");
+			puts("     add [-R/--recursive/--follow-directory-symlinks] [target file path(s)]");
 			puts("          Adds the target files to the database, if not already there.");
 			puts("          Paths can be piped through stdin.");
-			puts("          --recursive or -R will recursively traverse directories and add all files inside.");
+			puts("          -R or --recursive will recursively traverse directories and add all files inside.");
+			puts("          --follow-directory-symlinks option will follow symlinks to directories. Please ensure there are no loops if used along -R/--recursive.");
 			puts("     sql-search [--filepath/--id] [sql search]");
 			puts("          Returns the result of an SQL query. The query must return a single integer column.");
 			puts("          By default, the result is assumed to be file ids, and converted to filepaths. This can be specified with the --filepath command option.");
@@ -68,11 +69,13 @@ int main(int argc, char** argv){
 	while(i < argc && argv[i][0] == '-'){
 		if(!strcmp(argv[i], "--recursive") || !strcmp(argv[i], "-R")){
 			add_flags |= ADD_FILES_RECURSIVE;
-			i++;
+		}else if(!strcmp(argv[i], "--follow-directory-symlinks")){
+			add_flags |= ADD_FILES_FOLLOW_DIR_SYMLINKS;
 		}else{
 			fprintf(stderr, "Error: unrecognized add option %s\n", argv[i]);
 			return -1;
 		}
+		i++;
 	}
 	if(!isatty(fileno(stdin))) add_flags |= ADD_FILES_STDIN;
 			if(i==argc){

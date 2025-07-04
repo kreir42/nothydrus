@@ -89,13 +89,12 @@ static void add_directory(char* dir_path, int_least8_t flags, unsigned int* adde
 	struct dirent* entry;
 	while((entry = readdir(dir)) != NULL){
 		if(strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) continue;
-
 		char* new_path = malloc(strlen(dir_path) + strlen(entry->d_name) + 2);
 		sprintf(new_path, "%s/%s", dir_path, entry->d_name);
 
 		struct stat st;
-		if(stat(new_path, &st)){
-			perror("Error in add_directory stat");
+		if(lstat(new_path, &st)){
+			perror("Error in add_directory lstat");
 			(*failed)++;
 			free(new_path);
 			continue;
@@ -103,9 +102,24 @@ static void add_directory(char* dir_path, int_least8_t flags, unsigned int* adde
 
 		if(S_ISDIR(st.st_mode)){
 			add_directory(new_path, flags, added, failed);
-		} else if(S_ISREG(st.st_mode)){
+		}else if(S_ISREG(st.st_mode)){
 			if(add_file(new_path, flags)) (*failed)++;
 			else (*added)++;
+		}else if(S_ISLNK(st.st_mode)){
+			struct stat link_st;
+			if(stat(new_path, &link_st)){
+				perror("Error statting symlink target");
+				(*failed)++;
+			}else{
+				if(S_ISDIR(link_st.st_mode)){
+					if(flags & ADD_FILES_FOLLOW_DIR_SYMLINKS){
+						add_directory(new_path, flags, added, failed);
+					}
+				}else if(S_ISREG(link_st.st_mode)){
+					if(add_file(new_path, flags)) (*failed)++;
+					else (*added)++;
+				}
+			}
 		}
 		free(new_path);
 	}
@@ -125,17 +139,32 @@ void add_files(char** paths, unsigned int paths_n, int_least8_t flags){
 			free(path);
 			continue;
 		}
-
+		
 		if(S_ISDIR(st.st_mode)){
 			if(flags & ADD_FILES_RECURSIVE){
 				add_directory(path, flags, &added, &failed);
-			} else {
+			}else{
 				fprintf(stderr, "Error: %s is a directory, but --recursive flag not specified\n", path);
 				failed++;
 			}
-		} else if(S_ISREG(st.st_mode)){
+		}else if(S_ISREG(st.st_mode)){
 			if(add_file(path, flags)) failed++;
 			else added++;
+		}else if(S_ISLNK(st.st_mode)){
+			struct stat link_st;
+			if(stat(path, &link_st)){
+				perror("Error statting symlink target");
+				failed++;
+			}else{
+				if(S_ISDIR(link_st.st_mode)){
+					if(flags & ADD_FILES_FOLLOW_DIR_SYMLINKS){
+						add_directory(path, flags, &added, &failed);
+					}
+				}else if(S_ISREG(link_st.st_mode)){
+					if(add_file(path, flags)) failed++;
+					else added++;
+				}
+			}
 		}
 		free(path);
 	}
