@@ -49,10 +49,16 @@ char* input_reader(struct ncplane* parent_plane, int y, int x, int h, int w){
 	struct ncplane* reader_plane = ncreader_plane(reader);
 	struct ncinput reader_input;
 	ncplane_erase_region(parent_plane, y, x, h, w);	//TBD? get initial value from here?
+	uint32_t c;
 	do{
 		ncpile_render(reader_plane);
 		ncpile_rasterize(reader_plane);
-		if(notcurses_get(nc, NULL, &reader_input)==NCKEY_ENTER) break;
+		c = notcurses_get(nc, NULL, &reader_input);
+		if(c==NCKEY_ENTER) break;
+		if(c==NCKEY_ESC){
+			ncreader_destroy(reader, NULL);
+			return NULL;
+		}
 		ncreader_offer_input(reader, &reader_input);
 	}while(1);
 	char* reader_contents;
@@ -138,7 +144,7 @@ static void add_tag_to_search_tui(){
 					if(ui_index==0){
 						if(tag_search!=NULL) free(tag_search);
 						tag_search = input_reader(plane, 0, 2, 1, plane_cols);
-						search_tags(&search_results, tag_search);
+						if(tag_search != NULL) search_tags(&search_results, tag_search);
 						ncplane_putstr_yx(plane, 0, 2, tag_search);
 					}else{
 						add_tag_to_search(exclude_flag, search_results.data[ui_index-1]);
@@ -372,22 +378,28 @@ void start_tui(int_least8_t flags, void* data){
 						break;
 					case 1:	//limit
 						reader_result = input_reader(search_plane, 1+ui_index, 23, 1, 12);
-						search->limit = strtol(reader_result, NULL, 10);
-						free(reader_result);
+						if(reader_result != NULL){
+							search->limit = strtol(reader_result, NULL, 10);
+							free(reader_result);
+						}
 						search_not_run = 1;
 						break;
 					case 2:	//min_size
 						reader_result = input_reader(search_plane, 1+ui_index, 13, 1, 18);
-						min_size = strtoull(reader_result, &size_unit_ptr, 10);
-						min_size_unit = size_unit_from_ptr(size_unit_ptr, min_size_unit);
-						free(reader_result);
+						if(reader_result != NULL){
+							min_size = strtoull(reader_result, &size_unit_ptr, 10);
+							min_size_unit = size_unit_from_ptr(size_unit_ptr, min_size_unit);
+							free(reader_result);
+						}
 						search_not_run = 1;
 						break;
 					case 3:	//max_size
 						reader_result = input_reader(search_plane, 1+ui_index, 26, 1, 18);
-						max_size = strtoull(reader_result, &size_unit_ptr, 10);
-						max_size_unit = size_unit_from_ptr(size_unit_ptr, max_size_unit);
-						free(reader_result);
+						if(reader_result != NULL){
+							max_size = strtoull(reader_result, &size_unit_ptr, 10);
+							max_size_unit = size_unit_from_ptr(size_unit_ptr, max_size_unit);
+							free(reader_result);
+						}
 						search_not_run = 1;
 						break;
 					case 4: //filetypes
@@ -399,7 +411,7 @@ void start_tui(int_least8_t flags, void* data){
 						free(search->filepath);
 						search->filepath = NULL;
 						search->filepath = input_reader(search_plane, 1+ui_index, 13, 1, screen_cols-15);
-						if(!strcmp(search->filepath, "")){free(search->filepath);search->filepath = NULL;}
+						if(search->filepath != NULL && !strcmp(search->filepath, "")){free(search->filepath);search->filepath = NULL;}
 						search_not_run = 1;
 						break;
 					case 6:	//add tag
@@ -619,7 +631,7 @@ static sqlite3_int64 add_tag_to_file_tui(struct ncplane* parent_plane){
 					if(tag_search!=NULL) free(tag_search);
 					ncplane_putstr_yx(plane, 0, 2, "Type to search:");
 					tag_search = input_reader(plane, 1, 2, 1, plane_cols-2);
-					search_tags(&search_results, tag_search);
+					if(tag_search != NULL) search_tags(&search_results, tag_search);
 				}else{
 					tag_id = search_results.data[ui_index-1];
 					goto end_flag;

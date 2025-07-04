@@ -34,7 +34,7 @@ sqlite3_int64 search_tag_tui(){
 				if(ui_index==0){
 					if(tag_search!=NULL) free(tag_search);
 					tag_search = input_reader(plane, 0, 15, 1, screen_cols-16);
-					search_tags(&search_results, tag_search);
+					if(tag_search != NULL) search_tags(&search_results, tag_search);
 				}else{
 					tag_id = search_results.data[ui_index-1];
 					goto end_flag;

@@ -35,14 +35,14 @@ static char* ask_for_command(struct ncplane* parent_plane, unsigned short parent
 static char* ask_for_mode_name(struct ncplane* parent_plane){
 	struct ncplane_options plane_options = {
 		.y = NCALIGN_CENTER, .x = NCALIGN_CENTER,
-		.rows = 3, .cols = 34,
+		.rows = 3, .cols = 48,
 		.flags = NCPLANE_OPTION_HORALIGNED | NCPLANE_OPTION_VERALIGNED,
 	};
 	struct ncplane* plane = ncplane_create(parent_plane, &plane_options);
-	ncplane_putstr_yx(plane, 0, 1, "Write new shortcut mode name:");
+	ncplane_putstr_yx(plane, 0, 1, "Write new shortcut mode name (ESC to cancel):");
 	ncpile_render(plane);
 	ncpile_rasterize(plane);
-	char* string = input_reader(plane, 1, 1, 1, 32);
+	char* string = input_reader(plane, 1, 1, 1, 46);
 	ncplane_destroy(plane);
 	return string;
 }
@@ -162,25 +162,27 @@ void options_tui(){
 						}
 						break;
 					case 1:
-						char* limit_reader_result = input_reader(plane, 1, 3+strlen("Default search limit (0 for none): "), 1, screen_cols-(3+strlen("Default search limit (0 for none): ")+2));
-						tui_options.search_limit = strtol(limit_reader_result, NULL, 10);
-						free(limit_reader_result);
-						break;
-					case 2:
-						log_debug("Adding new shortcut mode\n");
-						ask_for_mode_name:
-						char* mode_name = ask_for_mode_name(plane);
-						if(mode_name!=NULL){
-							if(!strcmp(mode_name,"default")){free(mode_name); goto ask_for_mode_name;}
-							for(unsigned short i=0; i<tui_options.modes_n; i++){
-								if(!strcmp(mode_name,tui_options.modes[i])){free(mode_name); goto ask_for_mode_name;}
-							}
-							tui_options.modes_n++;
-							tui_options.modes = realloc(tui_options.modes, sizeof(char*)*(tui_options.modes_n+1));
-							tui_options.modes[tui_options.modes_n-1] = mode_name;
-							tui_options.modes[tui_options.modes_n] = NULL;
-						}
-						break;
+                        char* limit_reader_result = input_reader(plane, 1, 3+strlen("Default search limit (0 for none): "), 1, screen_cols-(3+strlen("Default search limit (0 for none): ")+2));
+                        if(limit_reader_result != NULL){
+                            tui_options.search_limit = strtol(limit_reader_result, NULL, 10);
+                            free(limit_reader_result);
+                        }
+                        break;
+                    case 2:
+                        log_debug("Adding new shortcut mode\n");
+                        ask_for_mode_name:
+                        char* mode_name = ask_for_mode_name(plane);
+                        if(mode_name!=NULL){
+                            if(!strcmp(mode_name,"default")){free(mode_name); goto ask_for_mode_name;}
+                            for(unsigned short i=0; i<tui_options.modes_n; i++){
+                                if(!strcmp(mode_name,tui_options.modes[i])){free(mode_name); goto ask_for_mode_name;}
+                            }
+                            tui_options.modes_n++;
+                            tui_options.modes = realloc(tui_options.modes, sizeof(char*)*(tui_options.modes_n+1));
+                            tui_options.modes[tui_options.modes_n-1] = mode_name;
+                            tui_options.modes[tui_options.modes_n] = NULL;
+                        }
+                        break;
 					default:
 						if(ui_index == OPTIONS_TUI_BEGINNING_ELEMENTS + tui_options.modes_n){
 							log_debug("Adding new shortcut\n");
@@ -222,13 +224,17 @@ void options_tui(){
 																		shortcut.id = choose_custom_column(plane);
 									if(shortcut.type == SHORTCUT_TYPE_CUSTOM_COLUMN_SET){
 										char* value_str = ask_for_custom_column_value(plane);
-										int value = atoi(value_str);
-										if(value >= custom_columns[shortcut.id].lower_limit && value <= custom_columns[shortcut.id].upper_limit){
-											shortcut.value = value;
-										} else {
+										if(value_str == NULL){
 											shortcut.id = -1;
+										} else {
+											int value = atoi(value_str);
+											if(value >= custom_columns[shortcut.id].lower_limit && value <= custom_columns[shortcut.id].upper_limit){
+												shortcut.value = value;
+											} else {
+												shortcut.id = -1;
+											}
+											free(value_str);
 										}
-										free(value_str);
 									}
 									log_debug("User chose custom column %d with name '%s'\n", (int)shortcut.id, custom_columns[shortcut.id].name);
 									break;
