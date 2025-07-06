@@ -22,7 +22,7 @@ build/%.o: src/%.c
 	$(CC) -MMD -I include -I src $(CFLAGS) -c $< -o $@
 
 release: CFLAGS := $(CFLAGS_BASE) -O2 -DNDEBUG
-release: clean $(NAME)
+release: $(NAME)
 
 clean:
 	rm -rd build/

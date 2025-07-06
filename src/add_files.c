@@ -19,6 +19,8 @@ static struct {
 	"wmv", FILETYPE_VIDEO,
 	"mov", FILETYPE_VIDEO,
 	"gif", FILETYPE_VIDEO,
+	"flv", FILETYPE_VIDEO,
+	"m4v", FILETYPE_VIDEO,
 	NULL, FILETYPE_NONE
 };
 
