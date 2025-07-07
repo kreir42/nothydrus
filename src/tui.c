@@ -17,13 +17,11 @@ static void new_search_plane(struct search* search_to_copy){
 		search->descending = tui_options.search_descending;
 		search->limit = tui_options.search_limit;
 		search->filetypes = 0;
-		search->filepath = NULL;
+		search->include_filepaths_n = 0;
+		search->exclude_filepaths_n = 0;
+		search->or_filepath_elements_n = 0;
 	}else{
 		if(search_to_copy->sql[0]!='\0') strcpy(search->sql, search_to_copy->sql);
-		if(search_to_copy->filepath){
-			search->filepath = malloc(sizeof(char)*(1+strlen(search_to_copy->filepath)));
-			strcpy(search->filepath, search_to_copy->sql);
-		}
 		search->output_ids = new_id_dynarr(search_to_copy->output_ids.used);
 		memcpy(search->output_ids.data, search_to_copy->output_ids.data, search_to_copy->output_ids.used*sizeof(sqlite3_int64));
 		search->output_ids.used = search_to_copy->output_ids.used;
@@ -408,11 +406,7 @@ void start_tui(int_least8_t flags, void* data){
 						search_not_run = 1;
 						break;
 					case 5:	//filepath
-						free(search->filepath);
-						search->filepath = NULL;
-						search->filepath = input_reader(search_plane, 1+ui_index, 13, 1, screen_cols-15);
-						if(search->filepath != NULL && !strcmp(search->filepath, "")){free(search->filepath);search->filepath = NULL;}
-						search_not_run = 1;
+						//TBD
 						break;
 					case 6:	//add tag
 						add_tag_to_search_tui();
@@ -546,7 +540,7 @@ void start_tui(int_least8_t flags, void* data){
 		}
 		//filepath
 		ncplane_putstr_yx(search_plane, 6, 3, "Filepath: ");
-		if(search->filepath) ncplane_putstr(search_plane, search->filepath);
+		//if(search->filepath) ncplane_putstr(search_plane, search->filepath);
 		//add new tag button
 		ncplane_putstr_yx(search_plane, MIN_UI_ELEMENTS+1, 3, "Add new tag");
 		//tags

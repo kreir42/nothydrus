@@ -27,7 +27,7 @@ static void add_where_clause(char* sql, char* clause){
 
 short compose_search_sql(struct search* search){
 	strcpy(search->sql, "SELECT id FROM files");
-	if(search->min_size || search->max_size || search->filetypes || search->filepath || search->include_tags_n>0 || search->exclude_tags_n>0 || search->or_tag_elements_n>0){
+	if(search->min_size || search->max_size || search->filetypes || search->include_filepaths_n>0 || search->exclude_filepaths_n>0 || search->or_filepath_elements_n>0 || search->include_tags_n>0 || search->exclude_tags_n>0 || search->or_tag_elements_n>0){
 		strcat(search->sql, " WHERE");
 		char where_clause[WHERE_CLAUSE_SIZE];
 		if(search->min_size){
@@ -42,9 +42,22 @@ short compose_search_sql(struct search* search){
 			sprintf(where_clause, " filetype&%u", search->filetypes);
 			add_where_clause(search->sql, where_clause);
 		}
-		if(search->filepath){
-			sprintf(where_clause, " filepath LIKE '%s'", search->filepath); //TBD? add % around pattern
+		for(unsigned short i=0; i<search->include_filepaths_n; i++){
+			sprintf(where_clause, " filepath LIKE '%%%s%%'", search->include_filepaths[i]);
 			add_where_clause(search->sql, where_clause);
+		}
+		for(unsigned short i=0; i<search->exclude_filepaths_n; i++){
+			sprintf(where_clause, " filepath NOT LIKE '%%%s%%'", search->exclude_filepaths[i]);
+			add_where_clause(search->sql, where_clause);
+		}
+		for(unsigned short i=0; i<search->or_filepath_elements_n; i++){
+			strcat(search->sql, " (");
+			for(unsigned short j=0; j<search->or_filepath_elements[i].or_number; j++){
+				sprintf(where_clause, " filepath LIKE '%%%s%%'", search->or_filepath_elements[i].patterns[j]);
+				add_where_clause(search->sql, where_clause);
+				if(j<search->or_filepath_elements[i].or_number-1) strcat(search->sql, " OR");
+			}
+			strcat(search->sql, ")");
 		}
 		if(search->include_tags_n>0 || search->exclude_tags_n>0 || search->or_tag_elements_n>0){
 			char tag_clause[TAG_CLAUSE_SIZE];

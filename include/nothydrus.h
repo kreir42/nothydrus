@@ -36,6 +36,12 @@ struct or_tag_element{
 	unsigned short or_number;	//number of ids pointed to by ids
 	sqlite3_int64* ids;
 };
+
+struct or_filepath_element{
+	unsigned short or_number;
+	char** patterns;
+};
+
 enum order_by_enum {none, size, random_order};
 struct search{
 	char sql[SEARCH_MAX_SQL_LEN];
@@ -45,7 +51,12 @@ struct search{
 	unsigned long min_size;
 	unsigned long max_size;
 	uint_least8_t filetypes;
-	char* filepath;
+	unsigned short include_filepaths_n;
+	char** include_filepaths;
+	unsigned short exclude_filepaths_n;
+	char** exclude_filepaths;
+	unsigned short or_filepath_elements_n;
+	struct or_filepath_element* or_filepath_elements;
 	unsigned short include_tags_n;
 	sqlite3_int64* include_tags;
 	unsigned short exclude_tags_n;
