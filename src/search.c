@@ -43,17 +43,17 @@ short compose_search_sql(struct search* search){
 			add_where_clause(search->sql, where_clause);
 		}
 		for(unsigned short i=0; i<search->include_filepaths_n; i++){
-			sprintf(where_clause, " filepath LIKE '%%%s%%'", search->include_filepaths[i]);
+			sprintf(where_clause, " filepath LIKE '%s'", search->include_filepaths[i]);
 			add_where_clause(search->sql, where_clause);
 		}
 		for(unsigned short i=0; i<search->exclude_filepaths_n; i++){
-			sprintf(where_clause, " filepath NOT LIKE '%%%s%%'", search->exclude_filepaths[i]);
+			sprintf(where_clause, " filepath NOT LIKE '%s'", search->exclude_filepaths[i]);
 			add_where_clause(search->sql, where_clause);
 		}
 		for(unsigned short i=0; i<search->or_filepath_elements_n; i++){
 			strcat(search->sql, " (");
 			for(unsigned short j=0; j<search->or_filepath_elements[i].or_number; j++){
-				sprintf(where_clause, " filepath LIKE '%%%s%%'", search->or_filepath_elements[i].patterns[j]);
+				sprintf(where_clause, " filepath LIKE '%s'", search->or_filepath_elements[i].patterns[j]);
 				add_where_clause(search->sql, where_clause);
 				if(j<search->or_filepath_elements[i].or_number-1) strcat(search->sql, " OR");
 			}

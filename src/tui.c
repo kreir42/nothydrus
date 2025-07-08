@@ -17,14 +17,25 @@ static void new_search_plane(struct search* search_to_copy){
 		search->descending = tui_options.search_descending;
 		search->limit = tui_options.search_limit;
 		search->filetypes = 0;
+		search->include_filepaths = NULL;
 		search->include_filepaths_n = 0;
+		search->exclude_filepaths = NULL;
 		search->exclude_filepaths_n = 0;
+		search->or_filepath_elements = NULL;
 		search->or_filepath_elements_n = 0;
 	}else{
 		if(search_to_copy->sql[0]!='\0') strcpy(search->sql, search_to_copy->sql);
 		search->output_ids = new_id_dynarr(search_to_copy->output_ids.used);
 		memcpy(search->output_ids.data, search_to_copy->output_ids.data, search_to_copy->output_ids.used*sizeof(sqlite3_int64));
 		search->output_ids.used = search_to_copy->output_ids.used;
+
+		search->include_filepaths_n = search_to_copy->include_filepaths_n;
+		if(search->include_filepaths_n > 0){
+			search->include_filepaths = malloc(sizeof(char*) * search->include_filepaths_n);
+			for(unsigned short i = 0; i < search->include_filepaths_n; i++){
+				search->include_filepaths[i] = strdup(search_to_copy->include_filepaths[i]);
+			}
+		}
 	}
 
 	unsigned int screen_rows, screen_cols;
@@ -278,7 +289,7 @@ void start_tui(int_least8_t flags, void* data){
 		fullscreen_display((struct search*)data);
 		goto end_label;
 	}
-	new_search_plane(NULL);
+	new_search_plane((struct search*)data);
 
 	unsigned int screen_rows, screen_cols;
 	notcurses_stddim_yx(nc, &screen_rows, &screen_cols);

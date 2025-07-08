@@ -364,9 +364,35 @@ int main(int argc, char** argv){
 		}
 	}
 	if(argc==1){	//TBD change to allow config using parameters
-		if(set_main_path()){ fprintf(stderr, "Error: could not locate main path\n"); return 1;}
+		char cwd[PATH_MAX];
+		if(getcwd(cwd, sizeof(cwd)) == NULL){
+			perror("getcwd() error");
+			return 1;
+		}
+		log_debug("Current working directory is \"%s\"\n", cwd);
+		if(set_main_path()){fprintf(stderr, "Error: could not locate main path\n"); return 1;}
+		log_debug("Main path is \"%s\"\n", main_path);
 		start_program(PROGRAM_START_TUI);
-		start_tui(0, NULL);
+		if(strcmp(cwd, main_path)!=0){
+			log_debug("Starting TUI in non-base path\n");
+			struct search search;
+			memset(&search, 0, sizeof(struct search));
+			char* subpath = cwd + strlen(main_path)+1;
+			if(strlen(subpath) > 0){
+				log_debug("Subpath is \"%s\"\n", subpath);
+				search.include_filepaths = malloc(sizeof(char*));
+				search.include_filepaths[0] = malloc(strlen(subpath) + 3);
+				sprintf(search.include_filepaths[0], "%s/%%", subpath);
+				search.include_filepaths_n = 1;
+			}else{
+				log_debug("Subpath has length 0\n");
+			}
+			start_tui(0, &search);
+			free_search(&search);
+		}else{
+			log_debug("Starting TUI in base path\n");
+			start_tui(0, NULL);
+		}
 		end_program();
 	}
 	return 0;
