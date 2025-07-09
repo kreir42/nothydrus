@@ -271,6 +271,27 @@ static unsigned short size_unit_from_ptr(char* ptr, unsigned short init_value){
 	return init_value;
 }
 
+static unsigned int calculate_tags_area_width(){
+	unsigned int result = SEARCH_TUI_MIN_TAGS_AREA_WIDTH-2;
+	for(unsigned short i=0; i<search->or_tag_elements_n; i++){
+		unsigned short or_tag_elements_n = search->or_tag_elements[i].or_number;
+		unsigned int width = (or_tag_elements_n-1)*4;
+		for(unsigned short j=0; j<or_tag_elements_n; j++){
+			width += strlen(tag_name_from_id(search->or_tag_elements[i].ids[j]));
+		}
+		if(width>result) result=width;
+	}
+	for(unsigned short i=0; i<search->exclude_tags_n; i++){
+		unsigned int width = strlen(tag_name_from_id(search->exclude_tags[i]))+1;
+		if(width>result) result=width;
+	}
+	for(unsigned short i=0; i<search->include_tags_n; i++){
+		unsigned int width = strlen(tag_name_from_id(search->include_tags[i]));
+		if(width>result) result=width;
+	}
+	return result+2;
+}
+
 void start_tui(int_least8_t flags, void* data){
 	if(!isatty(fileno(stdin))){
 		freopen("/dev/tty", "r", stdin);	//reopen stdin if there was a pipe
@@ -297,8 +318,15 @@ void start_tui(int_least8_t flags, void* data){
 	unsigned long long min_size=search->min_size/1000000, max_size=search->max_size/1000000;
 	char min_size_unit_str[3], max_size_unit_str[3];
 	char* reader_result, * size_unit_ptr;
-	unsigned short ui_index = 0, tag_elements = 0;
-	unsigned short ui_elements = MIN_UI_ELEMENTS + tag_elements;
+	unsigned short ui_index = 0;
+	unsigned short tag_elements = search->include_tags_n+search->exclude_tags_n+search->or_tag_elements_n;
+	unsigned short filepath_elements = search->include_filepaths_n+search->exclude_filepaths_n+search->or_filepath_elements_n;
+	unsigned short active_ui_element_lines = SEARCH_TUI_BEGINNING_ELEMENTS + 1 + tag_elements;
+	unsigned short ui_element_lines;
+	if(tag_elements>filepath_elements) ui_element_lines = SEARCH_TUI_BEGINNING_ELEMENTS + 1 + tag_elements;
+	else ui_element_lines = SEARCH_TUI_BEGINNING_ELEMENTS + 1 + filepath_elements;
+	unsigned int tags_area_width = calculate_tags_area_width();
+	bool left = true;
 	short export = -1;
 	uint32_t c = NCKEY_RESIZE;
 	do{
@@ -314,18 +342,25 @@ void start_tui(int_least8_t flags, void* data){
 				if(search->output_ids.used>0) fullscreen_display(search);
 				break;
 			case NCKEY_DOWN:
-				if(ui_index<ui_elements-1) ui_index++;
+				if(ui_index<active_ui_element_lines-1) ui_index++;
 				else ui_index = 0;
 				break;
 			case NCKEY_UP:
 				if(ui_index>0) ui_index--;
-				else ui_index = ui_elements-1;
+				else ui_index = active_ui_element_lines-1;
+				break;
+			case NCKEY_LEFT:
+			case NCKEY_RIGHT:
+				left = !left;
+				if(left) active_ui_element_lines=SEARCH_TUI_BEGINNING_ELEMENTS + 1 + tag_elements;
+				else active_ui_element_lines=SEARCH_TUI_BEGINNING_ELEMENTS + 1 + filepath_elements;
+				if(ui_index>=active_ui_element_lines) ui_index = active_ui_element_lines-1;
 				break;
 			case 'g':
 				ui_index = 0;
 				break;
 			case 'G':
-				ui_index = ui_elements-1;
+				ui_index = active_ui_element_lines-1;
 				break;
 			case 't':
 				add_tag_to_search_tui();
@@ -338,37 +373,55 @@ void start_tui(int_least8_t flags, void* data){
 				export = chooser(search_plane, export_options, -1);
 				if(export!=-1) goto end_label; //TBD ask for confirmation
 				break;
-			case 'd':	//delete tag from search list
-				if(ui_index>(MIN_UI_ELEMENTS-1)){
-					unsigned short tag_n = ui_index-MIN_UI_ELEMENTS;
-					if(tag_n<search->include_tags_n){
-						while(tag_n<search->include_tags_n){
-							search->include_tags[tag_n] = search->include_tags[tag_n+1];
-							tag_n++;
-						}
-						search->include_tags_n-=1;
-						search->include_tags = realloc(search->include_tags, sizeof(sqlite3_int64)*search->include_tags_n);
-					}else{
-						tag_n-=search->include_tags_n;
-						if(tag_n<search->exclude_tags_n){
-							while(tag_n<search->exclude_tags_n){
-								search->exclude_tags[tag_n] = search->exclude_tags[tag_n+1];
+			case 'd':	//delete tag or filepath expression from search list
+				if(ui_index>(SEARCH_TUI_BEGINNING_ELEMENTS-1)){
+					if(left){
+						//delete tag
+						unsigned short tag_n = ui_index-SEARCH_TUI_BEGINNING_ELEMENTS;
+						unsigned int tag_element_length;
+						if(tag_n<search->include_tags_n){
+							if(tags_area_width>SEARCH_TUI_MIN_TAGS_AREA_WIDTH) tag_element_length = strlen(tag_name_from_id(search->include_tags[tag_n]));
+							while(tag_n<search->include_tags_n){
+								search->include_tags[tag_n] = search->include_tags[tag_n+1];
 								tag_n++;
 							}
-							search->exclude_tags_n-=1;
-							search->exclude_tags = realloc(search->exclude_tags, sizeof(sqlite3_int64)*search->exclude_tags_n);
+							search->include_tags_n-=1;
+							search->include_tags = realloc(search->include_tags, sizeof(sqlite3_int64)*search->include_tags_n);
 						}else{
-							tag_n-=search->exclude_tags_n;
-							free(search->or_tag_elements[tag_n].ids);
-							while(tag_n<search->or_tag_elements_n){
-								search->or_tag_elements[tag_n] = search->or_tag_elements[tag_n+1];
-								tag_n++;
+							tag_n-=search->include_tags_n;
+							if(tag_n<search->exclude_tags_n){
+								if(tags_area_width>SEARCH_TUI_MIN_TAGS_AREA_WIDTH) tag_element_length = strlen(tag_name_from_id(search->exclude_tags[tag_n]))+1;
+								while(tag_n<search->exclude_tags_n){
+									search->exclude_tags[tag_n] = search->exclude_tags[tag_n+1];
+									tag_n++;
+								}
+								search->exclude_tags_n-=1;
+								search->exclude_tags = realloc(search->exclude_tags, sizeof(sqlite3_int64)*search->exclude_tags_n);
+							}else{
+								tag_n-=search->exclude_tags_n;
+								if(tags_area_width>SEARCH_TUI_MIN_TAGS_AREA_WIDTH){
+									unsigned short or_n = search->or_tag_elements[tag_n].or_number;
+									tag_element_length = (or_n-1)*4;
+									for(unsigned short j=0; j<or_n; j++){
+										tag_element_length += strlen(tag_name_from_id(search->or_tag_elements[tag_n].ids[j]));
+									}
+								}
+								free(search->or_tag_elements[tag_n].ids);
+								unsigned short or_tag_elements_n = search->or_tag_elements_n;
+								while(tag_n<or_tag_elements_n){
+									search->or_tag_elements[tag_n] = search->or_tag_elements[tag_n+1];
+									tag_n++;
+								}
+								search->or_tag_elements_n-=1;
+								search->or_tag_elements = realloc(search->or_tag_elements, sizeof(sqlite3_int64)*search->or_tag_elements_n);
 							}
-							search->or_tag_elements_n-=1;
-							search->or_tag_elements = realloc(search->or_tag_elements, sizeof(sqlite3_int64)*search->or_tag_elements_n);
 						}
+						if(ui_index == active_ui_element_lines-1) ui_index--;
+						if(tags_area_width>SEARCH_TUI_MIN_TAGS_AREA_WIDTH && tag_element_length==tags_area_width-2) tags_area_width = calculate_tags_area_width();
+					}else{
+						//delete filepath expression
+						//TBD
 					}
-					if(ui_index == ui_elements-1) ui_index--;
 				}
 				break;
 			case NCKEY_ENTER:
@@ -416,13 +469,18 @@ void start_tui(int_least8_t flags, void* data){
 						search->filetypes = multiple_chooser(search_plane, filetype_options, search->filetypes);
 						search_not_run = 1;
 						break;
-					case 5:	//filepath
-						//TBD
-						break;
-					case 6:	//add tag
-						add_tag_to_search_tui();
+					case 5:	//add tag or filepath expression to search
+						if(left){
+							//tag
+							add_tag_to_search_tui();
+							tags_area_width = calculate_tags_area_width(); //TBD optimize this, not always necessary to recalculate
+						}else{
+							//filepath expression
+							//TBD
+						}
 						break;
 					default:
+						//TBD modify search element
 						break;
 				}
 				break;
@@ -504,13 +562,27 @@ void start_tui(int_least8_t flags, void* data){
 				break;
 		}
 
+		//calculate number of elements and sizes
 		tag_elements = search->include_tags_n + search->exclude_tags_n + search->or_tag_elements_n;
-		ui_elements = MIN_UI_ELEMENTS + tag_elements;
+		filepath_elements = search->include_filepaths_n + search->exclude_filepaths_n + search->or_filepath_elements_n;
+		if(left){
+			active_ui_element_lines = SEARCH_TUI_BEGINNING_ELEMENTS + 1 + tag_elements;
+		}else{
+			active_ui_element_lines = SEARCH_TUI_BEGINNING_ELEMENTS + 1 + filepath_elements;
+		}
+		if(tag_elements>filepath_elements) ui_element_lines = SEARCH_TUI_BEGINNING_ELEMENTS + 1 + tag_elements;
+		else ui_element_lines = SEARCH_TUI_BEGINNING_ELEMENTS + 1 + filepath_elements;
 		compose_search_sql(search);
 		ncplane_erase(search_plane);
 		//mark current index
-		if(ui_index<MIN_UI_ELEMENTS-1) ncplane_putstr_yx(search_plane, 1+ui_index, 0, "->");
-		else ncplane_putstr_yx(search_plane, 2+ui_index, 0, "->");
+		if(ui_index<SEARCH_TUI_BEGINNING_ELEMENTS) ncplane_putstr_yx(search_plane, 1+ui_index, 0, "->");
+		else if(ui_index==SEARCH_TUI_BEGINNING_ELEMENTS){
+			if(left) ncplane_putstr_yx(search_plane, SEARCH_TUI_BEGINNING_ELEMENTS+2, 0, "->");
+			else ncplane_putstr_yx(search_plane, SEARCH_TUI_BEGINNING_ELEMENTS+2, tags_area_width, "->");
+		}else{
+			if(left) ncplane_putstr_yx(search_plane, 2+ui_index, 0, "->");
+			else ncplane_putstr_yx(search_plane, 2+ui_index, tags_area_width, "->");
+		}
 		//number of results
 		ncplane_printf_yx(search_plane, 0, 0, "Results: %ld", search->output_ids.used);
 		if(search_not_run){
@@ -549,28 +621,40 @@ void start_tui(int_least8_t flags, void* data){
 			if(search->filetypes&(FILETYPE_VIDEO)){if(matches)ncplane_putstr(search_plane, " or "); ncplane_putstr(search_plane, "Video"); matches++;}
 			if(search->filetypes&(FILETYPE_OTHER)){if(matches)ncplane_putstr(search_plane, " or "); ncplane_putstr(search_plane, "Other"); matches++;}
 		}
-		//filepath
-		ncplane_putstr_yx(search_plane, 6, 3, "Filepath: ");
-		//if(search->filepath) ncplane_putstr(search_plane, search->filepath);
 		//add new tag button
-		ncplane_putstr_yx(search_plane, MIN_UI_ELEMENTS+1, 3, "Add new tag");
+		ncplane_putstr_yx(search_plane, SEARCH_TUI_BEGINNING_ELEMENTS+2, 3, "Add new tag to search");
+		//add new filepath expression button
+		ncplane_putstr_yx(search_plane, SEARCH_TUI_BEGINNING_ELEMENTS+2, tags_area_width+3, "Add new filepath expression to search");
 		//tags
 		for(unsigned short i=0; i<search->include_tags_n; i++){
-			ncplane_putstr_yx(search_plane, 2+MIN_UI_ELEMENTS+i, 3, tag_name_from_id(search->include_tags[i]));
+			ncplane_putstr_yx(search_plane, 3+SEARCH_TUI_BEGINNING_ELEMENTS+i, 3, tag_name_from_id(search->include_tags[i]));
 		}
 		for(unsigned short i=0; i<search->exclude_tags_n; i++){
-			ncplane_printf_yx(search_plane, 2+MIN_UI_ELEMENTS+search->include_tags_n+i, 3, "-%s", tag_name_from_id(search->exclude_tags[i]));
+			ncplane_printf_yx(search_plane, 3+SEARCH_TUI_BEGINNING_ELEMENTS+search->include_tags_n+i, 3, "-%s", tag_name_from_id(search->exclude_tags[i]));
 		}
 		for(unsigned short i=0; i<search->or_tag_elements_n; i++){
-			ncplane_cursor_move_yx(search_plane, 2+MIN_UI_ELEMENTS+search->include_tags_n+search->exclude_tags_n+i, 3);
-			ncplane_putstr(search_plane, "One of: ");
+			ncplane_cursor_move_yx(search_plane, 3+SEARCH_TUI_BEGINNING_ELEMENTS+search->include_tags_n+search->exclude_tags_n+i, 3);
 			for(unsigned short j=0; j<search->or_tag_elements[i].or_number; j++){
 				ncplane_putstr(search_plane, tag_name_from_id(search->or_tag_elements[i].ids[j]));
-				if(j<search->or_tag_elements[i].or_number-1) ncplane_putstr(search_plane, ", ");
+				if(j<search->or_tag_elements[i].or_number-1) ncplane_putstr(search_plane, " OR ");
+			}
+		}
+		//filepath expressions
+		for(unsigned short i=0; i<search->include_filepaths_n; i++){
+			ncplane_putstr_yx(search_plane, 3+SEARCH_TUI_BEGINNING_ELEMENTS+i, tags_area_width+3, search->include_filepaths[i]);
+		}
+		for(unsigned short i=0; i<search->exclude_filepaths_n; i++){
+			ncplane_printf_yx(search_plane, 3+SEARCH_TUI_BEGINNING_ELEMENTS+search->include_filepaths_n+i, tags_area_width+3, "-%s", search->exclude_filepaths[i]);
+		}
+		for(unsigned short i=0; i<search->or_filepath_elements_n; i++){
+			ncplane_cursor_move_yx(search_plane, 3+SEARCH_TUI_BEGINNING_ELEMENTS+search->include_filepaths_n+search->exclude_filepaths_n+i, tags_area_width+3);
+			for(unsigned short j=0; j<search->or_filepath_elements[i].or_number; j++){
+				ncplane_putstr(search_plane, search->or_filepath_elements[i].patterns[j]);
+				if(j<search->or_filepath_elements[i].or_number-1) ncplane_putstr(search_plane, " OR ");
 			}
 		}
 		//SQL query
-		ncplane_printf_yx(search_plane, ui_elements+3, 0, "SQL query: %s", search->sql);
+		ncplane_printf_yx(search_plane, ui_element_lines+4, 0, "SQL query: %s", search->sql);
 		ncpile_render(search_plane);
 		ncpile_rasterize(search_plane);
 	}while((c=notcurses_get(nc, NULL, NULL))!='Q');
