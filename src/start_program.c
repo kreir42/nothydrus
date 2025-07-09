@@ -19,6 +19,8 @@ sqlite3_stmt* get_file_tags_statement;
 sqlite3_stmt* add_custom_column_statement;
 sqlite3_stmt* get_file_columns_statement;
 sqlite3_stmt* search_file_from_hash_statement;
+sqlite3_stmt* find_file_from_hash_and_size_statement;
+sqlite3_stmt* find_file_from_hash_and_size_with_flags_statement;
 sqlite3_stmt* set_filepath_statement;
 
 unsigned short custom_columns_n;
@@ -201,6 +203,24 @@ static inline void prepare_search_file_from_hash(){
 	}
 }
 
+static inline void prepare_find_file_from_hash_and_size(){
+	if(sqlite3_prepare_v3(main_db,
+				"SELECT id, filepath FROM files "
+				"WHERE hash = ? AND size = ?;"
+				, -1, SQLITE_PREPARE_PERSISTENT, &find_file_from_hash_and_size_statement, NULL) != SQLITE_OK){
+		fprintf(stderr, "Error preparing find_file_from_hash_and_size_statement: %s\n", sqlite3_errmsg(main_db));
+	}
+}
+
+static inline void prepare_find_file_from_hash_and_size_with_flags(){
+	if(sqlite3_prepare_v3(main_db,
+				"SELECT id, filepath, flags FROM files "
+				"WHERE hash = ? AND size = ?;"
+				, -1, SQLITE_PREPARE_PERSISTENT, &find_file_from_hash_and_size_with_flags_statement, NULL) != SQLITE_OK){
+		fprintf(stderr, "Error preparing find_file_from_hash_and_size_with_flags_statement: %s\n", sqlite3_errmsg(main_db));
+	}
+}
+
 static inline void prepare_set_filepath(){
 	if(sqlite3_prepare_v3(main_db,
 				"UPDATE files "
@@ -229,6 +249,7 @@ void start_program(enum program_start_mode mode){
 	get_custom_columns();
 	if(mode == PROGRAM_START_ADD_FILES){
 		prepare_add_file();
+		prepare_find_file_from_hash_and_size();
 		return;
 	}
 	if(mode == PROGRAM_START_SQL_SEARCH){
@@ -263,6 +284,8 @@ void start_program(enum program_start_mode mode){
 	prepare_add_custom_column();
 	prepare_get_file_columns();
 	prepare_search_file_from_hash();
+	prepare_find_file_from_hash_and_size();
+	prepare_find_file_from_hash_and_size_with_flags();
 	prepare_set_filepath();
 }
 
@@ -286,6 +309,8 @@ void end_program(){
 	sqlite3_finalize(add_custom_column_statement);
 	sqlite3_finalize(get_file_columns_statement);
 	sqlite3_finalize(search_file_from_hash_statement);
+	sqlite3_finalize(find_file_from_hash_and_size_statement);
+	sqlite3_finalize(find_file_from_hash_and_size_with_flags_statement);
 	sqlite3_finalize(set_filepath_statement);
 
 	sqlite3_close(main_db);

@@ -33,4 +33,3 @@
 ? save searches
 - implement custom_column NO_LOWER_LIMIT and NO_UPPER_LIMIT options
 - arrow keys being displayed as { and }
-- better non-unique hash error when adding

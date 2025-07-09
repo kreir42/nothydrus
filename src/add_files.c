@@ -66,8 +66,21 @@ static short add_file(char* filepath, int_least8_t flags){
 	//filepath
 	sqlite3_bind_text(add_file_statement, 5, filepath, -1, SQLITE_STATIC);
 
-	if(sqlite3_step(add_file_statement) != SQLITE_DONE){
-		fprintf(stderr, "sqlite3_step(add_file_statement) returned an error: %s\n", sqlite3_errmsg(main_db));
+	int rc = sqlite3_step(add_file_statement);
+	if(rc != SQLITE_DONE){
+		if(sqlite3_extended_errcode(main_db) == SQLITE_CONSTRAINT_UNIQUE){
+			sqlite3_bind_blob(find_file_from_hash_and_size_statement, 1, hash, HASH_SIZE, SQLITE_STATIC);
+			sqlite3_bind_int64(find_file_from_hash_and_size_statement, 2, st.st_size);
+			if(sqlite3_step(find_file_from_hash_and_size_statement) == SQLITE_ROW){
+				fprintf(stderr, "Error: file already exists in database with id %lld and filepath %s\n",
+					sqlite3_column_int64(find_file_from_hash_and_size_statement, 0),
+					sqlite3_column_text(find_file_from_hash_and_size_statement, 1));
+			}
+			sqlite3_clear_bindings(find_file_from_hash_and_size_statement);
+			sqlite3_reset(find_file_from_hash_and_size_statement);
+		}else{
+			fprintf(stderr, "sqlite3_step(add_file_statement) returned an error: %s\n", sqlite3_errmsg(main_db));
+		}
 		sqlite3_clear_bindings(add_file_statement);
 		sqlite3_reset(add_file_statement);
 		return -1;
