@@ -153,8 +153,10 @@ static void add_tag_to_search_tui(){
 					if(ui_index==0){
 						if(tag_search!=NULL) free(tag_search);
 						tag_search = input_reader(plane, 0, 2, 1, plane_cols);
-						if(tag_search != NULL) search_tags(&search_results, tag_search);
-						ncplane_putstr_yx(plane, 0, 2, tag_search);
+						if(tag_search != NULL){
+							search_tags(&search_results, tag_search);
+							ncplane_putstr_yx(plane, 0, 2, tag_search);
+						}
 					}else{
 						add_tag_to_search(exclude_flag, search_results.data[ui_index-1]);
 						goto end_label;
@@ -217,6 +219,9 @@ static void add_tag_to_search_tui(){
 				if(exclude_flag) exclude_flag=0;
 				else exclude_flag=1;
 				break;
+			case 'q':
+			case NCKEY_ESC:
+				goto end_label;
 		}
 		ncplane_erase(plane);
 		ncplane_erase(side_plane);
