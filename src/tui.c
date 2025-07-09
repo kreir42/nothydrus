@@ -379,10 +379,10 @@ void start_tui(int_least8_t flags, void* data){
 				if(export!=-1) goto end_label; //TBD ask for confirmation
 				break;
 			case 'd':	//delete tag or filepath expression from search list
-				if(ui_index>(SEARCH_TUI_BEGINNING_ELEMENTS-1)){
+				if(ui_index>SEARCH_TUI_BEGINNING_ELEMENTS){
 					if(left){
 						//delete tag
-						unsigned short tag_n = ui_index-SEARCH_TUI_BEGINNING_ELEMENTS;
+						unsigned short tag_n = ui_index-SEARCH_TUI_BEGINNING_ELEMENTS-1;
 						unsigned int tag_element_length;
 						if(tag_n<search->include_tags_n){
 							if(tags_area_width>SEARCH_TUI_MIN_TAGS_AREA_WIDTH) tag_element_length = strlen(tag_name_from_id(search->include_tags[tag_n]));
