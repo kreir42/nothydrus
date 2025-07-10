@@ -418,14 +418,62 @@ void start_tui(int_least8_t flags, void* data){
 									tag_n++;
 								}
 								search->or_tag_elements_n-=1;
-								search->or_tag_elements = realloc(search->or_tag_elements, sizeof(sqlite3_int64)*search->or_tag_elements_n);
+								search->or_tag_elements = realloc(search->or_tag_elements, sizeof(struct or_tag_element)*search->or_tag_elements_n);
 							}
 						}
 						if(ui_index == active_ui_element_lines-1) ui_index--;
 						if(tags_area_width>SEARCH_TUI_MIN_TAGS_AREA_WIDTH && tag_element_length==tags_area_width-2) tags_area_width = calculate_tags_area_width();
 					}else{
 						//delete filepath expression
-						//TBD
+						unsigned short filepath_n = ui_index - SEARCH_TUI_BEGINNING_ELEMENTS - 1;
+						if (filepath_n < search->include_filepaths_n) {
+							free(search->include_filepaths[filepath_n]);
+							for (unsigned short i = filepath_n; i < search->include_filepaths_n - 1; i++) {
+								search->include_filepaths[i] = search->include_filepaths[i + 1];
+							}
+							search->include_filepaths_n--;
+							if (search->include_filepaths_n > 0) {
+								search->include_filepaths = realloc(search->include_filepaths, sizeof(char*) * search->include_filepaths_n);
+							} else {
+								free(search->include_filepaths);
+								search->include_filepaths = NULL;
+							}
+						} else {
+							filepath_n -= search->include_filepaths_n;
+							if (filepath_n < search->exclude_filepaths_n) {
+								free(search->exclude_filepaths[filepath_n]);
+								for (unsigned short i = filepath_n; i < search->exclude_filepaths_n - 1; i++) {
+									search->exclude_filepaths[i] = search->exclude_filepaths[i + 1];
+								}
+								search->exclude_filepaths_n--;
+								if (search->exclude_filepaths_n > 0) {
+									search->exclude_filepaths = realloc(search->exclude_filepaths, sizeof(char*) * search->exclude_filepaths_n);
+								} else {
+									free(search->exclude_filepaths);
+									search->exclude_filepaths = NULL;
+								}
+							} else {
+								filepath_n -= search->exclude_filepaths_n;
+								struct or_filepath_element* or_element = &search->or_filepath_elements[filepath_n];
+								for (unsigned short i = 0; i < or_element->or_number; i++) {
+									free(or_element->patterns[i]);
+								}
+								free(or_element->patterns);
+
+								for (unsigned short i = filepath_n; i < search->or_filepath_elements_n - 1; i++) {
+									search->or_filepath_elements[i] = search->or_filepath_elements[i + 1];
+								}
+								search->or_filepath_elements_n--;
+								if (search->or_filepath_elements_n > 0) {
+									search->or_filepath_elements = realloc(search->or_filepath_elements, sizeof(struct or_filepath_element) * search->or_filepath_elements_n);
+								} else {
+									free(search->or_filepath_elements);
+									search->or_filepath_elements = NULL;
+								}
+							}
+						}
+						if (ui_index == active_ui_element_lines - 1) ui_index--;
+						search_not_run = 1;
 					}
 				}
 				break;
