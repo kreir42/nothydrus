@@ -50,7 +50,7 @@ void start_tui(int_least8_t flags, void* data);
 void fullscreen_display(struct search* search);
 short chooser(struct ncplane* parent_plane, char** options, short initial_value);
 uint_least8_t multiple_chooser(struct ncplane* parent_plane, char** options, uint_least8_t initial_value);
-char* input_reader(struct ncplane* parent_plane, int y, int x, int h, int w);	//TBD initial value
+char* input_reader(struct ncplane* parent_plane, int y, int x, int h, int w, const char* pre_text, const char* post_text, const char* prompt);
 
 struct ncplane* display_file(sqlite3_int64 id, int_least8_t flags, struct ncplane* plane);
 struct ncplane* display_file_from_filepath(char* filepath, int_least8_t flags, struct ncplane* plane);

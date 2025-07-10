@@ -47,17 +47,37 @@ static void new_search_plane(struct search* search_to_copy){
 	search_plane = ncpile_create(nc, &plane_options);
 }
 
-char* input_reader(struct ncplane* parent_plane, int y, int x, int h, int w){
+char* input_reader(struct ncplane* parent_plane, int y, int x, int h, int w, const char* pre_text, const char* post_text, const char* prompt){
+	ncplane_erase_region(parent_plane, y, x, h, w);
+
+	int current_y = y;
+	size_t written_lines = 0;
+	if(pre_text){
+		ncplane_puttext(parent_plane, current_y, x, pre_text, &written_lines);
+		current_y += written_lines;
+	}
+
+	int prompt_len = 0;
+	if(prompt){
+		ncplane_putstr_yx(parent_plane, current_y, x, prompt);
+		prompt_len = strlen(prompt);
+	}
+
 	struct ncreader_options ncreader_options = {.flags=NCREADER_OPTION_CURSOR};
 	struct ncplane_options reader_plane_options = {
-		.y = y, .x = x,
-		.rows = h, .cols = w,
+		.y = current_y, .x = x + prompt_len,
+		.rows = 1, .cols = w - prompt_len,
 	};
 	struct ncplane* reader_subplane = ncplane_create(parent_plane, &reader_plane_options);
 	struct ncreader* reader = ncreader_create(reader_subplane, &ncreader_options);
 	struct ncplane* reader_plane = ncreader_plane(reader);
 	struct ncinput reader_input;
-	ncplane_erase_region(parent_plane, y, x, h, w);	//TBD? get initial value from here?
+
+	current_y++;
+	if(post_text){
+		ncplane_puttext(parent_plane, current_y, x, post_text, NULL);
+	}
+
 	uint32_t c;
 	do{
 		ncpile_render(reader_plane);
@@ -152,7 +172,7 @@ static void add_tag_to_search_tui(){
 				if(!side_plane_flag){
 					if(ui_index==0){
 						if(tag_search!=NULL) free(tag_search);
-						tag_search = input_reader(plane, 0, 2, 1, plane_cols);
+						tag_search = input_reader(plane, 0, 2, 1, plane_cols, NULL, NULL, NULL);
 						if(tag_search != NULL){
 							search_tags(&search_results, tag_search);
 							ncplane_putstr_yx(plane, 0, 2, tag_search);
@@ -305,7 +325,7 @@ static void add_filepath_expression_to_search_tui(){
 	unsigned int plane_rows, plane_cols;
 	notcurses_stddim_yx(nc, &plane_rows, &plane_cols);
 
-	char* expression = input_reader(search_plane, plane_rows/2, plane_cols/2 - 15, 1, 30);
+	char* expression = input_reader(search_plane, plane_rows/2 - 1, plane_cols/2 - 20, 3, 40, "Enter filepath expression", NULL, "> ");
 	if(expression == NULL || expression[0] == '\0'){
 		if(expression) free(expression);
 		return;
@@ -518,7 +538,7 @@ void start_tui(int_least8_t flags, void* data){
 						search_not_run = 1;
 						break;
 					case 1:	//limit
-						reader_result = input_reader(search_plane, 1+ui_index, 23, 1, 12);
+						reader_result = input_reader(search_plane, 1+ui_index, 23, 1, 12, NULL, NULL, NULL);
 						if(reader_result != NULL){
 							search->limit = strtol(reader_result, NULL, 10);
 							free(reader_result);
@@ -526,7 +546,7 @@ void start_tui(int_least8_t flags, void* data){
 						search_not_run = 1;
 						break;
 					case 2:	//min_size
-						reader_result = input_reader(search_plane, 1+ui_index, 13, 1, 18);
+						reader_result = input_reader(search_plane, 1+ui_index, 13, 1, 18, NULL, NULL, NULL);
 						if(reader_result != NULL){
 							min_size = strtoull(reader_result, &size_unit_ptr, 10);
 							min_size_unit = size_unit_from_ptr(size_unit_ptr, min_size_unit);
@@ -535,7 +555,7 @@ void start_tui(int_least8_t flags, void* data){
 						search_not_run = 1;
 						break;
 					case 3:	//max_size
-						reader_result = input_reader(search_plane, 1+ui_index, 26, 1, 18);
+						reader_result = input_reader(search_plane, 1+ui_index, 26, 1, 18, NULL, NULL, NULL);
 						if(reader_result != NULL){
 							max_size = strtoull(reader_result, &size_unit_ptr, 10);
 							max_size_unit = size_unit_from_ptr(size_unit_ptr, max_size_unit);
@@ -798,7 +818,7 @@ static sqlite3_int64 add_tag_to_file_tui(struct ncplane* parent_plane){
 				if(ui_index==0){
 					if(tag_search!=NULL) free(tag_search);
 					ncplane_putstr_yx(plane, 0, 2, "Type to search:");
-					tag_search = input_reader(plane, 1, 2, 1, plane_cols-2);
+					tag_search = input_reader(plane, 1, 2, 1, plane_cols-2, NULL, NULL, NULL);
 					if(tag_search != NULL) search_tags(&search_results, tag_search);
 				}else{
 					tag_id = search_results.data[ui_index-1];
