@@ -297,6 +297,32 @@ static unsigned int calculate_tags_area_width(){
 	return result+2;
 }
 
+static void add_filepath_expression_to_search_tui(){
+	char* options[] = {"Include", "Exclude", NULL};
+	int choice = chooser(search_plane, options, 0);
+	if(choice == -1) return;
+
+	unsigned int plane_rows, plane_cols;
+	notcurses_stddim_yx(nc, &plane_rows, &plane_cols);
+
+	char* expression = input_reader(search_plane, plane_rows/2, plane_cols/2 - 15, 1, 30);
+	if(expression == NULL || expression[0] == '\0'){
+		if(expression) free(expression);
+		return;
+	}
+
+	if(choice == 0){ //include
+		search->include_filepaths_n++;
+		search->include_filepaths = realloc(search->include_filepaths, sizeof(char*) * search->include_filepaths_n);
+		search->include_filepaths[search->include_filepaths_n - 1] = expression;
+	} else { //exclude
+		search->exclude_filepaths_n++;
+		search->exclude_filepaths = realloc(search->exclude_filepaths, sizeof(char*) * search->exclude_filepaths_n);
+		search->exclude_filepaths[search->exclude_filepaths_n - 1] = expression;
+	}
+	search_not_run = 1;
+}
+
 void start_tui(int_least8_t flags, void* data){
 	if(!isatty(fileno(stdin))){
 		freopen("/dev/tty", "r", stdin);	//reopen stdin if there was a pipe
@@ -529,7 +555,7 @@ void start_tui(int_least8_t flags, void* data){
 							tags_area_width = calculate_tags_area_width(); //TBD optimize this, not always necessary to recalculate
 						}else{
 							//filepath expression
-							//TBD
+							add_filepath_expression_to_search_tui();
 						}
 						break;
 					default:
