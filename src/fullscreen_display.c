@@ -83,6 +83,10 @@ void fullscreen_display(struct search* search){
 							if(i>=search->output_ids.used) i=0;
 							reset_display_plane(display_plane);
 							display_file(search->output_ids.data[i], 0, display_plane);
+							{//prevent input from piling up
+								struct timespec ts = {.tv_sec = 0, .tv_nsec = 10000000};
+								while(notcurses_get(nc, &ts, NULL)){}
+							}
 							break;
 						case SHORTCUT_TYPE_FULLSCREEN_PREV:
 							log_debug("Corresponds to SHORTCUT_TYPE_FULLSCREEN_PREV\n");
@@ -90,6 +94,10 @@ void fullscreen_display(struct search* search){
 							else i--;
 							reset_display_plane(display_plane);
 							display_file(search->output_ids.data[i], 0, display_plane);
+							{//prevent input from piling up
+								struct timespec ts = {.tv_sec = 0, .tv_nsec = 10000000};
+								while(notcurses_get(nc, &ts, NULL)){}
+							}
 							break;
 						case SHORTCUT_TYPE_FULLSCREEN_TAG:
 							log_debug("Corresponds to SHORTCUT_TYPE_FULLSCREEN_TAG\n");
