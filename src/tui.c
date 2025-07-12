@@ -57,10 +57,9 @@ char* input_reader(struct ncplane* parent_plane, int y, int x, int h, int w, con
 
 	int current_y = box ? 1 : 0;
 	int current_x = box ? 1 : 0;
-	size_t written_lines = 0;
 	if(pre_text){
-		ncplane_puttext(plane, current_y, current_x, pre_text, &written_lines);
-		current_y += written_lines;
+		ncplane_putstr_yx(plane, current_y, current_x, pre_text);
+		current_y++; //TBD assumes 1 line
 	}
 
 	int prompt_len = 0;
@@ -80,7 +79,62 @@ char* input_reader(struct ncplane* parent_plane, int y, int x, int h, int w, con
 
 	current_y++;
 	if(post_text){
-		ncplane_puttext(plane, current_y, current_x, post_text, NULL);
+		ncplane_putstr_yx(plane, current_y, current_x, post_text);
+	}
+
+	uint32_t c;
+	do{
+		ncpile_render(plane);
+		ncpile_rasterize(plane);
+		c = notcurses_get(nc, NULL, &reader_input);
+		if(c==NCKEY_ENTER) break;
+		if(c==NCKEY_ESC){
+			ncreader_destroy(reader, NULL);
+			ncplane_destroy(plane);
+			return NULL;
+		}
+		ncreader_offer_input(reader, &reader_input);
+	}while(1);
+	char* reader_contents;
+	ncreader_destroy(reader, &reader_contents);
+	ncplane_destroy(plane);
+	return reader_contents;
+}
+
+char* centered_input_reader(struct ncplane* parent_plane, int h, int w, const char* pre_text, const char* post_text, const char* prompt, bool box){
+	struct ncplane_options plane_opts = {
+		.y = NCALIGN_CENTER, .x = NCALIGN_CENTER,
+		.rows = h, .cols = w,
+		.flags = NCPLANE_OPTION_HORALIGNED | NCPLANE_OPTION_VERALIGNED
+	};
+	struct ncplane* plane = ncplane_create(parent_plane, &plane_opts);
+	if(box) ncplane_rounded_box_sized(plane, 0, 0, h, w, 0);
+
+	int current_y = box ? 1 : 0;
+	int current_x = box ? 1 : 0;
+	if(pre_text){
+		ncplane_putstr_yx(plane, current_y, current_x, pre_text);
+		current_y++; //TBD assumes 1 line
+	}
+
+	int prompt_len = 0;
+	if(prompt){
+		ncplane_putstr_yx(plane, current_y, current_x, prompt);
+		prompt_len = strlen(prompt);
+	}
+
+	struct ncreader_options ncreader_options = {.flags=NCREADER_OPTION_CURSOR};
+	struct ncplane_options reader_plane_options = {
+		.y = current_y, .x = current_x + prompt_len,
+		.rows = 1, .cols = w - prompt_len - (box ? 2 : 0),
+	};
+	struct ncplane* reader_subplane = ncplane_create(plane, &reader_plane_options);
+	struct ncreader* reader = ncreader_create(reader_subplane, &ncreader_options);
+	struct ncinput reader_input;
+
+	current_y++;
+	if(post_text){
+		ncplane_putstr_yx(plane, current_y, current_x, post_text);
 	}
 
 	uint32_t c;
@@ -331,7 +385,7 @@ static void add_filepath_expression_to_search_tui(){
 	unsigned int plane_rows, plane_cols;
 	notcurses_stddim_yx(nc, &plane_rows, &plane_cols);
 
-	char* expression = input_reader(search_plane, plane_rows/2 - 1, plane_cols/2 - 20, 3, 40, "Enter filepath expression", NULL, "> ", true);
+	char* expression = centered_input_reader(search_plane, 4, 40, "Enter filepath expression", NULL, "> ", true);
 	if(expression == NULL || expression[0] == '\0'){
 		if(expression) free(expression);
 		return;

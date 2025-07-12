@@ -16,52 +16,6 @@ static uint32_t ask_for_key(struct ncplane* parent_plane){
 	return key;
 }
 
-static char* ask_for_command(struct ncplane* parent_plane, unsigned short parent_cols){
-	unsigned short plane_cols = parent_cols/2;
-	struct ncplane_options plane_options = {
-		.y = NCALIGN_CENTER, .x = NCALIGN_CENTER,
-		.rows = 3, .cols = plane_cols,
-		.flags = NCPLANE_OPTION_HORALIGNED | NCPLANE_OPTION_VERALIGNED,
-	};
-	struct ncplane* plane = ncplane_create(parent_plane, &plane_options);
-	ncplane_putstr_yx(plane, 0, 1, "Write the shell command:");
-	ncpile_render(plane);
-	ncpile_rasterize(plane);
-	char* string = input_reader(plane, 1, 1, 1, plane_cols-2, NULL, NULL, NULL, false);
-	ncplane_destroy(plane);
-	return string;
-}
-
-static char* ask_for_mode_name(struct ncplane* parent_plane){
-	struct ncplane_options plane_options = {
-		.y = NCALIGN_CENTER, .x = NCALIGN_CENTER,
-		.rows = 3, .cols = 48,
-		.flags = NCPLANE_OPTION_HORALIGNED | NCPLANE_OPTION_VERALIGNED,
-	};
-	struct ncplane* plane = ncplane_create(parent_plane, &plane_options);
-	ncplane_putstr_yx(plane, 0, 1, "Write new shortcut mode name (ESC to cancel):");
-	ncpile_render(plane);
-	ncpile_rasterize(plane);
-	char* string = input_reader(plane, 1, 1, 1, 46, NULL, NULL, NULL, false);
-	ncplane_destroy(plane);
-	return string;
-}
-
-static char* ask_for_custom_column_value(struct ncplane* parent_plane){
-	struct ncplane_options plane_options = {
-		.y = NCALIGN_CENTER, .x = NCALIGN_CENTER,
-		.rows = 3, .cols = 16,
-		.flags = NCPLANE_OPTION_HORALIGNED | NCPLANE_OPTION_VERALIGNED,
-	};
-	struct ncplane* plane = ncplane_create(parent_plane, &plane_options);
-	ncplane_putstr_yx(plane, 0, 1, "Enter value:");
-	ncpile_render(plane);
-	ncpile_rasterize(plane);
-	char* string = input_reader(plane, 1, 1, 1, 14, NULL, NULL, NULL, false);
-	ncplane_destroy(plane);
-	return string;
-}
-
 static short choose_custom_column(struct ncplane* plane){
 	log_debug("Asking user to choose a custom column\n");
 	char** options = malloc(sizeof(char*)*custom_columns_n);
@@ -171,7 +125,7 @@ void options_tui(){
 					case 2:
 						log_debug("Adding new shortcut mode\n");
 						ask_for_mode_name:
-						char* mode_name = ask_for_mode_name(plane);
+						char* mode_name = centered_input_reader(plane, 4, 48, "Write new shortcut mode name (ESC to cancel):", NULL, NULL, true);
 						if(mode_name!=NULL){
 							if(!strcmp(mode_name,"default")){free(mode_name); goto ask_for_mode_name;}
 							for(unsigned short i=0; i<tui_options.modes_n; i++){
@@ -223,7 +177,7 @@ void options_tui(){
 									}
 																		shortcut.id = choose_custom_column(plane);
 									if(shortcut.type == SHORTCUT_TYPE_CUSTOM_COLUMN_SET){
-										char* value_str = ask_for_custom_column_value(plane);
+										char* value_str = centered_input_reader(plane, 4, 16, "Enter value:", NULL, NULL, true);
 										if(value_str == NULL){
 											shortcut.id = -1;
 										} else {
@@ -239,7 +193,7 @@ void options_tui(){
 									log_debug("User chose custom column %d with name '%s'\n", (int)shortcut.id, custom_columns[shortcut.id].name);
 									break;
 								case SHORTCUT_TYPE_EXTERNAL_COMMAND:
-									shortcut.string = ask_for_command(plane, screen_cols);
+									shortcut.string = centered_input_reader(plane, 4, screen_cols/2, "Write the shell command:", NULL, NULL, true);
 									if(shortcut.string==NULL) shortcut.id = -1;
 									break;
 								case SHORTCUT_TYPE_FULLSCREEN_NEXT:
