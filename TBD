@@ -8,7 +8,6 @@
 - scrolling in planes
 - script to export file tags
 - adding already existing tag to file returns error
-- commands to list all tags
 - special custom columns upper and lower limit values for no limits: max and min int64 in constants
 ? transform filepaths coming in from stdin differently?
 - order tags (display mode, search mode?)

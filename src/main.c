@@ -35,6 +35,9 @@ int main(int argc, char** argv){
 			puts("     tag [--add] [tag] [file path(s)]");
 			puts("          Tags files whose filepaths are given as arguments or piped in with tag.");
 			puts("          --add option will add the tag if it doesn't already exist.");
+			puts("     list_tags [--id]");
+			puts("          Lists all tags in the database, sorted alphabetically.");
+			puts("          --id option will also print the tag ID.");
 			puts("     custom_columns");
 			puts("          Print a list of all custom columns in the database.");
 			puts("     add_custom_column [name] [flags] [lower limit] [upper limit]");
@@ -253,6 +256,37 @@ int main(int argc, char** argv){
 				}
 				free(line);
 			};
+			end_program();
+			return 0;
+		}else if(!strcmp(argv[i], "list_tags")){
+			i++;
+			bool id_flag = false;
+			if(i < argc && !strcmp(argv[i], "--id")){
+				id_flag = true;
+				i++;
+			}
+			if(i != argc){
+				fprintf(stderr, "Error: list_tags takes no arguments, only flags\n");
+				return -1;
+			}
+			if(set_main_path()){ fprintf(stderr, "Error: could not locate main path\n"); return 1;}
+			start_program(PROGRAM_START_DEFAULT);
+
+			sqlite3_stmt* stmt;
+			if(id_flag){
+				sqlite3_prepare_v2(main_db, "SELECT id, name FROM tags ORDER BY name ASC", -1, &stmt, NULL);
+			} else {
+				sqlite3_prepare_v2(main_db, "SELECT name FROM tags ORDER BY name ASC", -1, &stmt, NULL);
+			}
+
+			while(sqlite3_step(stmt) == SQLITE_ROW){
+				if(id_flag){
+					printf("%lld %s\n", sqlite3_column_int64(stmt, 0), sqlite3_column_text(stmt, 1));
+				} else {
+					printf("%s\n", sqlite3_column_text(stmt, 0));
+				}
+			}
+			sqlite3_finalize(stmt);
 			end_program();
 			return 0;
 		}else if(!strcmp(argv[i], "custom_columns")){
