@@ -27,7 +27,7 @@ static char* ask_for_command(struct ncplane* parent_plane, unsigned short parent
 	ncplane_putstr_yx(plane, 0, 1, "Write the shell command:");
 	ncpile_render(plane);
 	ncpile_rasterize(plane);
-	char* string = input_reader(plane, 1, 1, 1, plane_cols-2, NULL, NULL, NULL);
+	char* string = input_reader(plane, 1, 1, 1, plane_cols-2, NULL, NULL, NULL, false);
 	ncplane_destroy(plane);
 	return string;
 }
@@ -42,7 +42,7 @@ static char* ask_for_mode_name(struct ncplane* parent_plane){
 	ncplane_putstr_yx(plane, 0, 1, "Write new shortcut mode name (ESC to cancel):");
 	ncpile_render(plane);
 	ncpile_rasterize(plane);
-	char* string = input_reader(plane, 1, 1, 1, 46, NULL, NULL, NULL);
+	char* string = input_reader(plane, 1, 1, 1, 46, NULL, NULL, NULL, false);
 	ncplane_destroy(plane);
 	return string;
 }
@@ -57,7 +57,7 @@ static char* ask_for_custom_column_value(struct ncplane* parent_plane){
 	ncplane_putstr_yx(plane, 0, 1, "Enter value:");
 	ncpile_render(plane);
 	ncpile_rasterize(plane);
-	char* string = input_reader(plane, 1, 1, 1, 14, NULL, NULL, NULL);
+	char* string = input_reader(plane, 1, 1, 1, 14, NULL, NULL, NULL, false);
 	ncplane_destroy(plane);
 	return string;
 }
@@ -162,27 +162,27 @@ void options_tui(){
 						}
 						break;
 					case 1:
-                        char* limit_reader_result = input_reader(plane, 1, 3+strlen("Default search limit (0 for none): "), 1, screen_cols-(3+strlen("Default search limit (0 for none): ")+2), NULL, NULL, NULL);
-                        if(limit_reader_result != NULL){
-                            tui_options.search_limit = strtol(limit_reader_result, NULL, 10);
-                            free(limit_reader_result);
-                        }
-                        break;
-                    case 2:
-                        log_debug("Adding new shortcut mode\n");
-                        ask_for_mode_name:
-                        char* mode_name = ask_for_mode_name(plane);
-                        if(mode_name!=NULL){
-                            if(!strcmp(mode_name,"default")){free(mode_name); goto ask_for_mode_name;}
-                            for(unsigned short i=0; i<tui_options.modes_n; i++){
-                                if(!strcmp(mode_name,tui_options.modes[i])){free(mode_name); goto ask_for_mode_name;}
-                            }
-                            tui_options.modes_n++;
-                            tui_options.modes = realloc(tui_options.modes, sizeof(char*)*(tui_options.modes_n+1));
-                            tui_options.modes[tui_options.modes_n-1] = mode_name;
-                            tui_options.modes[tui_options.modes_n] = NULL;
-                        }
-                        break;
+						char* limit_reader_result = input_reader(plane, 1, 3+strlen("Default search limit (0 for none): "), 1, screen_cols-(3+strlen("Default search limit (0 for none): ")+2), NULL, NULL, NULL, false);
+						if(limit_reader_result != NULL){
+							tui_options.search_limit = strtol(limit_reader_result, NULL, 10);
+							free(limit_reader_result);
+						}
+						break;
+					case 2:
+						log_debug("Adding new shortcut mode\n");
+						ask_for_mode_name:
+						char* mode_name = ask_for_mode_name(plane);
+						if(mode_name!=NULL){
+							if(!strcmp(mode_name,"default")){free(mode_name); goto ask_for_mode_name;}
+							for(unsigned short i=0; i<tui_options.modes_n; i++){
+								if(!strcmp(mode_name,tui_options.modes[i])){free(mode_name); goto ask_for_mode_name;}
+							}
+							tui_options.modes_n++;
+							tui_options.modes = realloc(tui_options.modes, sizeof(char*)*(tui_options.modes_n+1));
+							tui_options.modes[tui_options.modes_n-1] = mode_name;
+							tui_options.modes[tui_options.modes_n] = NULL;
+						}
+						break;
 					default:
 						if(ui_index == OPTIONS_TUI_BEGINNING_ELEMENTS + tui_options.modes_n){
 							log_debug("Adding new shortcut\n");

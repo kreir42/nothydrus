@@ -109,7 +109,7 @@ void fullscreen_display(struct search* search){
 							break;
 						case SHORTCUT_TYPE_FULLSCREEN_COMMAND:{
 							log_debug("Corresponds to SHORTCUT_TYPE_FULLSCREEN_COMMAND\n");
-							char* command = input_reader(plane, screen_rows-1, 0, 1, screen_cols-1, NULL, NULL, ":");
+							char* command = input_reader(plane, screen_rows-1, 0, 1, screen_cols-1, NULL, NULL, ":", false);
 							if(command != NULL){
 								external_command_on_file(search->output_ids.data[i], command);
 								free(command);
