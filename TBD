@@ -20,7 +20,6 @@
 - better search_not_run detection
 ? sqlite REGEXP instead of LIKE
 - context-aware key hints and help with '?' key
-? number in tags table
 - add tag patterns to search
 ? join/split databases
 - hydrus-like filters with yes/no/skip/undo options

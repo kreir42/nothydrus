@@ -68,6 +68,16 @@ void init(){
 				"upper_limit INTEGER)"
 				"STRICT;"
 
+				"CREATE TRIGGER after_filestag_insert AFTER INSERT ON filestags "
+				"BEGIN "
+				"UPDATE tags SET number = number + 1 WHERE id = NEW.tag; "
+				"END;"
+
+				"CREATE TRIGGER after_filestag_delete AFTER DELETE ON filestags "
+				"BEGIN "
+				"UPDATE tags SET number = number - 1 WHERE id = OLD.tag; "
+				"END;"
+
 				,NULL, NULL, &sqlite3_error_message)){
 		fprintf(stderr, "Error when creating tables and indexes:%s\n", sqlite3_error_message);
 		sqlite3_free(sqlite3_error_message);
