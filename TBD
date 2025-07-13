@@ -8,26 +8,22 @@
 - scrolling in planes
 - script to export file tags
 - adding already existing tag to file returns error
-- special custom columns upper and lower limit values for no limits: max and min int64 in constants
 ? transform filepaths coming in from stdin differently?
 - order tags (display mode, search mode?)
 - modify file command
 - remove file command
 - fix gifs being drawn on top of previous image
 - have db keep track of program version
-- sort key shortcuts in options interface
+? sort key shortcuts in options interface
 - check command options: --missing check only missing files, --in-database check files only if they are in database
-? generally reduce verbosity
 - make check_files more efficient (currently it may check a file multiple times)
 - better search_not_run detection
 ? sqlite REGEXP instead of LIKE
 - context-aware key hints and help with '?' key
-- number in tags table
+? number in tags table
 - add tag patterns to search
-- join/split databases
+? join/split databases
 - hydrus-like filters with yes/no/skip/undo options
-- multiple path filters
-- default path filter when launching from non-base path
 ? multiple search tabs
 ? save searches
 - implement custom_column NO_LOWER_LIMIT and NO_UPPER_LIMIT options

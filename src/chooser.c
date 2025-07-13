@@ -10,11 +10,11 @@ short chooser(struct ncplane* parent_plane, char** options, short initial_value)
 	}
 	struct ncplane_options plane_options = {
 		.x = NCALIGN_CENTER, .y = NCALIGN_CENTER,
-		.rows = options_n+2, .cols = 4+max_length,
+		.rows = options_n+2, .cols = 6+max_length,
 		.flags = NCPLANE_OPTION_HORALIGNED | NCPLANE_OPTION_VERALIGNED,
 	};
 	struct ncplane* plane = ncplane_create(parent_plane, &plane_options);
-	//TBD draw a box
+	ncplane_rounded_box_sized(plane, 0, 0, options_n+2, 6+max_length, 0);
 
 	for(unsigned short i=0; i<options_n; i++){
 		ncplane_putstr_yx(plane, i+1, 4, options[i]);
@@ -24,7 +24,7 @@ short chooser(struct ncplane* parent_plane, char** options, short initial_value)
 	unsigned short option = 0;
 	if(initial_value>=0) option = initial_value;
 	do{
-		ncplane_erase_region(plane, option+1, 1, options_n, 3);
+		ncplane_erase_region(plane, option+1, 1, 1, 3);
 		switch(c){
 			case 'q':
 			case 'Q':
@@ -62,11 +62,11 @@ uint_least8_t multiple_chooser(struct ncplane* parent_plane, char** options, uin
 	}
 	struct ncplane_options plane_options = {
 		.x = NCALIGN_CENTER, .y = NCALIGN_CENTER,
-		.rows = options_n+2, .cols = 5+max_length,
+		.rows = options_n+2, .cols = 7+max_length,
 		.flags = NCPLANE_OPTION_HORALIGNED | NCPLANE_OPTION_VERALIGNED,
 	};
 	struct ncplane* plane = ncplane_create(parent_plane, &plane_options);
-	//TBD draw a box
+	ncplane_rounded_box_sized(plane, 0, 0, options_n+2, 7+max_length, 0);
 
 	for(unsigned short i=0; i<options_n; i++){
 		ncplane_putstr_yx(plane, i+1, 5, options[i]);
@@ -75,7 +75,7 @@ uint_least8_t multiple_chooser(struct ncplane* parent_plane, char** options, uin
 	uint_least8_t result = initial_value;
 	unsigned short option=0;
 	do{
-		ncplane_erase_region(plane, option+1, 1, options_n, 4);
+		ncplane_erase_region(plane, option+1, 1, 1, 4);
 		switch(c){
 			case 'q':
 			case 'Q':
