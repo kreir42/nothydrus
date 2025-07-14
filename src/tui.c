@@ -587,7 +587,7 @@ void start_tui(int_least8_t flags, void* data){
 			case ' ':
 				switch(ui_index){
 					case 0:	//order by
-						char* order_options[] = {"None", "Size", "Random", NULL};
+						char* order_options[] = {"None", "Size", "Import time", "Random", NULL};
 						search->order_by = chooser(search_plane, order_options, search->order_by);
 						if(search->order_by==none || search->order_by==random_order){
 							search->descending = 0;
@@ -757,6 +757,9 @@ void start_tui(int_least8_t flags, void* data){
 				break;
 			case size:
 				ncplane_putstr(search_plane, "size");
+				break;
+			case import_time:
+				ncplane_putstr(search_plane, "import time");
 				break;
 			case random_order:
 				ncplane_putstr(search_plane, "random");

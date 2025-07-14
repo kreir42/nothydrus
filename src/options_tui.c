@@ -241,6 +241,9 @@ void options_tui(){
 			case size:
 				ncplane_putstr(plane, "size");
 				break;
+			case import_time:
+				ncplane_putstr(plane, "import time");
+				break;
 			case random_order:
 				ncplane_putstr(plane, "random");
 				break;

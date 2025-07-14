@@ -41,6 +41,7 @@ void init(){
 				"size INTEGER, "
 				"filetype INTEGER NOT NULL, "
 				"flags INTEGER NOT NULL DEFAULT 0, "	//bitfield
+				"import_time INTEGER NOT NULL, "
 				"filepath TEXT UNIQUE)"
 				"STRICT;"
 

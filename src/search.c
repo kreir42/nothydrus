@@ -111,6 +111,9 @@ short compose_search_sql(struct search* search){
 		case size:
 			strcat(search->sql, " ORDER BY size");
 			break;
+		case import_time:
+			strcat(search->sql, " ORDER BY import_time");
+			break;
 		case random_order:
 			strcat(search->sql, " ORDER BY RANDOM()");
 			break;

@@ -42,7 +42,7 @@ struct or_filepath_element{
 	char** patterns;
 };
 
-enum order_by_enum {none, size, random_order};
+enum order_by_enum {none, size, import_time, random_order};
 struct search{
 	char sql[SEARCH_MAX_SQL_LEN];
 	enum order_by_enum order_by;	//TBD order by other, custom numbers(number of tags in expression, rating field...)

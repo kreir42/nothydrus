@@ -1,4 +1,5 @@
 #include <dirent.h>
+#include <time.h>
 #include "hash.h"
 #include "nothydrus.h"
 
@@ -63,8 +64,10 @@ static short add_file(char* filepath, int_least8_t flags){
 	sqlite3_bind_int64(add_file_statement, 3, filetype);
 	//flags
 	sqlite3_bind_int(add_file_statement, 4, flags);
+	//import_time
+	sqlite3_bind_int64(add_file_statement, 5, time(NULL));
 	//filepath
-	sqlite3_bind_text(add_file_statement, 5, filepath, -1, SQLITE_STATIC);
+	sqlite3_bind_text(add_file_statement, 6, filepath, -1, SQLITE_STATIC);
 
 	int rc = sqlite3_step(add_file_statement);
 	if(rc != SQLITE_DONE){

@@ -18,6 +18,9 @@ short save_tui_options(char* name){
 		case size:
 			order = "size";
 			break;
+		case import_time:
+			order = "import_time";
+			break;
 		case random_order:
 			order = "random";
 			break;
@@ -94,6 +97,7 @@ void load_tui_options(char* name){
 	skip_whitespace(&current);
 	if(!strcmp(current, "none")) tui_options.search_order_by = none;
 	else if(!strcmp(current, "size")) tui_options.search_order_by = size;
+	else if(!strcmp(current, "import_time")) tui_options.search_order_by = import_time;
 	else if(!strcmp(current, "random")) tui_options.search_order_by = random_order;
 	else fprintf(stderr, "load_tui_options error: ------------------- %s", current);
 	current=str;
