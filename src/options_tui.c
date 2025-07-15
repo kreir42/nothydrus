@@ -106,7 +106,7 @@ void options_tui(){
 			case NCKEY_ENTER:
 				switch(ui_index){
 					case 0:
-						char* order_options[] = {"None", "Size", "Random", NULL};
+						char* order_options[] = {"None", "Size", "Import time", "Random", NULL};
 						tui_options.search_order_by = chooser(plane, order_options, tui_options.search_order_by);
 						if(tui_options.search_order_by==none || tui_options.search_order_by==random_order){
 							tui_options.search_descending = 0;
