@@ -40,11 +40,21 @@ static short get_filetype(char* filepath){
 
 static short add_file(char* filepath, int_least8_t flags){
 	printf("Adding file: %s\n", filepath);
+
+	sqlite3_bind_text(id_from_filepath_statement, 1, filepath, -1, SQLITE_STATIC);
+	if(sqlite3_step(id_from_filepath_statement) == SQLITE_ROW){
+		fprintf(stderr, "Error: file already exists in database with id %lld\n", sqlite3_column_int64(id_from_filepath_statement, 0));
+		sqlite3_reset(id_from_filepath_statement);
+		return -1;
+	}
+	sqlite3_reset(id_from_filepath_statement);
+
 	struct stat st;
 	if(stat(filepath, &st)){
 		perror("Error in add_file stat:");
 		return -1;
 	}
+
 	if(!S_ISREG(st.st_mode)){
 		fprintf(stderr, "Error: is not a regular file\n");
 		return -1;

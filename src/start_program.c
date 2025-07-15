@@ -250,6 +250,7 @@ void start_program(enum program_start_mode mode){
 	if(mode == PROGRAM_START_ADD_FILES){
 		prepare_add_file();
 		prepare_find_file_from_hash_and_size();
+		prepare_id_from_filepath();
 		return;
 	}
 	if(mode == PROGRAM_START_SQL_SEARCH){
