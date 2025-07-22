@@ -379,7 +379,7 @@ static unsigned int calculate_tags_area_width(){
 
 static void add_filepath_expression_to_search_tui(){
 	char* options[] = {"Include", "Exclude", NULL};
-	int choice = chooser(search_plane, options, 0);
+	int choice = chooser(search_plane, options, -1);
 	if(choice == -1) return;
 
 	unsigned int plane_rows, plane_cols;
