@@ -592,8 +592,13 @@ void start_tui(int_least8_t flags, void* data){
 						if(search->order_by==none || search->order_by==random_order){
 							search->descending = 0;
 						}else{
-							char* descending_options[] = {"Ascending", "Descending", NULL};
-							search->descending = chooser(search_plane, descending_options, search->descending);
+							if(search->order_by == import_time){
+								char* descending_options[] = {"Oldest first", "Newest first", NULL};
+								search->descending = chooser(search_plane, descending_options, search->descending);
+							}else{
+								char* descending_options[] = {"Ascending", "Descending", NULL};
+								search->descending = chooser(search_plane, descending_options, search->descending);
+							}
 						}
 						search_not_run = 1;
 						break;
@@ -766,8 +771,13 @@ void start_tui(int_least8_t flags, void* data){
 				break;
 		}
 		if(search->order_by!=none && search->order_by!=random_order){
-			if(search->descending) ncplane_putstr(search_plane, " descending");
-			else ncplane_putstr(search_plane, " ascending");
+			if(search->order_by == import_time){
+				if(search->descending) ncplane_putstr(search_plane, " newest first");
+				else ncplane_putstr(search_plane, " oldest first");
+			} else {
+				if(search->descending) ncplane_putstr(search_plane, " descending");
+				else ncplane_putstr(search_plane, " ascending");
+			}
 		}
 		//limit
 		ncplane_printf_yx(search_plane, 2, 3, "Limit (0 for none): %lu", search->limit);
