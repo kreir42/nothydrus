@@ -317,8 +317,12 @@ static void add_tag_to_search_tui(){
 			else ncplane_putstr_yx(plane, 1+ui_index, 0, "->");
 		}
 		//print search results
-		for(unsigned short i=0; i<search_results.used && i<(plane_rows-4); i++){
-			ncplane_putstr_yx(plane, i+2, 2, tag_name_from_id(search_results.data[i]));
+		if(search_results.used==0){
+			ncplane_putstr_yx(plane, 2, 2, "No tags found");
+		}else{
+			for(unsigned short i=0; i<search_results.used && i<(plane_rows-4); i++){
+				ncplane_putstr_yx(plane, i+2, 2, tag_name_from_id(search_results.data[i]));
+			}
 		}
 		//exclude flag
 		if(exclude_flag){
