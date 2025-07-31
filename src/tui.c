@@ -1,5 +1,6 @@
 #include "nothydrus.h"
 #include "tui.h"
+#include <ctype.h>
 
 struct notcurses* nc;
 struct search* search;
@@ -185,20 +186,84 @@ static void add_tag_to_search_tui(){
 	struct ncplane_options plane_options = {
 		.y = NCALIGN_CENTER, .x = NCALIGN_CENTER,
 		.rows = plane_rows, .cols = plane_cols,
-		.flags = NCPLANE_OPTION_HORALIGNED | NCPLANE_OPTION_VERALIGNED
+		.flags = NCPLANE_OPTION_HORALIGNED | NCPLANE_OPTION_VERALIGNED,
 	};
 	struct ncplane* plane = ncplane_create(search_plane, &plane_options);
 	plane_options.x = NCALIGN_RIGHT;
 	struct ncplane* side_plane = ncplane_create(search_plane, &plane_options);
 
-	char* tag_search = NULL;
+	char* tag_search = strdup("");
 	struct id_dynarr search_results = new_id_dynarr(10);
+	search_tags(&search_results, tag_search);
 	char exclude_flag=0, side_plane_flag=0;
 	sqlite3_int64* selected_tags = NULL;
 	unsigned short selected_tags_n = 0;
 	unsigned short ui_index=0, ui_elements=1, side_ui_index=0;
+	struct ncinput reader_input;
 	uint32_t c = NCKEY_RESIZE;
+
 	do{
+		//drawing logic
+		ncplane_erase(plane);
+		ncplane_erase(side_plane);
+		ui_elements = search_results.used+1;
+		if(ui_elements>plane_rows-3) ui_elements = plane_rows-3;
+		
+		ncplane_printf_yx(plane, 0, 2, "Search: %s", tag_search);
+
+		//mark cursor position
+		if(side_plane_flag){
+			ncplane_putstr_yx(side_plane, 1+side_ui_index, 0, "->");
+		}else if(ui_index==0){
+			ncplane_putstr_yx(plane, 0, 0, "->");
+		}else if(ui_elements>0){
+			ncplane_putstr_yx(plane, 1+ui_index, 0, "->");
+		}else{
+			ui_index=0;
+		}
+		//print search results
+		if(search_results.used==0){
+			ncplane_putstr_yx(plane, 2, 2, "No tags found");
+		}else{
+			for(unsigned short i=0; i<search_results.used && i<(plane_rows-4); i++){
+				ncplane_putstr_yx(plane, i+2, 2, tag_name_from_id(search_results.data[i]));
+			}
+		}
+		//exclude flag
+		if(exclude_flag){
+			ncplane_putstr_yx(plane, plane_rows-1, 0, "Excluding");
+			ncplane_format(plane, -1, 0, 1, 0, NCSTYLE_ITALIC);
+		}
+		ncpile_render(plane);
+		ncpile_rasterize(plane);
+		//side plane
+		ncplane_putstr_yx(side_plane, 0, 2, "Selected tags:");
+		if(selected_tags_n>0){
+			for(unsigned short i=0; i<selected_tags_n; i++){
+				ncplane_putstr_yx(side_plane, 1+i, 2, tag_name_from_id(selected_tags[i]));
+			}
+		}
+		ncpile_render(side_plane);
+		ncpile_rasterize(side_plane);
+
+		c = notcurses_get(nc, NULL, &reader_input);
+
+		if(!side_plane_flag && ui_index==0){
+			if(c == NCKEY_BACKSPACE || c == NCKEY_DEL){
+				int len = strlen(tag_search);
+				if(len > 0){
+					tag_search[len - 1] = '\0';
+					search_tags(&search_results, tag_search);
+				}
+			} else if(isprint(reader_input.id)){
+				int len = strlen(tag_search);
+				tag_search = realloc(tag_search, len + strlen(reader_input.utf8) + 1);
+				strcat(tag_search, reader_input.utf8);
+				search_tags(&search_results, tag_search);
+				continue;
+			}
+		}
+
 		switch(c){
 			case NCKEY_DOWN:
 				if(side_plane_flag){
@@ -221,22 +286,18 @@ static void add_tag_to_search_tui(){
 			case NCKEY_RIGHT:
 			case NCKEY_LEFT:
 				if(selected_tags_n>0){
-					if(side_plane_flag) side_plane_flag=0;
-					else side_plane_flag=1;
+					side_plane_flag = !side_plane_flag;
 				}
 				break;
 			case 'g':
 				ui_index = 0;
+				side_plane_flag = false;
 				break;
 			case NCKEY_ENTER:
 				if(!side_plane_flag){
-					if(ui_index==0){
-						if(tag_search!=NULL) free(tag_search);
-						tag_search = input_reader(plane, 0, 2, 1, plane_cols, NULL, NULL, NULL, false);
-						if(tag_search != NULL){
-							search_tags(&search_results, tag_search);
-							ncplane_putstr_yx(plane, 0, 2, tag_search);
-						}
+					if(ui_index==0 && search_results.used > 0){
+						add_tag_to_search(exclude_flag, search_results.data[0]);
+						goto end_label;
 					}else{
 						add_tag_to_search(exclude_flag, search_results.data[ui_index-1]);
 						goto end_label;
@@ -296,52 +357,12 @@ static void add_tag_to_search_tui(){
 				}
 				break;
 			case 'e': //flip exclude flag
-				if(exclude_flag) exclude_flag=0;
-				else exclude_flag=1;
+				exclude_flag = !exclude_flag;
 				break;
 			case 'q':
 			case NCKEY_ESC:
 				goto end_label;
 		}
-		ncplane_erase(plane);
-		ncplane_erase(side_plane);
-		ui_elements = 1 + search_results.used;
-		if(ui_elements>1+(plane_rows-4)) ui_elements = 1+(plane_rows-4);
-		if(tag_search==NULL) ncplane_putstr_yx(plane, 0, 2, "Search here");
-		else ncplane_putstr_yx(plane, 0, 2, tag_search);
-		//mark cursor position
-		if(side_plane_flag){
-			ncplane_putstr_yx(side_plane, 1+side_ui_index, 0, "->");
-		}else{
-			if(ui_index==0) ncplane_putstr_yx(plane, 0, 0, "->");
-			else ncplane_putstr_yx(plane, 1+ui_index, 0, "->");
-		}
-		//print search results
-		if(search_results.used==0){
-			ncplane_putstr_yx(plane, 2, 2, "No tags found");
-		}else{
-			for(unsigned short i=0; i<search_results.used && i<(plane_rows-4); i++){
-				ncplane_putstr_yx(plane, i+2, 2, tag_name_from_id(search_results.data[i]));
-			}
-		}
-		//exclude flag
-		if(exclude_flag){
-			ncplane_putstr_yx(plane, plane_rows-1, 0, "Excluding");
-			ncplane_format(plane, -1, 0, 1, 0, NCSTYLE_ITALIC);
-		}
-		ncpile_render(plane);
-		ncpile_rasterize(plane);
-		//side plane
-		//TBD box
-		ncplane_putstr_yx(side_plane, 0, 2, "Selected tags:");
-		if(selected_tags_n>0){
-			for(unsigned short i=0; i<selected_tags_n; i++){
-				ncplane_putstr_yx(side_plane, 1+i, 2, tag_name_from_id(selected_tags[i]));
-			}
-		}
-		ncpile_render(side_plane);
-		ncpile_rasterize(side_plane);
-		c = notcurses_get(nc, NULL, NULL);
 	}while(c!='q' && c!='Q');
 	end_label:
 	ncplane_destroy(plane);
